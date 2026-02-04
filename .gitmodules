@@ -1,0 +1,8 @@
+[submodule "external/peru-assets"]
+	path = external/peru-assets
+	url = https://github.com/electometro-org/peru/
+	branch = main
+[submodule "external/cf-workers"]
+	path = external/cf-workers
+	url = https://github.com/electometro-org/cf-workers/
+	branch = main

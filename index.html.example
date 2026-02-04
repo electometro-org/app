@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Electómetro es una aplicación de consejo de voto." />
+    <link rel="canonical" href="https://electometro.org/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://challenges.cloudflare.com">
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' https://cdn.jsdelivr.net/npm/@tolgee/ https://challenges.cloudflare.com 'unsafe-inline' 'unsafe-eval';
+      connect-src 'self' https://challenges.cloudflare.com https://electometro.org;
+      img-src 'self' data:;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      frame-src https://challenges.cloudflare.com;
+    ">
+    <!-- Cloudflare Turnstile (frame-src allowed above) -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <title>Electómetro</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- React entrypoint -->
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

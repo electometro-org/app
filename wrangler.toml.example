@@ -1,0 +1,45 @@
+# Cloudflare Workers configuration
+# Quick start: npx wrangler dev
+# OR
+# Install wrangler: npm install -g wrangler
+# Deploy: wrangler deploy
+
+name = "electometro"
+main = "worker/api.ts"
+compatibility_date = "2025-04-01"
+workers_dev = false
+preview_urls = false
+
+# SPA configuration for serving React app
+[assets]
+# Not needed if using Vite plugin. See https://developers.cloudflare.com/workers/wrangler/configuration/#assets
+# directory = "./dist"
+not_found_handling = "single-page-application"
+
+# KV Namespace binding for fingerprint+cookie storage
+# Create KV namespace: wrangler kv:namespace create "FINGERPRINT_STORE"
+# For preview: wrangler kv:namespace create "FINGERPRINT_STORE" --preview
+[[kv_namespaces]]
+binding = "FINGERPRINT_STORE"
+id = "CHANGEME" # QA/Production ID
+
+[[r2_buckets]]
+binding = "CHANGEME"
+bucket_name = "CHANGEME"
+remote = true
+
+# Environment variables (non-sensitive)
+[vars]
+ALLOWED_ORIGIN= "CHANGE.ME"
+SUPABASE_URL = "CHANGE.ME"
+
+# Secrets
+# Development: See file ".dev.vars" in project root (Use TEST key:values!!!)
+# QA/PROD: Set these secrets using Wrangler CLI
+# wrangler secret put TURNSTILE_SECRET_KEY
+# wrangler secret put SUPABASE_ANON_KEY
+
+[route]
+pattern = "SUBDOMAIN.ROOT.SUFFIX"
+zone_name = "CHANGE.ME"
+custom_domain = true

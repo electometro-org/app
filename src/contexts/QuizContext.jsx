@@ -1,0 +1,402 @@
+import React, { createContext, useState, useEffect, useMemo } from "react";
+import { useQuiz } from "../useQuiz";
+import { useFingerprint } from "../useFingerprint";
+import { trackEvent, setAnalyticsConsent } from "../analytics";
+import { colors } from "../colors";
+import { USER_TO_NUM, MIN_COMPARED } from "../constants/answerMappings";
+import {
+  isImputedNeutral,
+  computeResultsFrom,
+  buildUserAnswers,
+  buildUserAnswersWithRaw,
+  partitionByCompared,
+  buildEntityDetails
+} from "../services/resultsService";
+import { fetchJsonSafe, computeUniqueIndices, findNextUniqueIndex, findPrevUniqueIndex } from "../services/quizService";
+import { buildSubmissionPayload, submitQuizAnswers } from "../services/submissionService";
+import { getBranding, defaultBranding, useElectionBranding } from "../config/branding";
+import {
+  preSelectedElectionId,
+  showGenericIntro as showGenericIntroConfig,
+  shouldShowElectionIntro
+} from "../config/appConfig";
+
+const QuizContext = createContext(null);
+
+export function QuizProvider({ children }) {
+  // Initialize election from env var if set (for single-election builds)
+  const [election, setElection] = useState(preSelectedElectionId);
+
+  // Generic intro: shown before election selection (neutral branding)
+  // Starts as true if configured, but skipped when election is pre-selected
+  const [showGenericIntro, setShowGenericIntro] = useState(
+    showGenericIntroConfig && !preSelectedElectionId
+  );
+
+  // Election intro: shown after election is selected, before quiz starts
+  // Initial state is false; will be set via effect when config loads (for pre-selected election)
+  const [showElectionIntro, setShowElectionIntro] = useState(false);
+  const [electionIntroInitialized, setElectionIntroInitialized] = useState(false);
+
+  const { state, dispatch, config, electionConfigs, enabledElections } = useQuiz(election);
+  const resultTypes = config?.resultTypes || [];
+
+  // Initialize election intro for pre-selected election once config is loaded
+  useEffect(() => {
+    if (preSelectedElectionId && config && !electionIntroInitialized) {
+      setShowElectionIntro(shouldShowElectionIntro(config));
+      setElectionIntroInitialized(true);
+    }
+  }, [config, electionIntroInitialized]);
+
+  // UI state
+  const [showMenu, setShowMenu] = useState(false);
+  const isClient = typeof window !== "undefined";
+  const [isMobile, setIsMobile] = useState(isClient ? window.innerWidth < 768 : false);
+  const [selectedResultType, setSelectedResultType] = useState(resultTypes[0] || null);
+  const [mobileOpen, setMobileOpen] = useState(null);
+  const [showDemographics, setShowDemographics] = useState(false);
+  const [demographics, setDemographics] = useState(null);
+  const [showTurnstileOverlay, setShowTurnstileOverlay] = useState(false);
+  const [turnstileVerified, setTurnstileVerified] = useState(false);
+
+  // Fingerprint
+  const { fingerprint, loading: fingerprintLoading } = useFingerprint();
+
+  // Apply theme CSS variables
+  useEffect(() => {
+    const currentConfig = election ? electionConfigs[election] : null;
+    const themeColors = { ...colors, ...currentConfig?.theme };
+
+    Object.entries(themeColors).forEach(([key, hex]) => {
+      document.documentElement.style.setProperty(`--${key}`, hex);
+    });
+  }, [election, electionConfigs]);
+
+  // Load election-specific CSS
+  useEffect(() => {
+    if (election) {
+      document.documentElement.dataset.election = election;
+      import(`../elections/${election}.css`).catch(() => {});
+    } else {
+      delete document.documentElement.dataset.election;
+    }
+  }, [election]);
+
+  // Handle window resize for mobile detection
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // Sync selectedResultType when resultTypes change
+  useEffect(() => {
+    if (resultTypes.length) setSelectedResultType(resultTypes[0]);
+  }, [resultTypes]);
+
+  // Clear hover/focus when question changes
+  useEffect(() => {
+    dispatch({ type: "SET_HOVERED_OPTION", payload: null });
+    if (typeof document !== "undefined" && document.activeElement?.blur) {
+      document.activeElement.blur();
+    }
+  }, [state.currentQuestionIndex, dispatch]);
+
+  // Unique question indices (for navigation)
+  const uniqueIndices = useMemo(() => computeUniqueIndices(state.questions), [state.questions]);
+
+  const totalQuestions = uniqueIndices.length;
+  const displayIndex = uniqueIndices.indexOf(state.currentQuestionIndex) + 1;
+
+  // Navigation helpers using imported functions
+  const goToUniqueAfter = (currentIndex) => findNextUniqueIndex(uniqueIndices, currentIndex);
+  const goToUniqueBefore = (currentIndex) => findPrevUniqueIndex(uniqueIndices, currentIndex);
+
+  // Partitioned results
+  const partyResultsAll = state.comparisonResults?.party_results || [];
+  const presidentialResultsAll = state.comparisonResults?.presidential_results || [];
+  const { complete: partyComplete, incomplete: partyIncomplete } = partitionByCompared(partyResultsAll);
+  const { complete: presComplete, incomplete: presIncomplete } = partitionByCompared(presidentialResultsAll);
+
+  // Handlers
+  const handleSkip = () => {
+    const next = goToUniqueAfter(state.currentQuestionIndex);
+    if (next !== undefined) dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: next });
+  };
+
+  const handleGoBack = () => {
+    const prev = goToUniqueBefore(state.currentQuestionIndex);
+    if (prev !== undefined) dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: prev });
+  };
+
+  const handleAnswerClick = (option) => {
+    const currentIndex = state.currentQuestionIndex;
+    const currentQuestion = state.questions[currentIndex] || {};
+
+    trackEvent("answer_selected", {
+      question_id: currentQuestion.id ?? null,
+      question_index: currentIndex,
+      answer: option
+    });
+
+    const text = currentQuestion.question;
+    state.questions.forEach((q, i) => {
+      if (q.question === text) {
+        dispatch({ type: "ANSWER", index: i, answer: option });
+      }
+    });
+
+    const next = goToUniqueAfter(state.currentQuestionIndex);
+    if (next !== undefined) dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: next });
+  };
+
+  const handleMobileToggle = (entity, type) => {
+    const id = type === "party" ? entity.party : entity.name;
+    setMobileOpen(prev => {
+      const isSame = prev === id;
+      if (!isSame) handleEntityClick(entity, type);
+      return isSame ? null : id;
+    });
+  };
+
+  const submitAnswersToAPI = async (demographicsData = null, turnstileToken = null) => {
+    // Honeypot check
+    const website_url = document.getElementById('website-url')?.value;
+    if (website_url) return;
+
+    try {
+      const payload = buildSubmissionPayload(
+        state.questions,
+        state.answers,
+        state.weights,
+        demographicsData,
+        fingerprint,
+        turnstileToken
+      );
+      const data = await submitQuizAnswers(payload);
+      console.log("Form submitted successfully:", data);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
+  };
+
+  const handleEndQuiz = () => {
+    const answeredCount = Object.values(state.answers || {}).filter(Boolean).length;
+    trackEvent("quiz_completed", {
+      total_questions: state.questions.length,
+      answered_count: answeredCount
+    });
+
+    setShowDemographics(true);
+    dispatch({ type: "SET_SELECTED_ENTITY", payload: null });
+    dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: state.questions.length });
+
+    const userAnswers = buildUserAnswers(state.questions, state.answers, state.weights);
+
+    const partyPromise = config.partyVotesUrl ? fetchJsonSafe(config.partyVotesUrl) : Promise.resolve(null);
+    const presPromise = (config.questionTypes?.includes("presidential") && config.presVotesUrl)
+      ? fetchJsonSafe(config.presVotesUrl)
+      : Promise.resolve(null);
+
+    Promise.all([partyPromise, presPromise])
+      .then(([partyData, presData]) => {
+        const partyResults = partyData ? computeResultsFrom(partyData, "parties", userAnswers, { isImputedNeutral }) : [];
+        const presidentialResults = presData ? computeResultsFrom(presData, "candidates", userAnswers, { isImputedNeutral }) : [];
+        dispatch({
+          type: "SET_COMPARISON_RESULTS",
+          payload: {
+            party_results: partyResults,
+            presidential_results: presidentialResults
+          }
+        });
+      })
+      .catch(err => console.error("Error fetching votes:", err));
+  };
+
+  const submitDemographicsAndComputeResults = (demo) => {
+    setDemographics(demo || null);
+
+    if (demo?.analyticsConsent !== undefined) {
+      setAnalyticsConsent(demo.analyticsConsent);
+    }
+
+    setShowTurnstileOverlay(true);
+  };
+
+  const handleEntityClick = (entity, type) => {
+    dispatch({ type: "SET_SELECTED_ENTITY", payload: entity });
+
+    const fetchAndDispatchDetails = (url, lookupFn) => {
+      fetchJsonSafe(url)
+        .then(data => {
+          const obj = lookupFn(data);
+          if (!obj) {
+            console.error("No data for", entity);
+            return;
+          }
+
+          const userAnswersMap = buildUserAnswersWithRaw(state.questions, state.answers, state.weights);
+          const entityDetailsPayload = buildEntityDetails(obj, userAnswersMap, type);
+          dispatch({ type: "SET_ENTITY_DETAILS", payload: entityDetailsPayload });
+        })
+        .catch(err => console.error("Error fetching votes:", err));
+    };
+
+    if (type === "presidential") {
+      fetchAndDispatchDetails(config.presVotesUrl, data => data.candidates?.[entity.name]);
+      return;
+    }
+
+    if (type === "party") {
+      fetchAndDispatchDetails(config.partyVotesUrl, data => data.parties?.[entity.party]);
+    }
+  };
+
+  // Auto-open first entity when results change
+  useEffect(() => {
+    if (!state.comparisonResults || !selectedResultType) return;
+
+    if (selectedResultType === "party") {
+      const list = state.comparisonResults.party_results || [];
+      const firstTop = list.find(item => Number(item.compared_questions || 0) >= 1) || list[0];
+      if (firstTop) handleEntityClick(firstTop, "party");
+      return;
+    }
+
+    if (selectedResultType === "presidentialCandidates") {
+      const list = state.comparisonResults.presidential_results || [];
+      if (list.length > 0) handleEntityClick(list[0], "presidential");
+    }
+  }, [state.comparisonResults, selectedResultType]);
+
+  const handleBackToSurvey = () => {
+    setTurnstileVerified(false);
+    setShowTurnstileOverlay(false);
+    setShowDemographics(false);
+    dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: state.questions.length - 1 });
+  };
+
+  const handleReset = () => {
+    // If pre-selected election, go back to election intro (not election selector)
+    if (preSelectedElectionId) {
+      setShowElectionIntro(shouldShowElectionIntro(config));
+    } else {
+      setElection(null);
+      setShowGenericIntro(showGenericIntroConfig);
+      setShowElectionIntro(false);
+      setElectionIntroInitialized(false);
+    }
+    setShowDemographics(false);
+    setTurnstileVerified(false);
+    setShowTurnstileOverlay(false);
+    dispatch({ type: "RESET" });
+  };
+
+  // Handle continuing past generic intro to election selector
+  const handleGenericIntroContinue = () => {
+    setShowGenericIntro(false);
+  };
+
+  // Handle selecting an election (from selector)
+  const handleSelectElection = (electionId) => {
+    setElection(electionId);
+    // Check if we should show the election intro for this election
+    const electionConfig = electionConfigs[electionId];
+    if (shouldShowElectionIntro(electionConfig)) {
+      setShowElectionIntro(true);
+    }
+  };
+
+  // Handle starting the quiz (from election intro)
+  const handleStartQuiz = () => {
+    setShowElectionIntro(false);
+  };
+
+  const handleTurnstileSuccess = async (token) => {
+    console.log('Turnstile verified, submitting form with token');
+
+    try {
+      await submitAnswersToAPI(demographics, token);
+    } catch (error) {
+      console.error('Failed to submit form:', error);
+    }
+
+    setTurnstileVerified(true);
+    setShowTurnstileOverlay(false);
+    setShowDemographics(false);
+  };
+
+  const value = {
+    // Core quiz state
+    election,
+    setElection,
+    state,
+    dispatch,
+    config,
+    electionConfigs,
+    enabledElections,
+    resultTypes,
+
+    // UI state
+    showMenu,
+    setShowMenu,
+    isMobile,
+    selectedResultType,
+    setSelectedResultType,
+    mobileOpen,
+    setMobileOpen,
+    showDemographics,
+    setShowDemographics,
+    demographics,
+    setDemographics,
+    showGenericIntro,
+    setShowGenericIntro,
+    showElectionIntro,
+    setShowElectionIntro,
+    showTurnstileOverlay,
+    setShowTurnstileOverlay,
+    turnstileVerified,
+    setTurnstileVerified,
+
+    // Fingerprint
+    fingerprint,
+    fingerprintLoading,
+
+    // Computed values
+    uniqueIndices,
+    totalQuestions,
+    displayIndex,
+    partyComplete,
+    partyIncomplete,
+    presComplete,
+    presIncomplete,
+
+    // Branding (election-specific or defaults)
+    // When useElectionBranding is false, always use neutral branding
+    branding: (election && useElectionBranding) ? getBranding(config) : defaultBranding,
+
+    // Handlers
+    handleSkip,
+    handleGoBack,
+    handleAnswerClick,
+    handleMobileToggle,
+    handleEndQuiz,
+    handleEntityClick,
+    handleBackToSurvey,
+    handleReset,
+    handleTurnstileSuccess,
+    submitDemographicsAndComputeResults,
+    handleGenericIntroContinue,
+    handleSelectElection,
+    handleStartQuiz,
+
+    // Constants
+    USER_TO_NUM,
+    MIN_COMPARED,
+  };
+
+  return <QuizContext.Provider value={value}>{children}</QuizContext.Provider>;
+}
+
+export { QuizContext };

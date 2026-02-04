@@ -1,0 +1,77 @@
+ /* Peru 2026 Election */
+
+[data-election="peru_2026"] .intro-overlay {
+  background: var(--background);
+}
+
+[data-election="peru_2026"] .intro-box {
+  background: var(--background);
+  max-width: 30%;
+  width: auto;
+}
+
+@media (max-width: 600px) {
+  [data-election="peru_2026"] .intro-box {
+    width: 95vw;
+    max-width: 95vw;
+  }
+}
+
+[data-election="peru_2026"] .intro-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+[data-election="peru_2026"] .main-container {
+  padding: 10px;
+}
+
+[data-election="peru_2026"] .intro-container {
+  text-align: center;
+  align-items: center;
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 1.3em;
+}
+
+[data-election="peru_2026"] .question-text-container {
+  min-height: 10em;
+  max-width: 90%;
+  font-size: 0.8rem;
+}
+
+[data-election="peru_2026"] .option-button {
+  border-radius: 15px;
+}
+
+[data-election="peru_2026"] .results-toggle-container .toggle-option-button {
+  background: var(--buttonColor);
+}
+
+[data-election="peru_2026"] .menu-panel {
+  background-color: var(--background);
+  border-color: var(--accent);
+}
+
+[data-election="peru_2026"] .menu-panel .menu-list-item a:hover {
+  color: var(--accent);
+}
+
+[data-election="peru_2026"] .back-to-survey-button {
+  background-color: transparent;
+}
+
+@media (max-width: 767px) {
+  [data-election="peru_2026"] .main-container,
+  [data-election="peru_2026"] .election-content-area,
+  [data-election="peru_2026"] .entity-details-inline {
+    padding: 0;
+  }
+
+  [data-election="peru_2026"] .question-text-container h2 {
+    font-size: 1rem;
+  }
+}

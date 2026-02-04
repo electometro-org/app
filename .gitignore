@@ -1,0 +1,25 @@
+# General
+.idea/
+node_modules/
+.firebase.js
+
+# Cloudflare
+.wrangler/
+wrangler/
+**/wrangler.toml
+**/.dev.vars
+**/.dev.vars.*
+
+# Build output
+dist/
+
+# Environment
+**/.env
+**/.env.*
+!.env.example
+!.env.development.example
+!.env.local.example
+
+# Public dir (handled externally)
+public_bak/
+!public_bak/static/favicon.svg

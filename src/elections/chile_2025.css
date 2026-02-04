@@ -1,0 +1,27 @@
+/*
+ * Chile 2025 Election - Custom Styles
+ *
+ * All styles must be scoped with [data-election="chile_2025"] to ensure
+ * they only apply when this election is active.
+ *
+ * You can override any CSS variable or add election-specific styles here.
+ */
+
+/* Example: Override CSS variables for this election */
+[data-election="chile_2025"] {
+    /* Chilean flag-inspired colors */
+    /* --accent: #0033a0; */
+    /* --accentLight: #d52b1e; */
+    /* --background: #f8f9fa; */
+}
+
+/* Example: Election-specific component styles */
+/*
+[data-election="chile_2025"] .intro-box {
+  border: 2px solid var(--accent);
+}
+
+[data-election="chile_2025"] .start-button {
+  background: linear-gradient(135deg, #0033a0, #001f5c);
+}
+*/

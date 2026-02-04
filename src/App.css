@@ -1,0 +1,546 @@
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--background) !important;
+  color:            var(--fontColor) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  background-color: var(--buttonColor);
+  color:            var(--fontColor);
+  /* default constant border for generic buttons (overridden below for specific classes) */
+  box-shadow: 2px 4px 4px var(--buttonShadow);
+}
+
+.menu-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  padding: 5px 10px;
+  font-size: 18px;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+
+.menu-panel {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background-color: #000;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px var(--buttonShadow);
+  z-index: 1000;
+}
+
+.menu-panel .menu-list-item a {
+  padding: auto;
+  font-size: 20px;
+  padding: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+.menu-panel .menu-list-item a:hover {
+  color: #a9a9a9;
+  text-decoration: underline;
+}
+
+.intro-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #000000f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+.intro-box {
+  position: relative;
+  align-items: center;
+  background: var(--introBoxBg);
+  color: var(--fontColor);
+  border-radius: 10px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+  padding: 2.5rem 2rem 4.5rem;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  box-sizing: border-box;
+  width: min(900px, 80vw);
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.intro-content {
+  padding: 0 0.2rem;
+  text-align: justify;
+  word-break: normal;
+  line-height: 1.5;
+  font-size: 1.05rem;
+  box-sizing: border-box;
+  word-spacing: 0;
+  letter-spacing: 0;
+}
+
+.intro-content p,
+.intro-content > * {
+  max-width: 100%;
+  margin: 0 0 1rem 0;
+}
+
+.intro-actions {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 22px;
+  display: flex;
+  justify-content: center;
+  width: auto;
+  z-index: 2;
+}
+
+.start-button {
+  margin: 0;
+  padding: 10px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: var(--buttonNext);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.12);
+  font-size: 1rem;
+}
+
+@media (max-width: 600px) {
+  .intro-box {
+    width: 95vw;
+    max-width: 95vw;
+    padding: 1rem 1rem 4.25rem;
+    text-align: justify;
+  }
+
+  .intro-actions {
+    bottom: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .intro-content {
+    text-align: left;
+    -webkit-text-align-last: auto;
+    text-align-last: auto;
+  }
+}
+
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 90vh;
+  width: 100vw;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.topic-pill {
+  background: #e6e6e6;
+  color: #111;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+.opinion-label {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+
+.election-selection-container {
+  text-align: center;
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 1.3em;
+}
+
+.intro-container {
+  text-align: center;
+  align-items: center;
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 1.3em;
+}
+
+.election-content-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 1100px;
+}
+
+.reset-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  padding: 5px 10px;
+  font-size: 18px;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.importance-slider-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.question-text-container {
+  min-height: 7em;
+  display: flex;
+  align-items: center;
+}
+
+.option-button {
+  margin: 10px 10px 20px;
+  padding: 10px 60px;
+  font-size: 16px;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  color: var(--fontColor);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 5px;
+  outline: none;
+}
+
+.back-and-skip-buttons {
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--fontColorLight);
+  background-color: var(--buttonNext);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.demographics-panel .wide-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+
+  background: var(--background);
+  color: #111;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 12px;        /* change to 999px for a pill shape */
+  height: 48px;
+  padding: 0 16px;
+  font-size: 16px;
+  line-height: 48px;
+  text-align: center;
+  transition: box-shadow 120ms ease, border-color 120ms ease, background-color 120ms ease;
+}
+
+.demographics-panel .wide-input::placeholder {
+  text-align: center;
+  color: rgba(0,0,0,0.4);
+}
+
+.demographics-panel .wide-input:focus {
+  outline: none;
+  border-color: rgba(0,120,255,0.7);
+  box-shadow: 0 0 0 4px rgba(0,120,255,0.08);
+}
+
+@media (max-width: 420px) {
+  .demographics-panel .wide-input {
+    height: 44px;
+    line-height: 44px;
+    font-size: 15px;
+  }
+}
+
+
+.results-toggle-container {
+  display: flex;
+  margin-bottom: 20px;
+  max-width: 80%;
+  justify-content: center;
+  gap: 8px;
+}
+
+.results-toggle-container .toggle-option-button {
+  flex: none;
+  max-width: 60%;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  color: var(--fontColorLight);
+  border: 1px solid rgba(255,255,255,0.12);
+  font-size: 1.3em;
+  background: none;
+}
+
+.parties-and-candidates-list {
+  padding: 0;
+  text-align: left;
+  max-height: 60vh;
+  overflow-y: auto;
+  max-width: 100%;
+}
+
+.candidate-party-similarity-item {
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(
+    to right,
+    var(--buttonColor) var(--sim),
+    transparent var(--sim)
+  );
+  background-repeat: no-repeat;  /* prevent tiling */
+  font-size: 1.3em;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 767px) {
+  .parties-and-candidates-list {
+    list-style: none;  /* hide bullets */
+    width: 100%;       /* full width so ::after is visible at right:8px */
+    /* add arrow indicators to mobile list items */
+    .candidate-party-similarity-item {
+      position: relative;         /* allow absolutely-positioned arrow */
+    }
+    .candidate-party-similarity-item span:first-child {
+      margin-left: 24px;   /* make room for the arrow beside the first text span */
+    }
+
+    .candidate-party-similarity-item::before {
+      content: "\25B6";           /* right-pointing triangle */
+      position: absolute;
+      left: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .candidate-party-similarity-item.open::before {
+      content: "\25BC";           /* down-pointing triangle when open */
+    }
+  }
+}
+
+.candidate-party-similarity-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: none;
+  font-size: 1.5em;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #ccc;
+  padding-right: 10px;
+}
+
+
+.result-score {
+  margin-left: auto;
+  font-weight: bold;
+  padding-right: 15px;
+}
+
+.entity-details-container {
+  width: 60%;
+  padding-left: 15px;
+  border-left: 1px solid #ccc;
+  overflow-y: auto;
+  max-height: 60vh;
+  text-align: left;
+}
+
+/* fade‐in for dropdown details */
+@keyframes fadeIn {
+  from { opacity: 0 }
+  to   { opacity: 1 }
+}
+
+
+.entity-details-inline {
+  animation: fadeIn 1s ease;
+  padding: 10px;
+  border-top: 1px solid #ccc;
+  background: none;
+}
+
+
+.back-to-survey-button {
+  padding: 10px 20px;
+  margin-top: 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: var(--buttonSelected);
+  color: var(--fontColorLight);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 5px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+@media (max-width: 767px) {
+  .entity-details-container {
+    display: none;
+  }
+  .main-container,
+  .election-content-area,
+  .entity-details-inline {
+    width: 100vw;
+    max-width: 100vw;
+    padding: 0 8px;
+    box-sizing: border-box;
+  }
+  .question-text-container h2 {
+    font-size: 1.1rem;
+    line-height: 1.3;
+  }
+}
+
+.wide-input {
+  width: 100%;
+  max-width: 720px;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  display: block;
+  margin-top: 6px;
+}
+
+/* small responsive tweak: keep it comfortable on tiny screens */
+@media (max-width: 480px) {
+  .wide-input {
+    max-width: 100%;
+    padding: 10px;
+  }
+}
+
+
+button,
+input[type="button"],
+input[type="submit"],
+a[role="button"],
+[role="button"],
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+button:focus,
+button:active,
+button:focus-visible,
+input:focus,
+textarea:focus,
+select:focus,
+a:focus,
+[role="button"]:focus {
+  outline: none !important;
+  outline-width: 0 !important;
+  outline-style: none !important;
+  outline-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+}
+
+/* Firefox inner focus removal (keeps external border) */
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+/* remove UA focus visuals but preserve border */
+*:focus,
+*:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+}
+
+/* Ensure all primary interactive controls keep a constant white-ish border */
+button,
+.option-button,
+.toggle-option-button,
+.start-button,
+.back-and-skip-buttons,
+.back-to-survey-button,
+.menu-button,
+.reset-button {
+  border: 0.5px solid rgb(255, 255, 255) !important;
+}
+
+.turnstile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.turnstile-overlay-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 40px;
+  text-align: center;
+}
+
+.turnstile-overlay-content h2 {
+  color: white;
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.turnstile-overlay-content p {
+  color: #ccc;
+  margin: 0;
+  font-size: 1em;
+}
+
+.turnstile-overlay-content img {
+  filter: brightness(0.9);
+}
+
+#turnstile-overlay-widget {
+  margin-top: 10px;
+}

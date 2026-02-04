@@ -1,0 +1,86 @@
+.privacy-notice {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 600px;
+  width: 90%;
+  background: rgba(255, 255, 255, 0.98);
+  border: 2px solid #333;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 16px 40px 16px 16px;
+  z-index: 9999;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateX(-50%) translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+.privacy-notice-content {
+  position: relative;
+}
+
+.privacy-notice-content p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+}
+
+.privacy-notice-content a {
+  color: #0066cc;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.privacy-notice-content a:hover {
+  color: #004499;
+}
+
+.privacy-notice-close {
+  position: absolute;
+  top: -8px;
+  right: -24px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  line-height: 1;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.privacy-notice-close:hover {
+  color: #333;
+}
+
+@media (max-width: 768px) {
+  .privacy-notice {
+    bottom: 10px;
+    width: 95%;
+    padding: 12px 35px 12px 12px;
+  }
+
+  .privacy-notice-content p {
+    font-size: 13px;
+  }
+
+  .privacy-notice-close {
+    right: -20px;
+    font-size: 24px;
+  }
+}

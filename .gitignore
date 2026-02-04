@@ -23,3 +23,6 @@ dist/
 # Public dir (handled externally)
 public_bak/
 !public_bak/static/favicon.svg
+
+# Ignore local scripts
+scripts/

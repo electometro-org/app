@@ -28,13 +28,13 @@ function reducer(state, action) {
     case "SET_CURRENT_QUESTION_INDEX":
       return { ...state, currentQuestionIndex: action.payload };
     case "ANSWER":
-      const newAnswers = [...state.answers];
+      { const newAnswers = [...state.answers];
       newAnswers[action.index] = action.answer;
-      return { ...state, answers: newAnswers };
+      return { ...state, answers: newAnswers }; }
     case "SET_WEIGHTS":
-      const newWeights = [...state.weights];
+      { const newWeights = [...state.weights];
       newWeights[action.index] = action.weight;
-      return { ...state, weights: newWeights };
+      return { ...state, weights: newWeights }; }
     case "SET_COMPARISON_RESULTS":
       return { ...state, comparisonResults: action.payload };
     case "SET_SELECTED_ENTITY":
@@ -44,7 +44,14 @@ function reducer(state, action) {
     case "SET_HOVERED_OPTION":
       return { ...state, hoveredOption: action.payload };
     case "RESET":
-      return initialState;
+      // Preserve questions but reset answers, progress, and results
+      return {
+        ...initialState,
+        questions: state.questions,
+        questionDetails: state.questionDetails,
+        answers: Array(state.questions.length).fill(null),
+        weights: Array(state.questions.length).fill(2),
+      };
     default:
       return state;
   }

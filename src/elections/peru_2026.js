@@ -43,15 +43,15 @@ export default {
     "Ucayali",
   ],
 
+  // Path to election-specific assets (party logos, etc.)
+  assetsPath: "peru_2026/",
+
   // Election-specific branding (logos used in components)
   branding: {
     logo: "peru_2026/simple_logo.png",
     logoAlt: "peru_2026/reverse_logo.svg",
     favicon: "peru_2026/favicon.svg",
   },
-
-  // Path to election-specific assets (party logos, etc.)
-  assetsPath: "peru_2026/",
 
   // Theme overrides for CSS variables
   // These override the defaults from src/colors.js
@@ -68,6 +68,13 @@ export default {
     buttonHover: "#f5f5f5",
     buttonNextHover: "#042533",
     introBoxBg: "#f5f5f5",
+  },
+
+  // Theme overrides for loading screen
+  loadingScreen: {
+    background: "rgba(245, 245, 245, 0.9)",  // Custom background
+    spinnerPrimary: "#c32e2e",                // Outer ring color
+    spinnerSecondary: "#000000",              // Inner ring color
   },
 
   // API endpoints

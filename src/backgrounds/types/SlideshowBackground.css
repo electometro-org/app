@@ -1,0 +1,40 @@
+.slideshow-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.slideshow-background__image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-repeat: no-repeat;
+}
+
+.slideshow-background__image--back {
+  z-index: 0;
+}
+
+.slideshow-background__image--front {
+  z-index: 1;
+}
+
+.slideshow-background__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .slideshow-background__image--front {
+    transition: none !important;
+  }
+}

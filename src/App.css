@@ -3,7 +3,7 @@ html {
 }
 
 body {
-  background-color: var(--background) !important;
+  background-color: transparent !important;
   color:            var(--fontColor) !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -145,6 +145,8 @@ button {
 
 
 .main-container {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;

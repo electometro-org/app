@@ -17,6 +17,7 @@ import ElectionIntroView from "./views/ElectionIntroView";
 import QuizView from "./views/QuizView";
 import ResultsView from "./views/ResultsView";
 import { useQuizContext } from "./contexts/useQuizContext";
+import { BackgroundLayer } from "./backgrounds";
 import "./App.css";
 
 export default function App() {
@@ -181,6 +182,7 @@ export default function App() {
 
   return (
     <Router>
+      <BackgroundLayer />
       <AnalyticsTracker />
       <TurnstileOverlay
         show={showTurnstileOverlay}

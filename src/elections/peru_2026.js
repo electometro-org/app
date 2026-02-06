@@ -77,6 +77,31 @@ export default {
     spinnerSecondary: "#000000",              // Inner ring color
   },
 
+  // Background configuration
+  // Options: 'solid', 'image', 'slideshow', 'gradient'
+  // Default is 'solid' which uses var(--background)
+  background: {
+    // Example slideshow config (uncomment to use):
+    // type: "slideshow",
+    // images: [
+    //   "peru_2026/backgrounds/congress.jpg",
+    //   "peru_2026/backgrounds/lima.jpg",
+    //   "peru_2026/backgrounds/machu_picchu.jpg",
+    // ],
+    // mode: "per-question",
+    // transitionDuration: 600,
+    // overlay: { color: "rgba(0, 0, 0, 0.4)" }
+    // =========================================
+    type: "solid",
+    // =========================================
+    // type: "image",
+    // src: "peru_2026/backgrounds/Lima-Plaza-de-Armas.svg",
+    // size: "cover",
+    // position: "center",
+    // colorScheme: "light dark",
+    // overlay: { color: "rgba(255, 255, 255, 0.65)" }  // optional dark overlay
+  },
+
   // API endpoints
   partyVotesUrl: "/api/elections/peru_2026/combined_votes_peru_partidos_2026.json",
   presVotesUrl: "/api/elections/peru_2026/combined_votes_peru_pres_2026.json",

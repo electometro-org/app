@@ -5,6 +5,7 @@ import App from './App.jsx'
 import { TolgeeProvider } from "@tolgee/react";
 import { tolgee } from './tolgee.js'
 import { QuizProvider } from './contexts/QuizContext.jsx'
+import { BackgroundProvider } from './backgrounds'
 import LoadingScreen, { LoadingWrapper } from './components/LoadingScreen.jsx'
 
 createRoot(document.getElementById('root')).render(
@@ -15,7 +16,9 @@ createRoot(document.getElementById('root')).render(
     <LoadingWrapper minDelay={500}>
       <StrictMode>
         <QuizProvider>
-          <App />
+          <BackgroundProvider>
+            <App />
+          </BackgroundProvider>
         </QuizProvider>
       </StrictMode>
     </LoadingWrapper>

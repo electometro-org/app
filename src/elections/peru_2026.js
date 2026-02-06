@@ -109,7 +109,15 @@ export default {
   processCandidateVote: v => v,
   showLawInfo: true,
   questionTypes:   ["presidential"],
-  resultTypes:     ["party", 
-                    // "parliamentaryCandidates", 
-                    "presidentialCandidates"]
+  resultTypes:     ["party",
+                    // "parliamentaryCandidates",
+                    "presidentialCandidates"],
+
+  // Widgets configuration
+  widgets: [
+    { type: "quiz", draggable: false, defaultSlot: "center" },
+    { type: "progress-indicator", defaultSlot: "top", style: "bar" },
+    { type: "countdown-timer", defaultSlot: "right", duration: 30 },
+    // { type: "social-share", defaultSlot: "bottom", showOnPhase: ["results"] }
+  ]
 }

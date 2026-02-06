@@ -1,31 +1,80 @@
-import React, { useCallback, useState, useRef, useEffect } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import ReactGridLayout, { useContainerWidth, getCompactor } from 'react-grid-layout';
 import { useWidgetContext } from './WidgetContext';
 import { getWidget } from './registry';
+import 'react-grid-layout/css/styles.css';
 import './WidgetLayout.css';
 
 // Import built-in types (registers them)
 import './types';
 
-// Valid slots around the quiz
-const SLOTS = ['top', 'left', 'right', 'bottom'];
+// Grid configuration
+const COLS = 12;
+const ROW_HEIGHT = 50;
+
+// Compactor with allowOverlap enabled, no compaction (null), no collision prevention
+const overlappingCompactor = getCompactor(null, true, false);
+
+// Quiz position (centered in 12-col grid, at top)
+const QUIZ_LAYOUT = {
+  i: 'quiz',
+  x: 3,
+  y: 0,
+  w: 6,
+  h: 10,
+  static: false,
+};
+
+// Default positions for widgets around the quiz
+const DEFAULT_WIDGET_POSITIONS = {
+  'progress-indicator': { x: 0, y: 0, w: 3, h: 1 },
+  'countdown-timer': { x: 9, y: 0, w: 3, h: 2 },
+  'social-share': { x: 3, y: 10, w: 6, h: 2 },
+};
+
+/**
+ * Generate initial layout for widgets
+ */
+function generateInitialLayout(widgets, savedLayout) {
+  return widgets.map(widget => {
+    const isQuiz = widget.type === 'quiz';
+
+    if (isQuiz) {
+      return QUIZ_LAYOUT;
+    }
+
+    const saved = savedLayout[widget.type];
+    const defaultPos = DEFAULT_WIDGET_POSITIONS[widget.type] || { x: 0, y: 0, w: 2, h: 2 };
+
+    return {
+      i: widget.type,
+      x: saved?.x ?? defaultPos.x,
+      y: saved?.y ?? defaultPos.y,
+      w: saved?.w ?? defaultPos.w,
+      h: saved?.h ?? defaultPos.h,
+      minW: 1,
+      minH: 1,
+      static: widget.draggable === false,
+    };
+  });
+}
 
 /**
  * WidgetLayout
  *
- * CSS Grid layout with quiz at center and draggable widgets in slots around it.
- * Supports proximity-based drag and drop.
+ * Grid-based layout using react-grid-layout v2 API with allowOverlap.
+ * Quiz is static in center, other widgets can be freely positioned.
  */
 export function WidgetLayout({ children }) {
   const {
     widgets,
-    layout,
+    layout: savedLayout,
     quizState,
     onLayoutChange,
   } = useWidgetContext();
 
-  const [draggingWidget, setDraggingWidget] = useState(null);
-  const [nearestSlot, setNearestSlot] = useState(null);
-  const slotRefs = useRef({});
+  // v2 hook for container width measurement
+  const { width, containerRef, mounted } = useContainerWidth();
 
   // Check if widget should be visible based on phase
   const isWidgetVisible = useCallback((widget) => {
@@ -40,151 +89,89 @@ export function WidgetLayout({ children }) {
     return true;
   }, [quizState.phase]);
 
-  // Get slot for a widget
-  const getWidgetSlot = useCallback((widget) => {
-    if (widget.type === 'quiz') return 'center';
-    const savedSlot = layout[widget.type]?.slot;
-    return savedSlot || widget.defaultSlot || 'top';
-  }, [layout]);
+  // Get visible widgets
+  const visibleWidgets = useMemo(() => {
+    return widgets.filter(isWidgetVisible);
+  }, [widgets, isWidgetVisible]);
 
-  // Group widgets by slot
-  const widgetsBySlot = {};
-  SLOTS.forEach(slot => { widgetsBySlot[slot] = []; });
-  widgetsBySlot.center = [];
+  // Manage layout state internally
+  const [layout, setLayout] = useState(() =>
+    generateInitialLayout(visibleWidgets, savedLayout)
+  );
 
-  widgets.forEach(widget => {
-    if (!isWidgetVisible(widget)) return;
-    const slot = getWidgetSlot(widget);
-    if (widgetsBySlot[slot]) {
-      widgetsBySlot[slot].push(widget);
-    }
-  });
-
-  // Find nearest slot based on mouse position
-  const findNearestSlot = useCallback((mouseX, mouseY) => {
-    let nearest = null;
-    let minDistance = Infinity;
-
-    SLOTS.forEach(slot => {
-      const el = slotRefs.current[slot];
-      if (!el) return;
-
-      const rect = el.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      const distance = Math.sqrt((mouseX - centerX) ** 2 + (mouseY - centerY) ** 2);
-
-      if (distance < minDistance) {
-        minDistance = distance;
-        nearest = slot;
-      }
-    });
-
-    return nearest;
-  }, []);
-
-  // Handle drag start
-  const handleDragStart = (e, widgetType) => {
-    setDraggingWidget(widgetType);
-    e.dataTransfer.setData('widgetType', widgetType);
-    e.dataTransfer.effectAllowed = 'move';
-
-    // Set drag image
-    const dragImage = e.target.cloneNode(true);
-    dragImage.style.opacity = '0.7';
-    document.body.appendChild(dragImage);
-    e.dataTransfer.setDragImage(dragImage, 0, 0);
-    setTimeout(() => document.body.removeChild(dragImage), 0);
-  };
-
-  // Handle drag over document - find nearest slot
+  // Update layout when visible widgets change
   useEffect(() => {
-    if (!draggingWidget) return;
+    setLayout(generateInitialLayout(visibleWidgets, savedLayout));
+  }, [visibleWidgets]); // Only regenerate when widgets change, NOT when savedLayout changes
 
-    const handleDragOver = (e) => {
-      e.preventDefault();
-      const nearest = findNearestSlot(e.clientX, e.clientY);
-      setNearestSlot(nearest);
-    };
+  // Handle layout change - update internal state AND persist
+  const handleLayoutChange = useCallback((newLayout) => {
+    setLayout(newLayout);
 
-    document.addEventListener('dragover', handleDragOver);
-    return () => document.removeEventListener('dragover', handleDragOver);
-  }, [draggingWidget, findNearestSlot]);
+    // Persist changes for non-quiz widgets
+    newLayout.forEach(item => {
+      if (item.i === 'quiz') return;
 
-  // Handle drag end - snap to nearest slot
-  const handleDragEnd = (e) => {
-    if (draggingWidget && nearestSlot) {
-      onLayoutChange(draggingWidget, { slot: nearestSlot });
-    }
-    setDraggingWidget(null);
-    setNearestSlot(null);
-  };
-
-  // Render a widget
-  const renderWidget = (widget) => {
-    const registered = getWidget(widget.type);
-    if (!registered) return null;
-
-    const { component: Component } = registered;
-    const isQuiz = widget.type === 'quiz';
-    const isDraggable = !isQuiz && widget.draggable !== false;
-    const isBeingDragged = draggingWidget === widget.type;
-
-    const widgetProps = {
-      config: widget,
-      quizState,
-      ...(isQuiz && { children }),
-    };
-
-    return (
-      <div
-        key={widget.type}
-        className={`widget-item ${isQuiz ? 'quiz-widget' : 'floating-widget'} ${isDraggable ? 'draggable' : ''} ${isBeingDragged ? 'dragging' : ''}`}
-        draggable={isDraggable}
-        onDragStart={isDraggable ? (e) => handleDragStart(e, widget.type) : undefined}
-        onDragEnd={isDraggable ? handleDragEnd : undefined}
-      >
-        {isDraggable && (
-          <div className="widget-drag-handle">
-            <span className="drag-handle-icon" />
-          </div>
-        )}
-        <Component {...widgetProps} />
-      </div>
-    );
-  };
-
-  // Render a slot (drop zone)
-  const renderSlot = (slot) => {
-    const slotWidgets = widgetsBySlot[slot] || [];
-    const isEmpty = slotWidgets.length === 0;
-    const isNearest = nearestSlot === slot && draggingWidget;
-
-    return (
-      <div
-        key={slot}
-        ref={el => slotRefs.current[slot] = el}
-        className={`widget-slot widget-slot-${slot} ${isEmpty ? 'empty' : ''} ${isNearest ? 'nearest' : ''} ${draggingWidget ? 'drop-active' : ''}`}
-      >
-        {slotWidgets.map(widget => renderWidget(widget))}
-        {isEmpty && isNearest && (
-          <div className="drop-indicator">Drop here</div>
-        )}
-      </div>
-    );
-  };
+      onLayoutChange(item.i, {
+        x: item.x,
+        y: item.y,
+        w: item.w,
+        h: item.h,
+      });
+    });
+  }, [onLayoutChange]);
 
   return (
-    <div className={`widget-layout ${draggingWidget ? 'is-dragging' : ''}`}>
-      {renderSlot('top')}
-      <div className="widget-layout-middle">
-        {renderSlot('left')}
-        <div className="widget-slot widget-slot-center">
-          {widgetsBySlot.center.map(widget => renderWidget(widget))}
-        </div>
-        {renderSlot('right')}
-      </div>
-      {renderSlot('bottom')}
+    <div ref={containerRef} className="widget-layout">
+      {mounted && (
+        <ReactGridLayout
+          className="layout"
+          width={width}
+          layout={layout}
+          gridConfig={{
+            cols: COLS,
+            rowHeight: ROW_HEIGHT,
+          }}
+          dragConfig={{
+            enabled: true,
+            handle: '.widget-drag-handle',
+          }}
+          resizeConfig={{
+            enabled: true,
+          }}
+          compactor={overlappingCompactor}
+          onLayoutChange={handleLayoutChange}
+        >
+          {visibleWidgets.map(widget => {
+            const registered = getWidget(widget.type);
+            if (!registered) return null;
+
+            const { component: Component } = registered;
+            const isQuiz = widget.type === 'quiz';
+            const isDraggable = !isQuiz && widget.draggable !== false;
+
+            const widgetProps = {
+              config: widget,
+              quizState,
+              ...(isQuiz && { children }),
+            };
+
+            return (
+              <div
+                key={widget.type}
+                className={`widget-item ${isQuiz ? 'quiz-widget' : 'floating-widget'}`}
+              >
+                {isDraggable && (
+                  <div className="widget-drag-handle">
+                    <span className="drag-handle-icon" />
+                  </div>
+                )}
+                <Component {...widgetProps} />
+              </div>
+            );
+          })}
+        </ReactGridLayout>
+      )}
     </div>
   );
 }

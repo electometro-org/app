@@ -1,156 +1,50 @@
-/* Widget Layout - CSS Grid with slots */
+/* Widget Layout - React Grid Layout */
 .widget-layout {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
+  position: relative;
+  z-index: 1;
   width: 100%;
+  min-height: 100vh;
   padding: 16px;
   box-sizing: border-box;
-  gap: 8px;
 }
 
-/* Middle row: left | center | right */
-.widget-layout-middle {
-  display: flex;
-  width: 100%;
-  max-width: 1200px;
-  align-items: flex-start;
-  position: relative;
-  padding: 0 160px; /* Space for left/right slots */
-  box-sizing: border-box;
-}
-
-/* Slots */
-.widget-slot {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  min-height: 40px;
-  transition: background 0.2s ease, border-color 0.2s ease;
-}
-
-.widget-slot.empty {
-  min-height: 40px;
-}
-
-/* Widgets in slots keep natural size */
-.widget-slot > .widget-item.floating-widget {
-  flex-shrink: 0;
-  width: auto;
-  max-width: 100%;
-}
-
-/* Top slot - full width, centered content */
-.widget-slot-top {
-  width: 100%;
-  max-width: 800px;
-}
-
-/* Bottom slot - full width, centered content */
-.widget-slot-bottom {
-  width: 100%;
-  max-width: 800px;
-}
-
-/* Left slot - floats alongside quiz */
-.widget-slot-left {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 140px;
-  align-items: flex-end;
-  justify-content: flex-start;
-}
-
-/* Right slot - floats alongside quiz */
-.widget-slot-right {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 140px;
-  align-items: flex-start;
-  justify-content: flex-start;
-}
-
-/* Center slot (quiz) */
-.widget-slot-center {
-  flex: 1;
-  max-width: 800px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* Drop zones */
-.widget-slot:not(.widget-slot-center) {
-  border: 2px dashed transparent;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  padding: 8px;
-}
-
-/* Show all drop zones when dragging */
-.widget-layout.is-dragging .widget-slot:not(.widget-slot-center) {
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.02);
-}
-
-/* Highlight nearest slot */
-.widget-slot.nearest {
-  border-color: rgba(100, 200, 255, 0.7) !important;
-  background: rgba(100, 200, 255, 0.15) !important;
-  box-shadow: 0 0 20px rgba(100, 200, 255, 0.3);
-}
-
-/* Drop indicator text */
-.drop-indicator {
-  color: rgba(100, 200, 255, 0.8);
-  font-size: 12px;
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 4px;
-  background: rgba(100, 200, 255, 0.1);
+/* React Grid Layout container - ensure full width */
+.widget-layout .react-grid-layout {
+  width: 100% !important;
 }
 
 /* Widget items */
 .widget-item {
-  position: relative;
-}
-
-.widget-item.draggable {
-  cursor: grab;
-  user-select: none;
-}
-
-.widget-item.draggable:active {
-  cursor: grabbing;
-}
-
-.widget-item.draggable:hover {
-  outline: 2px dashed rgba(100, 200, 255, 0.3);
-  outline-offset: 4px;
-  border-radius: 4px;
-}
-
-.widget-item.dragging {
-  opacity: 0.4;
-}
-
-/* Quiz widget */
-.widget-item.quiz-widget {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.widget-item.floating-widget {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px;
+}
+
+/* Quiz widget - centered, transparent background */
+.widget-item.quiz-widget {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
+  background: transparent;
+  overflow: visible;
 }
 
 /* Drag handle */
 .widget-drag-handle {
   position: absolute;
-  top: -12px;
+  top: 4px;
   left: 50%;
   transform: translateX(-50%);
   width: 40px;
@@ -159,15 +53,14 @@
   align-items: center;
   justify-content: center;
   cursor: grab;
-  opacity: 0.5;
+  opacity: 0;
   transition: opacity 0.2s ease;
   z-index: 10;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   border-radius: 4px;
-  backdrop-filter: blur(4px);
 }
 
-.widget-item.draggable:hover .widget-drag-handle {
+.widget-item.floating-widget:hover .widget-drag-handle {
   opacity: 1;
 }
 
@@ -188,36 +81,80 @@
   );
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-  .widget-layout-middle {
-    padding: 0 20px;
-  }
-
-  .widget-slot-left,
-  .widget-slot-right {
-    position: static;
-    width: auto;
-  }
+/* React Grid Layout overrides */
+.react-grid-item {
+  transition: all 0.2s ease;
+  transition-property: left, top, width, height;
 }
 
+.react-grid-item.cssTransforms {
+  transition-property: transform, width, height;
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: rgba(100, 200, 255, 0.2);
+  border: 2px dashed rgba(100, 200, 255, 0.5);
+  border-radius: 8px;
+  opacity: 1;
+  transition-duration: 0.1s;
+  z-index: 2;
+}
+
+.react-grid-item.react-draggable-dragging {
+  transition: none;
+  z-index: 100;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.react-grid-item.dropping {
+  visibility: hidden;
+}
+
+.react-grid-item.react-grid-resizable {
+  position: relative;
+}
+
+/* Resize handle */
+.react-grid-item > .react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.react-grid-item:hover > .react-resizable-handle {
+  opacity: 1;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid rgba(255, 255, 255, 0.5);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.react-grid-item > .react-resizable-handle-se {
+  right: 0;
+  bottom: 0;
+  cursor: se-resize;
+}
+
+/* Responsive */
 @media (max-width: 767px) {
   .widget-layout {
     padding: 8px;
   }
 
-  .widget-layout-middle {
-    flex-direction: column;
-    align-items: center;
-    padding: 0;
-  }
-
-  .widget-slot-left,
-  .widget-slot-right {
+  .widget-drag-handle {
     display: none;
   }
 
-  .widget-drag-handle {
+  .react-grid-item > .react-resizable-handle {
     display: none;
   }
 }

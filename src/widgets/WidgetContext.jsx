@@ -115,11 +115,9 @@ export function WidgetProvider({ children }) {
     });
   }, [config?.widgets]);
 
-  // Handle layout changes from grid
+  // Handle layout changes from grid (supports both slot-based and x/y/w/h)
   const onLayoutChange = useCallback((widgetType, layoutData) => {
-    if (layoutData.slot && VALID_SLOTS.includes(layoutData.slot)) {
-      setLayout(widgetType, layoutData);
-    }
+    setLayout(widgetType, layoutData);
   }, [setLayout]);
 
   const value = useMemo(() => ({

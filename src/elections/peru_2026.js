@@ -117,7 +117,7 @@ export default {
   widgets: [
     { type: "quiz", draggable: false, defaultSlot: "center" },
     { type: "progress-indicator", defaultSlot: "top", style: "bar" },
-    { type: "countdown-timer", defaultSlot: "right", duration: 30 },
-    // { type: "social-share", defaultSlot: "bottom", showOnPhase: ["results"] }
+    // { type: "countdown-timer", defaultSlot: "right", duration: 30 },
+    { type: "social-share", defaultSlot: "bottom", showOnPhase: ["results"] }
   ]
 }

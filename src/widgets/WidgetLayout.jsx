@@ -8,28 +8,30 @@ import './WidgetLayout.css';
 // Import built-in types (registers them)
 import './types';
 
-// Grid configuration
-const COLS = 12;
-const ROW_HEIGHT = 50;
+// Grid configuration - fine grid for near-pixel-perfect placement
+const COLS = 48;        // 4x finer than 12
+const ROW_HEIGHT = 12;  // ~4x finer than 50px
 
 // Compactor with allowOverlap enabled, no compaction (null), no collision prevention
 const overlappingCompactor = getCompactor(null, true, false);
 
-// Quiz position (centered in 12-col grid, at top)
+// Quiz position (centered in 48-col grid)
+// Original: x:3, w:6 on 12-col = 25% margin, 50% width
+// New: x:12, w:24 on 48-col = same proportions
 const QUIZ_LAYOUT = {
   i: 'quiz',
-  x: 3,
+  x: 12,
   y: 0,
-  w: 6,
-  h: 10,
+  w: 24,
+  h: 42,  // ~500px equivalent (42 * 12 = 504px)
   static: false,
 };
 
-// Default positions for widgets around the quiz
+// Default positions for widgets (scaled 4x for columns, ~4x for rows)
 const DEFAULT_WIDGET_POSITIONS = {
-  'progress-indicator': { x: 0, y: 0, w: 3, h: 1 },
-  'countdown-timer': { x: 9, y: 0, w: 3, h: 2 },
-  'social-share': { x: 3, y: 10, w: 6, h: 2 },
+  'progress-indicator': { x: 0, y: 0, w: 12, h: 4 },   // top-left
+  'countdown-timer': { x: 36, y: 0, w: 12, h: 8 },     // top-right
+  'social-share': { x: 12, y: 42, w: 24, h: 8 },       // below quiz
 };
 
 /**

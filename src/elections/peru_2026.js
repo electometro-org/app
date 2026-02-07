@@ -1,3 +1,6 @@
+// Register election-specific widgets
+import './peru_2026/widgets';
+
 export default {
   id: "peru_2026",
   label: "elections.peru2026",  // Translation key
@@ -131,6 +134,20 @@ export default {
       showOnPhase: ["results"],
       layouts: {
         lg: { x: 43, y: 50, w: 25, h: 6 },
+      }
+    },
+    // Custom election widget
+    {
+      type: "peru-banner",
+      id: "election-header",
+      title: "Elecciones Perú 2026",
+      subtitle: "Encuentra tu candidato ideal",
+      layouts: {
+        lg: { x: 0, y: 0, w: 40, h: 8 },
+        md: { x: 0, y: 0, w: 30, h: 8 },
+        sm: { x: 0, y: 0, w: 48, h: 6 },
+        xs: { x: 0, y: 0, w: 32, h: 6 },
+        xxs: { x: 0, y: 0, w: 24, h: 6 },
       }
     },
     // Multiple placeholder widgets with unique IDs

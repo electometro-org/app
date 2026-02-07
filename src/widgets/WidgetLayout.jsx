@@ -10,7 +10,7 @@ import './types';
 
 // Debug mode: show grid coordinates on widgets
 // Enabled via VITE_WIDGET_DEBUG=true or automatically in development
-const DEBUG_MODE = import.meta.env.VITE_WIDGET_DEBUG === 'true' ||
+const DEBUG_MODE_AVAILABLE = import.meta.env.VITE_WIDGET_DEBUG === 'true' ||
   (import.meta.env.DEV && import.meta.env.VITE_WIDGET_DEBUG !== 'false');
 
 // Grid configuration
@@ -163,6 +163,9 @@ export function WidgetLayout({ children }) {
   // Track current breakpoint
   const [currentBreakpoint, setCurrentBreakpoint] = useState('lg');
 
+  // Debug mode toggle (only available when DEBUG_MODE_AVAILABLE is true)
+  const [debugMode, setDebugMode] = useState(DEBUG_MODE_AVAILABLE);
+
   // Check if widget should be visible based on phase
   const isWidgetVisible = useCallback((widget) => {
     if (widget.showOnPhase) {
@@ -263,14 +266,14 @@ export function WidgetLayout({ children }) {
 
   // Update debug layout when layouts or breakpoint changes
   useEffect(() => {
-    if (DEBUG_MODE && layouts[currentBreakpoint]) {
+    if (debugMode && layouts[currentBreakpoint]) {
       const layoutMap = {};
       layouts[currentBreakpoint].forEach(item => {
         layoutMap[item.i] = { x: item.x, y: item.y, w: item.w, h: item.h };
       });
       setDebugLayout(layoutMap);
     }
-  }, [layouts, currentBreakpoint]);
+  }, [layouts, currentBreakpoint, debugMode]);
 
   // Track layout changes in ref - MERGE with existing positions (doesn't trigger re-render)
   const handleLayoutChange = useCallback((currentLayout, allLayouts) => {
@@ -285,14 +288,14 @@ export function WidgetLayout({ children }) {
     });
 
     // Update debug layout for current breakpoint
-    if (DEBUG_MODE) {
+    if (debugMode) {
       const layoutMap = {};
       currentLayout.forEach(item => {
         layoutMap[item.i] = { x: item.x, y: item.y, w: item.w, h: item.h };
       });
       setDebugLayout(layoutMap);
     }
-  }, []);
+  }, [debugMode]);
 
   // Handle drag start - notify docking system
   const handleDragStart = useCallback((layout, oldItem, newItem) => {
@@ -405,7 +408,17 @@ export function WidgetLayout({ children }) {
   }, [visibleWidgets, registerWidgetElement, unregisterWidgetElement]);
 
   return (
-    <div ref={containerRef} className="widget-layout" data-widget-debug={DEBUG_MODE || undefined}>
+    <div ref={containerRef} className="widget-layout" data-widget-debug={debugMode || undefined}>
+      {/* Debug mode toggle button */}
+      {DEBUG_MODE_AVAILABLE && (
+        <button
+          className="debug-toggle-button"
+          onClick={() => setDebugMode(prev => !prev)}
+          title={debugMode ? 'Disable debug mode' : 'Enable debug mode'}
+        >
+          {debugMode ? '🔧' : '👁️'}
+        </button>
+      )}
       {mounted && (
         <Responsive
           className="layout"
@@ -446,7 +459,7 @@ export function WidgetLayout({ children }) {
               ...(isQuiz && { children }),
             };
 
-            const debugInfo = DEBUG_MODE && debugLayout[widgetKey];
+            const debugInfo = debugMode && debugLayout[widgetKey];
 
             return (
               <div

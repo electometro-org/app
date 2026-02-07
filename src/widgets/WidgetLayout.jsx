@@ -8,6 +8,11 @@ import './WidgetLayout.css';
 // Import built-in types (registers them)
 import './types';
 
+// Debug mode: show grid coordinates on widgets
+// Enabled via VITE_WIDGET_DEBUG=true or automatically in development
+const DEBUG_MODE = import.meta.env.VITE_WIDGET_DEBUG === 'true' ||
+  (import.meta.env.DEV && import.meta.env.VITE_WIDGET_DEBUG !== 'false');
+
 // Grid configuration
 const ROW_HEIGHT = 8;  // 8px rows for fine vertical control
 
@@ -218,6 +223,9 @@ export function WidgetLayout({ children }) {
     setCurrentBreakpoint(newBreakpoint);
   }, []);
 
+  // Track current layout for debug overlay
+  const [debugLayout, setDebugLayout] = useState({});
+
   // Track layout changes in ref - MERGE with existing positions (doesn't trigger re-render)
   const handleLayoutChange = useCallback((currentLayout, allLayouts) => {
     // Merge new positions with existing ones (preserves positions of hidden widgets)
@@ -229,6 +237,15 @@ export function WidgetLayout({ children }) {
         allWidgetPositionsRef.current[breakpoint][item.i] = item;
       });
     });
+
+    // Update debug layout for current breakpoint
+    if (DEBUG_MODE) {
+      const layoutMap = {};
+      currentLayout.forEach(item => {
+        layoutMap[item.i] = { x: item.x, y: item.y, w: item.w, h: item.h };
+      });
+      setDebugLayout(layoutMap);
+    }
   }, []);
 
   // Persist layout changes on drag/resize stop (not on every layout change)
@@ -291,6 +308,8 @@ export function WidgetLayout({ children }) {
               ...(isQuiz && { children }),
             };
 
+            const debugInfo = DEBUG_MODE && debugLayout[widget.type];
+
             return (
               <div
                 key={widget.type}
@@ -302,6 +321,15 @@ export function WidgetLayout({ children }) {
                   </div>
                 )}
                 <Component {...widgetProps} />
+                {debugInfo && (
+                  <div className="widget-debug-overlay">
+                    <span className="widget-debug-id">{widget.type}</span>
+                    <span className="widget-debug-coords">
+                      x:{debugInfo.x} y:{debugInfo.y} w:{debugInfo.w} h:{debugInfo.h}
+                    </span>
+                    <span className="widget-debug-breakpoint">{currentBreakpoint}</span>
+                  </div>
+                )}
               </div>
             );
           })}

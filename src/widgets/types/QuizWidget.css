@@ -7,3 +7,13 @@
   width: 100%;
   height: 100%;
 }
+
+/* Quiz Header - stable container for logo */
+.quiz-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 100%; /* Full width ensures consistent horizontal centering */
+  margin-top: 15px;
+}

@@ -31,9 +31,10 @@ export default function QuizView({
 
   return (
     <>
-      <h3 id={"questions-progress-counter"}>{displayIndex} / {totalQuestions}</h3>
-
-      <BrandLogo branding={branding} />
+      <div className="quiz-header">
+        <h3 id={"questions-progress-counter"}>{displayIndex} / {totalQuestions}</h3>
+        <BrandLogo branding={branding} />
+      </div>
 
       <DockingZone id="above-question" />
 

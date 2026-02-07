@@ -125,7 +125,8 @@ function generateResponsiveLayouts(widgets, savedLayouts) {
         h: pos.h,
         minW: 1,
         minH: 1,
-        static: widget.draggable === false,
+        isDraggable: widget.draggable !== false,
+        isResizable: widget.resizable === true,  // Default false
       };
     });
   });
@@ -228,7 +229,8 @@ export function WidgetLayout({ children }) {
             h: breakpointPositions[widgetKey].h ?? basePos.h,
             minW: 1,
             minH: 1,
-            static: widget.draggable === false,
+            isDraggable: widget.draggable !== false,
+            isResizable: widget.resizable === true,
           };
         }
 
@@ -241,7 +243,8 @@ export function WidgetLayout({ children }) {
           h: basePos.h,
           minW: 1,
           minH: 1,
-          static: widget.draggable === false,
+          isDraggable: widget.draggable !== false,
+          isResizable: widget.resizable === true,
         };
       });
     });

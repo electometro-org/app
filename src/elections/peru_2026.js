@@ -121,6 +121,7 @@ export default {
     { type: "quiz", draggable: false, defaultSlot: "center" },
     { type: "progress-indicator",
       defaultSlot: "top",
+      resizable: true,
       style: "bar",
       showOnPhase: "quiz",
       layouts: {

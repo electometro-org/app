@@ -121,7 +121,7 @@ export default {
     { type: "quiz", draggable: false, defaultSlot: "center" },
     { type: "progress-indicator",
       defaultSlot: "top",
-      resizable: true,
+      resizable: false,
       style: "dots",
       showOnPhase: ["quiz"],
       layouts: {
@@ -172,13 +172,13 @@ export default {
     //   resizable: true,
     //   layouts: { lg: { x: 0, y: 0, w: 96, h: 8 } }
     // },
-    // {
-    //   type: "placeholder",
-    //   id: "test-sidebar",
-    //   label: "",
-    //   layouts: { lg: { x: 0, y: 10, w: 20, h: 40 } },
-    //   invisible: false,
-    // },
+    {
+      type: "placeholder",
+      id: "test-sidebar",
+      label: "",
+      layouts: { lg: { x: 0, y: 10, w: 20, h: 40 } },
+      invisible: false,
+    },
     // {
     //   type: "placeholder",
     //   id: "button-overlay",

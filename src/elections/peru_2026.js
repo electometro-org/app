@@ -126,7 +126,6 @@ export default {
         lg:  { x: 40, y: 12, w: 16, h: 4 },
         md:  { x: 0, y: 0, w: 18, h: 6 },
         // sm, xs, xxs will fall back to DEFAULT_LAYOUTS
-      }
       },
       dockedTo: "above-question",
     },

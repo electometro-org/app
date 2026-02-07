@@ -258,6 +258,17 @@ export function WidgetLayout({ children }) {
   // Track current layout for debug overlay
   const [debugLayout, setDebugLayout] = useState({});
 
+  // Update debug layout when layouts or breakpoint changes
+  useEffect(() => {
+    if (DEBUG_MODE && layouts[currentBreakpoint]) {
+      const layoutMap = {};
+      layouts[currentBreakpoint].forEach(item => {
+        layoutMap[item.i] = { x: item.x, y: item.y, w: item.w, h: item.h };
+      });
+      setDebugLayout(layoutMap);
+    }
+  }, [layouts, currentBreakpoint]);
+
   // Track layout changes in ref - MERGE with existing positions (doesn't trigger re-render)
   const handleLayoutChange = useCallback((currentLayout, allLayouts) => {
     // Merge new positions with existing ones (preserves positions of hidden widgets)
@@ -348,22 +359,31 @@ export function WidgetLayout({ children }) {
     requestAnimationFrame(updateAllBounds);
   }, [onLayoutChange, currentBreakpoint, updateAllBounds]);
 
-  // Create ref callbacks for widget element registration
-  const widgetRefCallbacks = useMemo(() => {
-    console.log('[WidgetLayout] Creating ref callbacks for:', visibleWidgets.map(w => getWidgetKey(w)));
-    const callbacks = {};
-    visibleWidgets.forEach(widget => {
-      const widgetKey = getWidgetKey(widget);
-      callbacks[widgetKey] = (element) => {
-        console.log('[WidgetLayout] Ref callback EXECUTED for', widgetKey, element ? 'ELEMENT' : 'null');
-        if (element) {
-          registerWidgetElement(widgetKey, element);
-        } else {
-          unregisterWidgetElement(widgetKey);
-        }
-      };
+  // Register widget elements after render using DOM query
+  // (refs don't work reliably because react-grid-layout clones children)
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Find all widget elements by data attribute
+    const widgetElements = container.querySelectorAll('[data-widget-key]');
+    console.log('[WidgetLayout] Found widget elements in DOM:', widgetElements.length);
+
+    widgetElements.forEach(element => {
+      const widgetKey = element.getAttribute('data-widget-key');
+      if (widgetKey) {
+        console.log('[WidgetLayout] Registering widget from DOM:', widgetKey);
+        registerWidgetElement(widgetKey, element);
+      }
     });
-    return callbacks;
+
+    // Cleanup: unregister widgets that are no longer visible
+    return () => {
+      visibleWidgets.forEach(widget => {
+        const widgetKey = getWidgetKey(widget);
+        unregisterWidgetElement(widgetKey);
+      });
+    };
   }, [visibleWidgets, registerWidgetElement, unregisterWidgetElement]);
 
   return (
@@ -413,7 +433,6 @@ export function WidgetLayout({ children }) {
             return (
               <div
                 key={widgetKey}
-                ref={widgetRefCallbacks[widgetKey]}
                 className={`widget-item ${isQuiz ? 'quiz-widget' : 'floating-widget'} ${isDocked ? 'widget-item--docked' : ''}`}
                 data-widget-key={widgetKey}
                 data-docked-to={dockInfo?.zoneId || undefined}

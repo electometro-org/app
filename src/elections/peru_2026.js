@@ -123,10 +123,12 @@ export default {
       defaultSlot: "top",
       style: "bar",
       layouts: {
-        lg:  { x: 40, y: 3, w: 16, h: 4 },
+        lg:  { x: 40, y: 12, w: 16, h: 4 },
         md:  { x: 0, y: 0, w: 18, h: 6 },
         // sm, xs, xxs will fall back to DEFAULT_LAYOUTS
       }
+      },
+      dockedTo: "above-question",
     },
     // { type: "countdown-timer", defaultSlot: "right", duration: 30 },
     { type: "social-share",

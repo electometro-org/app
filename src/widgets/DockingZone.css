@@ -1,0 +1,87 @@
+/* Docking Zone - Where widgets can attach to the quiz flow */
+
+.docking-zone {
+  position: relative;
+  width: 100%;
+  min-height: 1px; /* Minimum height so zones are always targetable */
+  transition: min-height 0.2s ease;
+}
+
+/* When docked, zone expands to fit the widget */
+.docking-zone--docked {
+  /* Height is set dynamically via placeholderStyle */
+}
+
+/* Content inside the zone */
+.docking-zone__content {
+  transition: opacity 0.2s ease;
+}
+
+/* Hide content when a widget is docked */
+.docking-zone__content--hidden {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  visibility: hidden;
+}
+
+/* Placeholder that reserves space for docked widget */
+.docking-zone__placeholder {
+  position: relative;
+  box-sizing: border-box;
+  transition: height 0.2s ease;
+}
+
+/* Visual indicator when dragging near zone */
+.docking-zone__indicator {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(100, 150, 255, 0.1);
+  border: 2px dashed rgba(100, 150, 255, 0.5);
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.docking-zone__indicator span {
+  padding: 4px 12px;
+  background: rgba(100, 150, 255, 0.9);
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Highlighted state during drag */
+.docking-zone--highlighted {
+  min-height: 40px;
+}
+
+/* Docked state */
+.docking-zone--docked {
+  /* Zone has a docked widget */
+}
+
+/* Debug mode: show zone boundaries */
+[data-widget-debug="true"] .docking-zone {
+  outline: 1px dashed rgba(255, 100, 100, 0.3);
+}
+
+[data-widget-debug="true"] .docking-zone::before {
+  content: attr(data-zone-id);
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 2px 6px;
+  background: rgba(255, 100, 100, 0.8);
+  color: white;
+  font-size: 10px;
+  font-family: monospace;
+  z-index: 100;
+  pointer-events: none;
+}

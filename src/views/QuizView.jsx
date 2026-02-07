@@ -1,5 +1,6 @@
 import { useTranslate } from "@tolgee/react";
 import { BrandLogo } from "../components/BrandImage";
+import { DockingZone } from "../widgets";
 
 export default function QuizView({
   question,
@@ -34,6 +35,8 @@ export default function QuizView({
 
       <BrandLogo branding={branding} />
 
+      <DockingZone id="above-question" />
+
       <div className="question-text-container">
         <h2>
           {question.question_key
@@ -41,6 +44,8 @@ export default function QuizView({
             : question.question}
         </h2>
       </div>
+
+      <DockingZone id="below-question" />
 
       <div>
         {question.options.map((option, index) => (
@@ -61,6 +66,8 @@ export default function QuizView({
           </button>
         ))}
       </div>
+
+      <DockingZone id="above-buttons" />
 
       <div>
         <label>{t('quiz.importanceQuestion')}</label>
@@ -93,6 +100,8 @@ export default function QuizView({
           {isLastQuestion ? t('quiz.finishSurvey') : t('common.skip')}
         </button>
       </div>
+
+      <DockingZone id="below-buttons" />
     </>
   );
 }

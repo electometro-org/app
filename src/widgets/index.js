@@ -38,3 +38,12 @@ export { WidgetLayout } from './WidgetLayout';
 
 // Re-export persistence hook
 export { useLayoutPersistence } from './useLayoutPersistence';
+
+// Re-export docking system
+export { DockingZone } from './DockingZone';
+export {
+  useDockingZone,
+  useWidgetDocking,
+  useActiveDocks,
+  useDraggingWidget,
+} from './useDocking';

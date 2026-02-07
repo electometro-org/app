@@ -226,3 +226,20 @@
   top: 4px;
   bottom: auto;
 }
+
+.widget-debug-docked {
+  color: #f48fb1;
+  font-weight: bold;
+  width: 100%;
+}
+
+/* ============ DOCKED WIDGETS ============ */
+.widget-item--docked {
+  /* Visual indication that widget is docked */
+  outline: 2px solid rgba(100, 200, 150, 0.6);
+  outline-offset: -2px;
+}
+
+.widget-item--docked .widget-drag-handle {
+  background: rgba(100, 200, 150, 0.8);
+}

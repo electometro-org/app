@@ -145,6 +145,15 @@ export function WidgetLayout({ children }) {
     layout: savedLayouts,
     quizState,
     onLayoutChange,
+    // Docking system
+    registerWidgetElement,
+    unregisterWidgetElement,
+    activeDocks,
+    getWidgetBoundsFromRef,
+    onWidgetDragStart,
+    onWidgetDrag,
+    onWidgetDragEnd,
+    updateAllBounds,
   } = useWidgetContext();
 
   // v2 hook for container width measurement
@@ -271,17 +280,60 @@ export function WidgetLayout({ children }) {
     }
   }, []);
 
+  // Handle drag start - notify docking system
+  const handleDragStart = useCallback((layout, oldItem, newItem) => {
+    console.log('[WidgetLayout] handleDragStart called:', newItem.i);
+    if (newItem.i === 'quiz') return;
+    onWidgetDragStart(newItem.i);
+  }, [onWidgetDragStart]);
+
+  // Handle drag - update docking detection
+  const handleDrag = useCallback((layout, oldItem, newItem) => {
+    if (newItem.i === 'quiz') return;
+
+    // Try ref first, fallback to DOM query
+    let rect = getWidgetBoundsFromRef(newItem.i);
+
+    if (!rect) {
+      // Fallback: find the widget by data attribute, then get its parent grid item
+      const widgetEl = document.querySelector(`[data-widget-key="${newItem.i}"]`);
+      if (widgetEl) {
+        // The parent should be the react-grid-item
+        const gridItem = widgetEl.closest('.react-grid-item');
+        if (gridItem) {
+          rect = gridItem.getBoundingClientRect();
+          console.log('[WidgetLayout] Got rect from DOM query');
+        }
+      }
+    }
+
+    console.log('[WidgetLayout] handleDrag called:', newItem.i, rect ? 'got rect' : 'NO RECT');
+    if (rect) {
+      onWidgetDrag(newItem.i, rect);
+    }
+  }, [onWidgetDrag, getWidgetBoundsFromRef]);
+
   // Persist layout changes on drag/resize stop (not on every layout change)
   const handleDragStop = useCallback((layout, oldItem, newItem) => {
     if (newItem.i === 'quiz') return;
+
+    // Check if widget was docked
+    const dockInfo = onWidgetDragEnd(newItem.i);
+
+    // Save position (whether docked or not)
     onLayoutChange(newItem.i, {
       x: newItem.x,
       y: newItem.y,
       w: newItem.w,
       h: newItem.h,
       breakpoint: currentBreakpoint,
+      // Store dock info if docked
+      ...(dockInfo && { dockedTo: dockInfo.zoneId }),
     });
-  }, [onLayoutChange, currentBreakpoint]);
+
+    // Update bounds after drag ends
+    requestAnimationFrame(updateAllBounds);
+  }, [onLayoutChange, currentBreakpoint, onWidgetDragEnd, updateAllBounds]);
 
   const handleResizeStop = useCallback((layout, oldItem, newItem) => {
     if (newItem.i === 'quiz') return;
@@ -292,10 +344,30 @@ export function WidgetLayout({ children }) {
       h: newItem.h,
       breakpoint: currentBreakpoint,
     });
-  }, [onLayoutChange, currentBreakpoint]);
+    // Update bounds after resize
+    requestAnimationFrame(updateAllBounds);
+  }, [onLayoutChange, currentBreakpoint, updateAllBounds]);
+
+  // Create ref callbacks for widget element registration
+  const widgetRefCallbacks = useMemo(() => {
+    console.log('[WidgetLayout] Creating ref callbacks for:', visibleWidgets.map(w => getWidgetKey(w)));
+    const callbacks = {};
+    visibleWidgets.forEach(widget => {
+      const widgetKey = getWidgetKey(widget);
+      callbacks[widgetKey] = (element) => {
+        console.log('[WidgetLayout] Ref callback EXECUTED for', widgetKey, element ? 'ELEMENT' : 'null');
+        if (element) {
+          registerWidgetElement(widgetKey, element);
+        } else {
+          unregisterWidgetElement(widgetKey);
+        }
+      };
+    });
+    return callbacks;
+  }, [visibleWidgets, registerWidgetElement, unregisterWidgetElement]);
 
   return (
-    <div ref={containerRef} className="widget-layout">
+    <div ref={containerRef} className="widget-layout" data-widget-debug={DEBUG_MODE || undefined}>
       {mounted && (
         <Responsive
           className="layout"
@@ -307,6 +379,8 @@ export function WidgetLayout({ children }) {
           compactor={overlappingCompactor}
           onBreakpointChange={handleBreakpointChange}
           onLayoutChange={handleLayoutChange}
+          onDragStart={handleDragStart}
+          onDrag={handleDrag}
           onDragStop={handleDragStop}
           onResizeStop={handleResizeStop}
           dragConfig={{
@@ -325,6 +399,8 @@ export function WidgetLayout({ children }) {
             const { component: Component } = registered;
             const isQuiz = widget.type === 'quiz';
             const isDraggable = !isQuiz && widget.draggable !== false;
+            const isDocked = !!activeDocks[widgetKey];
+            const dockInfo = activeDocks[widgetKey];
 
             const widgetProps = {
               config: widget,
@@ -337,7 +413,10 @@ export function WidgetLayout({ children }) {
             return (
               <div
                 key={widgetKey}
-                className={`widget-item ${isQuiz ? 'quiz-widget' : 'floating-widget'}`}
+                ref={widgetRefCallbacks[widgetKey]}
+                className={`widget-item ${isQuiz ? 'quiz-widget' : 'floating-widget'} ${isDocked ? 'widget-item--docked' : ''}`}
+                data-widget-key={widgetKey}
+                data-docked-to={dockInfo?.zoneId || undefined}
               >
                 {isDraggable && (
                   <div className="widget-drag-handle">
@@ -352,6 +431,7 @@ export function WidgetLayout({ children }) {
                       x:{debugInfo.x} y:{debugInfo.y} w:{debugInfo.w} h:{debugInfo.h}
                     </span>
                     <span className="widget-debug-breakpoint">{currentBreakpoint}</span>
+                    {isDocked && <span className="widget-debug-docked">DOCKED: {dockInfo.zoneId}</span>}
                   </div>
                 )}
               </div>

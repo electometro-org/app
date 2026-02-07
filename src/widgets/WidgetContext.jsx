@@ -1,9 +1,19 @@
-import React, { createContext, useContext, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useMemo, useCallback, useState, useRef, useEffect } from 'react';
 import { useQuizContext } from '../contexts/useQuizContext';
 import { useLayoutPersistence } from './useLayoutPersistence';
 import { getWidget } from './registry';
 
 const WidgetContext = createContext(null);
+
+/**
+ * Predefined docking zones where widgets can attach
+ */
+const DOCKING_ZONES = [
+  'above-question',  // Before question text
+  'below-question',  // Between question and buttons
+  'above-buttons',   // Just before answer buttons
+  'below-buttons',   // After answer buttons
+];
 
 // Default slot for each widget type
 const DEFAULT_SLOTS = {
@@ -47,6 +57,234 @@ export function WidgetProvider({ children }) {
     displayIndex,
     totalQuestions,
   } = quizContext;
+
+  // ============ DOCKING SYSTEM ============
+  // Registry of docking zones (quiz elements that can receive widgets)
+  const dockingZonesRef = useRef(new Map()); // Map<zoneId, HTMLElement>
+  const [zoneBounds, setZoneBounds] = useState({}); // { zoneId: DOMRect }
+
+  // Registry of widget elements for position tracking
+  const widgetElementsRef = useRef(new Map()); // Map<widgetKey, HTMLElement>
+  const [widgetBounds, setWidgetBounds] = useState({}); // { widgetKey: DOMRect }
+
+  // Active docks: which widgets are docked to which zones
+  // { widgetKey: { zoneId, placeholder: { width, height } } }
+  const [activeDocks, setActiveDocks] = useState({});
+
+  // Widget currently being dragged
+  const [draggingWidget, setDraggingWidget] = useState(null);
+
+  // Register a docking zone
+  const registerDockingZone = useCallback((zoneId, element) => {
+    if (element && DOCKING_ZONES.includes(zoneId)) {
+      dockingZonesRef.current.set(zoneId, element);
+      const bounds = element.getBoundingClientRect();
+      console.log('[Docking] Zone registered:', zoneId, bounds);
+      setZoneBounds(prev => ({ ...prev, [zoneId]: bounds }));
+    }
+  }, []);
+
+  // Unregister a docking zone
+  const unregisterDockingZone = useCallback((zoneId) => {
+    console.log('[Docking] Zone UNregistered:', zoneId);
+    dockingZonesRef.current.delete(zoneId);
+    setZoneBounds(prev => {
+      const next = { ...prev };
+      delete next[zoneId];
+      return next;
+    });
+  }, []);
+
+  // Register a widget element for tracking
+  const registerWidgetElement = useCallback((widgetKey, element) => {
+    if (element) {
+      widgetElementsRef.current.set(widgetKey, element);
+      const bounds = element.getBoundingClientRect();
+      console.log('[Docking] Widget registered:', widgetKey, bounds);
+      setWidgetBounds(prev => ({ ...prev, [widgetKey]: bounds }));
+    }
+  }, []);
+
+  // Unregister a widget element
+  const unregisterWidgetElement = useCallback((widgetKey) => {
+    widgetElementsRef.current.delete(widgetKey);
+    setWidgetBounds(prev => {
+      const next = { ...prev };
+      delete next[widgetKey];
+      return next;
+    });
+  }, []);
+
+  // Check if widget's center is within zone's vertical bounds
+  // This works better for tall widgets docking to short zones
+  const isWidgetCenterInZone = useCallback((widgetRect, zoneRect) => {
+    if (!widgetRect || !zoneRect) return false;
+
+    // Widget's vertical center
+    const widgetCenterY = widgetRect.top + widgetRect.height / 2;
+
+    // Check if widget center is within zone's vertical bounds (with some tolerance)
+    const tolerance = 20; // pixels
+    const inVerticalRange = widgetCenterY >= zoneRect.top - tolerance &&
+                            widgetCenterY <= zoneRect.bottom + tolerance;
+
+    // Also check horizontal overlap (widget should be over the zone horizontally)
+    const horizontalOverlap = widgetRect.right > zoneRect.left &&
+                              widgetRect.left < zoneRect.right;
+
+    return inVerticalRange && horizontalOverlap;
+  }, []);
+
+  // Update all bounds (call on resize/scroll)
+  const updateAllBounds = useCallback(() => {
+    // Update zone bounds
+    const newZoneBounds = {};
+    dockingZonesRef.current.forEach((element, zoneId) => {
+      if (element) {
+        newZoneBounds[zoneId] = element.getBoundingClientRect();
+      }
+    });
+    setZoneBounds(newZoneBounds);
+
+    // Update widget bounds
+    const newWidgetBounds = {};
+    widgetElementsRef.current.forEach((element, widgetKey) => {
+      if (element) {
+        newWidgetBounds[widgetKey] = element.getBoundingClientRect();
+      }
+    });
+    setWidgetBounds(newWidgetBounds);
+  }, []);
+
+  // Get current bounds for a widget from the ref (for use during drag)
+  const getWidgetBoundsFromRef = useCallback((widgetKey) => {
+    const element = widgetElementsRef.current.get(widgetKey);
+    console.log('[Docking] getWidgetBoundsFromRef:', widgetKey, 'element:', element ? 'FOUND' : 'NOT FOUND');
+    console.log('[Docking] widgetElementsRef has:', Array.from(widgetElementsRef.current.keys()));
+    if (element) {
+      return element.getBoundingClientRect();
+    }
+    return null;
+  }, []);
+
+  // Check docking for a specific widget (uses refs directly to avoid stale state)
+  const checkDocking = useCallback((widgetKey, widgetRect) => {
+    if (!widgetRect) {
+      console.log('[Docking] checkDocking: no widgetRect');
+      return null;
+    }
+
+    // Get fresh zone bounds from refs
+    const freshZoneBounds = {};
+    dockingZonesRef.current.forEach((element, zoneId) => {
+      if (element) {
+        freshZoneBounds[zoneId] = element.getBoundingClientRect();
+      }
+    });
+
+    console.log('[Docking] checkDocking for', widgetKey);
+    console.log('[Docking] Widget rect:', { top: widgetRect.top, left: widgetRect.left, width: widgetRect.width, height: widgetRect.height });
+    console.log('[Docking] Available zones (from ref):', Object.keys(freshZoneBounds));
+
+    // Find the first zone where widget's center is within the zone
+    let bestMatch = null;
+    let bestDistance = Infinity;
+
+    Object.entries(freshZoneBounds).forEach(([zoneId, zoneRect]) => {
+      const isInZone = isWidgetCenterInZone(widgetRect, zoneRect);
+      // Calculate distance from widget center to zone center for tie-breaking
+      const widgetCenterY = widgetRect.top + widgetRect.height / 2;
+      const zoneCenterY = zoneRect.top + zoneRect.height / 2;
+      const distance = Math.abs(widgetCenterY - zoneCenterY);
+
+      console.log('[Docking] Zone', zoneId, 'inZone:', isInZone, 'distance:', distance.toFixed(0) + 'px');
+
+      if (isInZone && distance < bestDistance) {
+        bestDistance = distance;
+        bestMatch = {
+          zoneId,
+          placeholder: {
+            width: widgetRect.width,
+            height: widgetRect.height,
+          },
+        };
+      }
+    });
+
+    return bestMatch;
+  }, [isWidgetCenterInZone]);
+
+  // Update docking state for a widget during drag
+  const updateWidgetDocking = useCallback((widgetKey, widgetRect) => {
+    const dockInfo = checkDocking(widgetKey, widgetRect);
+
+    setActiveDocks(prev => {
+      if (dockInfo) {
+        // Widget is docked
+        return { ...prev, [widgetKey]: dockInfo };
+      } else {
+        // Widget is not docked - remove from active docks
+        if (prev[widgetKey]) {
+          const next = { ...prev };
+          delete next[widgetKey];
+          return next;
+        }
+        return prev;
+      }
+    });
+
+    return dockInfo;
+  }, [checkDocking]);
+
+  // Handle drag start
+  const onWidgetDragStart = useCallback((widgetKey) => {
+    console.log('[Docking] Drag START:', widgetKey);
+    // Get fresh zone bounds from ref instead of state (avoids stale closure)
+    const freshZoneBounds = {};
+    dockingZonesRef.current.forEach((element, zoneId) => {
+      if (element) {
+        freshZoneBounds[zoneId] = element.getBoundingClientRect();
+      }
+    });
+    console.log('[Docking] Fresh zone bounds:', Object.keys(freshZoneBounds));
+    setZoneBounds(freshZoneBounds);
+    setDraggingWidget(widgetKey);
+  }, []);
+
+  // Handle drag (called continuously during drag)
+  const onWidgetDrag = useCallback((widgetKey, widgetRect) => {
+    console.log('[Docking] Drag MOVE:', widgetKey, widgetRect ? 'has rect' : 'NO RECT');
+    // Update widget bounds for zone highlighting
+    if (widgetRect) {
+      setWidgetBounds(prev => ({ ...prev, [widgetKey]: widgetRect }));
+    }
+    // Check docking
+    const dockResult = updateWidgetDocking(widgetKey, widgetRect);
+    if (dockResult) {
+      console.log('[Docking] DOCK DETECTED:', dockResult.zoneId);
+    }
+  }, [updateWidgetDocking]);
+
+  // Handle drag end - returns dock info if snapped
+  const onWidgetDragEnd = useCallback((widgetKey) => {
+    console.log('[Docking] Drag END:', widgetKey);
+    setDraggingWidget(null);
+    const dockInfo = activeDocks[widgetKey];
+    console.log('[Docking] Final dock info:', dockInfo);
+    return dockInfo;
+  }, [activeDocks]);
+
+  // Update bounds on resize
+  useEffect(() => {
+    const handleResize = () => {
+      requestAnimationFrame(updateAllBounds);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [updateAllBounds]);
+
+  // ============ END DOCKING SYSTEM ============
 
   // Build default layout from widget configs
   const defaultLayout = useMemo(() => {
@@ -127,12 +365,40 @@ export function WidgetProvider({ children }) {
     onLayoutChange,
     resetLayout,
     VALID_SLOTS,
+    // Docking system
+    DOCKING_ZONES,
+    registerDockingZone,
+    unregisterDockingZone,
+    registerWidgetElement,
+    unregisterWidgetElement,
+    activeDocks,
+    draggingWidget,
+    zoneBounds,
+    widgetBounds,
+    getWidgetBoundsFromRef,
+    onWidgetDragStart,
+    onWidgetDrag,
+    onWidgetDragEnd,
+    updateAllBounds,
   }), [
     widgets,
     layout,
     quizState,
     onLayoutChange,
     resetLayout,
+    registerDockingZone,
+    unregisterDockingZone,
+    registerWidgetElement,
+    unregisterWidgetElement,
+    activeDocks,
+    draggingWidget,
+    zoneBounds,
+    widgetBounds,
+    getWidgetBoundsFromRef,
+    onWidgetDragStart,
+    onWidgetDrag,
+    onWidgetDragEnd,
+    updateAllBounds,
   ]);
 
   return (

@@ -127,6 +127,7 @@ export default {
       layouts: {
         lg:  { x: 34, y: 11, w: 28, h: 3 },
         md:  { x: 0, y: 0, w: 18, h: 6 },
+        xxs: { x: 0, y: 18, w: 24, h: 3 },
         // sm, xs, xxs will fall back to DEFAULT_LAYOUTS
       },
       dockedTo: "above-question",
@@ -148,6 +149,7 @@ export default {
       showOnPhase: ["results"],
       layouts: {
         lg: { x: 43, y: 49, w: 25, h: 8 },
+        xxs: {x: 0, y: 64, w: 24, h: 7 },
       }
     },
     // Custom election widget

@@ -265,6 +265,45 @@
   transform: scale(1.1);
 }
 
+.widget-debug-visibility {
+  position: absolute;
+  top: 2px;
+  right: 24px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(100, 180, 255, 0.9);
+  color: white;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.2s ease;
+  box-shadow: none;
+  pointer-events: auto;
+}
+
+.widget-debug-visibility:hover {
+  background: rgba(80, 160, 255, 1);
+  transform: scale(1.1);
+}
+
+/* Hidden widget state - only visible in debug mode */
+/* Use !important to override animation fill-mode opacity */
+.widget-item--hidden {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+/* In debug mode, show hidden widgets with reduced opacity */
+[data-widget-debug="true"] .widget-item--hidden {
+  opacity: 0.3 !important;
+  pointer-events: auto;
+}
+
 /* ============ DOCKED WIDGETS ============ */
 [data-widget-debug="true"] .widget-item--docked {
   /* Visual indication that widget is docked */
@@ -407,6 +446,27 @@
 }
 
 .debug-restore-button:hover {
+  transform: scale(1.05);
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.debug-show-button {
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 2px solid rgba(100, 180, 255, 0.8);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  font-size: 14px;
+  color: rgba(100, 180, 255, 1);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 0 4px 12px rgba(100, 180, 255, 0.2);
+}
+
+.debug-show-button:hover {
   transform: scale(1.05);
   background: rgba(0, 0, 0, 0.85);
 }

@@ -150,6 +150,10 @@ export function WidgetLayout({ children }) {
     deletedWidgets,
     deleteWidget,
     restoreAllWidgets,
+    // Widget visibility (debug mode)
+    hiddenWidgets,
+    toggleWidgetVisibility,
+    showAllWidgets,
     // Docking system
     registerWidgetElement,
     unregisterWidgetElement,
@@ -453,6 +457,15 @@ export function WidgetLayout({ children }) {
               ↩ {deletedWidgets.size}
             </button>
           )}
+          {debugMode && hiddenWidgets.size > 0 && (
+            <button
+              className="debug-show-button"
+              onClick={showAllWidgets}
+              title={`Show ${hiddenWidgets.size} hidden widget(s)`}
+            >
+              👁️ {hiddenWidgets.size}
+            </button>
+          )}
         </div>
       )}
       {mounted && (
@@ -507,10 +520,13 @@ export function WidgetLayout({ children }) {
             // Check if widget is waiting to dock (has dockedTo config but not yet docked)
             const isPendingDock = !isDocked && widget.dockedTo && widgetTransition?.effect;
 
+            // Check if widget is hidden (debug mode visibility toggle)
+            const isHidden = hiddenWidgets.has(widgetKey);
+
             return (
               <div
                 key={widgetKey}
-                className={`widget-item ${isQuiz ? 'quiz-widget' : 'floating-widget'} ${isDocked ? 'widget-item--docked' : ''} ${isPendingDock ? 'widget-item--pending-dock' : ''}`}
+                className={`widget-item ${isQuiz ? 'quiz-widget' : 'floating-widget'} ${isDocked ? 'widget-item--docked' : ''} ${isPendingDock ? 'widget-item--pending-dock' : ''} ${isHidden ? 'widget-item--hidden' : ''}`}
                 data-widget-key={widgetKey}
                 data-docked-to={dockInfo?.zoneId || undefined}
                 data-dock-effect={isDocked && widgetTransition?.effect ? widgetTransition.effect : undefined}
@@ -531,16 +547,28 @@ export function WidgetLayout({ children }) {
                     <span className="widget-debug-breakpoint">{currentBreakpoint}</span>
                     {isDocked && <span className="widget-debug-docked">DOCKED: {dockInfo.zoneId}</span>}
                     {!isQuiz && (
-                      <button
-                        className="widget-debug-delete"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteWidget(widgetKey);
-                        }}
-                        title="Delete widget (persists until page config changes)"
-                      >
-                        ✕
-                      </button>
+                      <>
+                        <button
+                          className="widget-debug-visibility"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleWidgetVisibility(widgetKey);
+                          }}
+                          title={isHidden ? 'Show widget' : 'Hide widget'}
+                        >
+                          {isHidden ? '👁️' : '🙈'}
+                        </button>
+                        <button
+                          className="widget-debug-delete"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteWidget(widgetKey);
+                          }}
+                          title="Delete widget (persists until page config changes)"
+                        >
+                          ✕
+                        </button>
+                      </>
                     )}
                   </div>
                 )}

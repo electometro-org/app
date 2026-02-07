@@ -431,6 +431,47 @@ export function WidgetProvider({ children }) {
     setDeletedWidgets(new Set());
   }, []);
 
+  // Hidden widgets persistence (debug mode feature - visibility toggle)
+  const hiddenStorageKey = election ? `electometro-hidden-widgets-${election}` : null;
+
+  const [hiddenWidgets, setHiddenWidgets] = useState(() => {
+    if (!hiddenStorageKey) return new Set();
+    try {
+      const saved = localStorage.getItem(hiddenStorageKey);
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+
+  // Persist hidden widgets to localStorage
+  useEffect(() => {
+    if (!hiddenStorageKey) return;
+    try {
+      localStorage.setItem(hiddenStorageKey, JSON.stringify([...hiddenWidgets]));
+    } catch (e) {
+      console.warn('Failed to save hidden widgets:', e);
+    }
+  }, [hiddenStorageKey, hiddenWidgets]);
+
+  // Toggle widget visibility (debug mode only)
+  const toggleWidgetVisibility = useCallback((widgetKey) => {
+    setHiddenWidgets(prev => {
+      const next = new Set(prev);
+      if (next.has(widgetKey)) {
+        next.delete(widgetKey);
+      } else {
+        next.add(widgetKey);
+      }
+      return next;
+    });
+  }, []);
+
+  // Show all hidden widgets
+  const showAllWidgets = useCallback(() => {
+    setHiddenWidgets(new Set());
+  }, []);
+
   // Build quiz state slice for widgets
   const quizState = useMemo(() => ({
     currentQuestionIndex: state.currentQuestionIndex,
@@ -590,6 +631,10 @@ export function WidgetProvider({ children }) {
     deleteWidget,
     restoreWidget,
     restoreAllWidgets,
+    // Widget visibility (debug mode)
+    hiddenWidgets,
+    toggleWidgetVisibility,
+    showAllWidgets,
     // Docking system
     DOCKING_ZONES,
     registerDockingZone,
@@ -616,6 +661,9 @@ export function WidgetProvider({ children }) {
     deleteWidget,
     restoreWidget,
     restoreAllWidgets,
+    hiddenWidgets,
+    toggleWidgetVisibility,
+    showAllWidgets,
     registerDockingZone,
     unregisterDockingZone,
     registerWidgetElement,

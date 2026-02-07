@@ -117,3 +117,14 @@
     gap: 6px;
   }
 }
+
+@media (max-width: 479px) {
+  .social-share {
+    margin: 0;
+    background: #ffdcdc;
+  }
+
+  .social-share-emoji {
+    font-size: 45px;
+  }
+}

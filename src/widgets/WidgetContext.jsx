@@ -133,9 +133,13 @@ export function WidgetProvider({ children }) {
 
       // Check if this widget has a pending dock
       const pendingZoneId = pendingDocksRef.current[widgetKey];
+      console.log('[Docking] Checking pending dock for', widgetKey, ':', pendingZoneId);
+      console.log('[Docking] Available zones:', Array.from(dockingZonesRef.current.keys()));
+
       if (pendingZoneId) {
         // Check if zone is registered
         const zoneElement = dockingZonesRef.current.get(pendingZoneId);
+        console.log('[Docking] Zone element for', pendingZoneId, ':', !!zoneElement);
         if (zoneElement) {
           console.log('[Docking] Activating pending dock:', widgetKey, '->', pendingZoneId);
           setActiveDocks(prev => ({
@@ -150,6 +154,8 @@ export function WidgetProvider({ children }) {
             },
           }));
           delete pendingDocksRef.current[widgetKey];
+        } else {
+          console.log('[Docking] Zone not ready yet, keeping pending dock');
         }
       }
 

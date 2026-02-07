@@ -365,20 +365,35 @@ export function WidgetLayout({ children }) {
     const container = containerRef.current;
     if (!container) return;
 
-    // Find all widget elements by data attribute
-    const widgetElements = container.querySelectorAll('[data-widget-key]');
-    console.log('[WidgetLayout] Found widget elements in DOM:', widgetElements.length);
+    // Use requestAnimationFrame to ensure DOM is fully rendered
+    // Then retry after a short delay to handle zones registering after widgets
+    const registerWidgets = () => {
+      const widgetElements = container.querySelectorAll('[data-widget-key]');
+      console.log('[WidgetLayout] Found widget elements in DOM:', widgetElements.length);
 
-    widgetElements.forEach(element => {
-      const widgetKey = element.getAttribute('data-widget-key');
-      if (widgetKey) {
-        console.log('[WidgetLayout] Registering widget from DOM:', widgetKey);
-        registerWidgetElement(widgetKey, element);
-      }
+      widgetElements.forEach(element => {
+        const widgetKey = element.getAttribute('data-widget-key');
+        if (widgetKey) {
+          console.log('[WidgetLayout] Registering widget from DOM:', widgetKey);
+          registerWidgetElement(widgetKey, element);
+        }
+      });
+    };
+
+    // Initial registration after DOM updates
+    const rafId = requestAnimationFrame(() => {
+      registerWidgets();
     });
+
+    // Retry after a short delay to catch cases where zones register after widgets
+    const retryTimeout = setTimeout(() => {
+      registerWidgets();
+    }, 100);
 
     // Cleanup: unregister widgets that are no longer visible
     return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(retryTimeout);
       visibleWidgets.forEach(widget => {
         const widgetKey = getWidgetKey(widget);
         unregisterWidgetElement(widgetKey);

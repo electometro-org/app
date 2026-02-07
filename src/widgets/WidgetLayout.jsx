@@ -67,6 +67,30 @@ const DEFAULT_LAYOUTS = {
 };
 
 /**
+ * Get layout for a widget at a specific breakpoint.
+ * Priority: savedLayouts > widget.layouts > DEFAULT_LAYOUTS > fallback
+ * Always ensures x, y, w, h are present by merging with defaults.
+ */
+function getWidgetLayout(widget, breakpoint, savedLayouts) {
+  // Get base defaults (fallback chain: DEFAULT_LAYOUTS > config > absolute fallback)
+  const absoluteFallback = { x: 0, y: 0, w: 8, h: 8 };
+  const defaultLayout = DEFAULT_LAYOUTS[breakpoint]?.[widget.type] || absoluteFallback;
+  const configLayout = widget.layouts?.[breakpoint];
+
+  // Build base from defaults, then config override
+  const base = { ...defaultLayout, ...configLayout };
+
+  // User-saved position (from localStorage) takes highest priority
+  const saved = savedLayouts?.[breakpoint]?.[widget.type];
+  if (saved && (saved.x !== undefined || saved.y !== undefined)) {
+    // Merge saved with base to ensure w/h are always present
+    return { ...base, ...saved };
+  }
+
+  return base;
+}
+
+/**
  * Generate layouts for all breakpoints
  */
 function generateResponsiveLayouts(widgets, savedLayouts) {
@@ -74,15 +98,14 @@ function generateResponsiveLayouts(widgets, savedLayouts) {
 
   Object.keys(BREAKPOINTS).forEach(breakpoint => {
     layouts[breakpoint] = widgets.map(widget => {
-      const defaultPos = DEFAULT_LAYOUTS[breakpoint]?.[widget.type] || { x: 0, y: 0, w: 8, h: 8 };
-      const saved = savedLayouts?.[breakpoint]?.[widget.type];
+      const pos = getWidgetLayout(widget, breakpoint, savedLayouts);
 
       return {
         i: widget.type,
-        x: saved?.x ?? defaultPos.x,
-        y: saved?.y ?? defaultPos.y,
-        w: saved?.w ?? defaultPos.w,
-        h: saved?.h ?? defaultPos.h,
+        x: pos.x,
+        y: pos.y,
+        w: pos.w,
+        h: pos.h,
         minW: 1,
         minH: 1,
         static: widget.draggable === false,
@@ -163,7 +186,7 @@ export function WidgetLayout({ children }) {
 
       // Generate new layout, preserving positions from ref
       newLayouts[breakpoint] = visibleWidgets.map(widget => {
-        // First priority: use existing position from ref (includes hidden widgets)
+        // First priority: use existing position from ref (includes hidden widgets that were moved)
         if (breakpointPositions[widget.type]) {
           return {
             ...breakpointPositions[widget.type],
@@ -171,23 +194,14 @@ export function WidgetLayout({ children }) {
           };
         }
 
-        // Second priority: use saved position from localStorage
-        const saved = savedLayouts?.[breakpoint]?.[widget.type];
-        if (saved) {
-          return {
-            i: widget.type,
-            ...saved,
-            minW: 1,
-            minH: 1,
-            static: widget.draggable === false,
-          };
-        }
-
-        // Fallback: use default position
-        const defaultPos = DEFAULT_LAYOUTS[breakpoint]?.[widget.type] || { x: 0, y: 0, w: 8, h: 8 };
+        // Use the priority chain: saved > config > default > fallback
+        const pos = getWidgetLayout(widget, breakpoint, savedLayouts);
         return {
           i: widget.type,
-          ...defaultPos,
+          x: pos.x,
+          y: pos.y,
+          w: pos.w,
+          h: pos.h,
           minW: 1,
           minH: 1,
           static: widget.draggable === false,
@@ -196,6 +210,7 @@ export function WidgetLayout({ children }) {
     });
 
     setLayouts(newLayouts);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visibleWidgetIds]); // Only regenerate when widget IDs actually change
 
   // Handle breakpoint change

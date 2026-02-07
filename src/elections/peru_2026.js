@@ -116,8 +116,22 @@ export default {
   // Widgets configuration
   widgets: [
     { type: "quiz", draggable: false, defaultSlot: "center" },
-    { type: "progress-indicator", defaultSlot: "top", style: "bar" },
+    { type: "progress-indicator",
+      defaultSlot: "top",
+      style: "bar",
+      layouts: {
+        lg:  { x: 40, y: 3, w: 16, h: 4 },
+        md:  { x: 0, y: 0, w: 18, h: 6 },
+        // sm, xs, xxs will fall back to DEFAULT_LAYOUTS
+      }
+    },
     // { type: "countdown-timer", defaultSlot: "right", duration: 30 },
-    { type: "social-share", defaultSlot: "bottom", showOnPhase: ["results"] }
+    { type: "social-share",
+      // defaultSlot: "bottom",
+      showOnPhase: ["results"],
+      layouts: {
+        lg: { x: 43, y: 50, w: 25, h: 6 },
+      }
+    }
   ]
 }

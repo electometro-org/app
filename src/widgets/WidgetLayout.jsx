@@ -146,6 +146,10 @@ export function WidgetLayout({ children }) {
     layout: savedLayouts,
     quizState,
     onLayoutChange,
+    // Widget deletion (debug mode)
+    deletedWidgets,
+    deleteWidget,
+    restoreAllWidgets,
     // Docking system
     registerWidgetElement,
     unregisterWidgetElement,
@@ -432,13 +436,24 @@ export function WidgetLayout({ children }) {
     <div ref={containerRef} className="widget-layout" data-widget-debug={debugMode || undefined}>
       {/* Debug mode toggle button */}
       {DEBUG_MODE_AVAILABLE && (
-        <button
-          className="debug-toggle-button"
-          onClick={() => setDebugMode(prev => !prev)}
-          title={debugMode ? 'Disable debug mode' : 'Enable debug mode'}
-        >
-          {debugMode ? '🔧' : '👁️'}
-        </button>
+        <div className="debug-buttons">
+          <button
+            className="debug-toggle-button"
+            onClick={() => setDebugMode(prev => !prev)}
+            title={debugMode ? 'Disable debug mode' : 'Enable debug mode'}
+          >
+            {debugMode ? '🔧' : '👁️'}
+          </button>
+          {debugMode && deletedWidgets.size > 0 && (
+            <button
+              className="debug-restore-button"
+              onClick={restoreAllWidgets}
+              title={`Restore ${deletedWidgets.size} deleted widget(s)`}
+            >
+              ↩ {deletedWidgets.size}
+            </button>
+          )}
+        </div>
       )}
       {mounted && (
         <Responsive
@@ -515,6 +530,18 @@ export function WidgetLayout({ children }) {
                     </span>
                     <span className="widget-debug-breakpoint">{currentBreakpoint}</span>
                     {isDocked && <span className="widget-debug-docked">DOCKED: {dockInfo.zoneId}</span>}
+                    {!isQuiz && (
+                      <button
+                        className="widget-debug-delete"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteWidget(widgetKey);
+                        }}
+                        title="Delete widget (persists until page config changes)"
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
                 )}
               </div>

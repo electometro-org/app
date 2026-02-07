@@ -238,6 +238,33 @@
   width: 100%;
 }
 
+.widget-debug-delete {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 80, 80, 0.9);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.2s ease;
+  box-shadow: none;
+  pointer-events: auto; /* Override parent's pointer-events: none */
+}
+
+.widget-debug-delete:hover {
+  background: rgba(255, 50, 50, 1);
+  transform: scale(1.1);
+}
+
 /* ============ DOCKED WIDGETS ============ */
 [data-widget-debug="true"] .widget-item--docked {
   /* Visual indication that widget is docked */
@@ -319,12 +346,19 @@
   animation: dockSlideDown var(--dock-widget-duration, 300ms) var(--dock-widget-easing, ease-out) both;
 }
 
-/* ============ DEBUG TOGGLE BUTTON ============ */
-.debug-toggle-button {
+/* ============ DEBUG BUTTONS ============ */
+.debug-buttons {
   position: fixed;
   bottom: 20px;
   right: 20px;
   z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.debug-toggle-button {
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -354,4 +388,25 @@
 [data-widget-debug="true"] .debug-toggle-button {
   border-color: rgba(100, 200, 150, 0.8);
   box-shadow: 0 4px 12px rgba(100, 200, 150, 0.3);
+}
+
+.debug-restore-button {
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 2px solid rgba(255, 180, 100, 0.8);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  font-size: 14px;
+  color: rgba(255, 180, 100, 1);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 0 4px 12px rgba(255, 180, 100, 0.2);
+}
+
+.debug-restore-button:hover {
+  transform: scale(1.05);
+  background: rgba(0, 0, 0, 0.85);
 }

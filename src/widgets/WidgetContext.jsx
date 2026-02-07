@@ -389,6 +389,48 @@ export function WidgetProvider({ children }) {
   // Layout persistence per-election
   const { layout, setLayout, resetLayout } = useLayoutPersistence(election, defaultLayout);
 
+  // Deleted widgets persistence (debug mode feature)
+  const deletedStorageKey = election ? `electometro-deleted-widgets-${election}` : null;
+
+  const [deletedWidgets, setDeletedWidgets] = useState(() => {
+    if (!deletedStorageKey) return new Set();
+    try {
+      const saved = localStorage.getItem(deletedStorageKey);
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+
+  // Persist deleted widgets to localStorage
+  useEffect(() => {
+    if (!deletedStorageKey) return;
+    try {
+      localStorage.setItem(deletedStorageKey, JSON.stringify([...deletedWidgets]));
+    } catch (e) {
+      console.warn('Failed to save deleted widgets:', e);
+    }
+  }, [deletedStorageKey, deletedWidgets]);
+
+  // Delete a widget (debug mode only)
+  const deleteWidget = useCallback((widgetKey) => {
+    setDeletedWidgets(prev => new Set([...prev, widgetKey]));
+  }, []);
+
+  // Restore a deleted widget
+  const restoreWidget = useCallback((widgetKey) => {
+    setDeletedWidgets(prev => {
+      const next = new Set(prev);
+      next.delete(widgetKey);
+      return next;
+    });
+  }, []);
+
+  // Restore all deleted widgets
+  const restoreAllWidgets = useCallback(() => {
+    setDeletedWidgets(new Set());
+  }, []);
+
   // Build quiz state slice for widgets
   const quizState = useMemo(() => ({
     currentQuestionIndex: state.currentQuestionIndex,
@@ -411,7 +453,7 @@ export function WidgetProvider({ children }) {
     election,
   ]);
 
-  // Get widgets from config with defaults
+  // Get widgets from config with defaults (excluding deleted ones)
   const widgets = useMemo(() => {
     const configWidgets = config?.widgets || [];
 
@@ -424,14 +466,21 @@ export function WidgetProvider({ children }) {
       }];
     }
 
-    return configWidgets.map(widget => {
-      const registered = getWidget(widget.type);
-      return {
-        ...registered?.defaults,
-        ...widget,
-      };
-    });
-  }, [config?.widgets]);
+    return configWidgets
+      .map(widget => {
+        const registered = getWidget(widget.type);
+        return {
+          ...registered?.defaults,
+          ...widget,
+        };
+      })
+      .filter(widget => {
+        const widgetKey = widget.id || widget.type;
+        // Never delete the quiz widget
+        if (widget.type === 'quiz') return true;
+        return !deletedWidgets.has(widgetKey);
+      });
+  }, [config?.widgets, deletedWidgets]);
 
   // Initialize pending docks from widget configs OR saved layouts
   useEffect(() => {
@@ -536,6 +585,11 @@ export function WidgetProvider({ children }) {
     onLayoutChange,
     resetLayout,
     VALID_SLOTS,
+    // Widget deletion (debug mode)
+    deletedWidgets,
+    deleteWidget,
+    restoreWidget,
+    restoreAllWidgets,
     // Docking system
     DOCKING_ZONES,
     registerDockingZone,
@@ -558,6 +612,10 @@ export function WidgetProvider({ children }) {
     quizState,
     onLayoutChange,
     resetLayout,
+    deletedWidgets,
+    deleteWidget,
+    restoreWidget,
+    restoreAllWidgets,
     registerDockingZone,
     unregisterDockingZone,
     registerWidgetElement,

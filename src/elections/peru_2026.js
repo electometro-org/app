@@ -1,3 +1,6 @@
+// Register election-specific widgets
+import './peru_2026/widgets';
+
 export default {
   id: "peru_2026",
   label: "elections.peru2026",  // Translation key
@@ -109,7 +112,79 @@ export default {
   processCandidateVote: v => v,
   showLawInfo: true,
   questionTypes:   ["presidential"],
-  resultTypes:     ["party", 
-                    // "parliamentaryCandidates", 
-                    "presidentialCandidates"]
+  resultTypes:     ["party",
+                    // "parliamentaryCandidates",
+                    "presidentialCandidates"],
+
+  // Widgets configuration
+  widgets: [
+    { type: "quiz", draggable: false, defaultSlot: "center" },
+    { type: "progress-indicator",
+      defaultSlot: "top",
+      resizable: false,
+      style: "bar",
+      showOnPhase: "quiz",
+      layouts: {
+        lg:  { x: 41, y: 9, w: 14, h: 5 },
+        md:  { x: 0, y: 0, w: 18, h: 6 },
+        // sm, xs, xxs will fall back to DEFAULT_LAYOUTS
+      },
+      dockedTo: "above-question",
+      dockTransition: {
+        duration: 300,      // milliseconds
+        easing: "ease-out",  // CSS easing function
+
+        // Widget animation (reveals widget)
+        widget: {
+          effect: "fadeDown",  // Reveals from top to bottom
+          duration: 400,
+          easing: "ease-out"
+        }
+      }
+    },
+    // { type: "countdown-timer", defaultSlot: "right", duration: 30 },
+    { type: "social-share",
+      // defaultSlot: "bottom",
+      showOnPhase: ["results"],
+      layouts: {
+        lg: { x: 43, y: 50, w: 25, h: 6 },
+      }
+    },
+    // Custom election widget
+    // {
+    //   type: "peru-banner",
+    //   id: "election-header",
+    //   title: "Elecciones Perú 2026",
+    //   subtitle: "Encuentra tu candidato ideal",
+    //   layouts: {
+    //     lg: { x: 0, y: 0, w: 40, h: 8 },
+    //     md: { x: 0, y: 0, w: 30, h: 8 },
+    //     sm: { x: 0, y: 0, w: 48, h: 6 },
+    //     xs: { x: 0, y: 0, w: 32, h: 6 },
+    //     xxs: { x: 0, y: 0, w: 24, h: 6 },
+    //   }
+    // },
+    // Multiple placeholder widgets with unique IDs
+    // {
+    //   type: "placeholder",
+    //   id: "test-header",
+    //   label: "Header Area",
+    //   resizable: true,
+    //   layouts: { lg: { x: 0, y: 0, w: 96, h: 8 } }
+    // },
+    {
+      type: "placeholder",
+      id: "test-sidebar",
+      label: "",
+      layouts: { lg: { x: 0, y: 10, w: 20, h: 40 } },
+      resizable: false,
+      invisible: true,
+    },
+    // {
+    //   type: "placeholder",
+    //   id: "button-overlay",
+    //   color: "rgba(255, 0, 0, 0.2)",  // Custom color
+    //   layouts: { lg: { x: 30, y: 45, w: 30, h: 10 } }
+    // },
+  ]
 }

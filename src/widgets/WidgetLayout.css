@@ -1,0 +1,472 @@
+/* Widget Layout - React Grid Layout */
+.widget-layout {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: 100vh;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* React Grid Layout container - ensure full width */
+.widget-layout .react-grid-layout {
+  width: 100% !important;
+}
+
+/* Widget items */
+.widget-item {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.widget-item.floating-widget {
+  /* No decoration by default - widget renders cleanly */
+}
+
+/* Show widget boundaries in debug mode */
+[data-widget-debug="true"] .widget-item.floating-widget {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px;
+}
+
+/* Quiz widget - centered, transparent background */
+.widget-item.quiz-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: transparent;
+  overflow: visible;
+}
+
+/* Drag handle */
+[data-widget-debug="true"] .widget-drag-handle {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+}
+
+[data-widget-debug="true"] .widget-item.floating-widget:hover .widget-drag-handle {
+  opacity: 1;
+}
+
+[data-widget-debug="true"] .widget-drag-handle:active {
+  cursor: grabbing;
+}
+
+[data-widget-debug="true"] .drag-handle-icon {
+  display: block;
+  width: 20px;
+  height: 4px;
+  background: repeating-linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.7) 0px,
+    rgba(255, 255, 255, 0.7) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+/* React Grid Layout overrides */
+.react-grid-item {
+  transition: none;
+}
+
+.react-grid-item.cssTransforms {
+  transition: none;
+}
+
+/* Only animate during drag/resize */
+.react-grid-item.react-draggable-dragging,
+.react-grid-item.resizing {
+  transition: none;
+  z-index: 100;
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: rgba(100, 200, 255, 0.2);
+  border: 2px dashed rgba(100, 200, 255, 0.5);
+  border-radius: 8px;
+  opacity: 1;
+  transition-duration: 0.1s;
+  z-index: 2;
+}
+
+.react-grid-item.react-draggable-dragging {
+  transition: none;
+  z-index: 100;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.react-grid-item.dropping {
+  visibility: hidden;
+}
+
+.react-grid-item.react-grid-resizable {
+  position: relative;
+}
+
+/* Resize handle */
+.react-grid-item > .react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.react-grid-item:hover > .react-resizable-handle {
+  opacity: 1;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid rgba(255, 255, 255, 0.5);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.react-grid-item > .react-resizable-handle-se {
+  right: 0;
+  bottom: 0;
+  cursor: se-resize;
+}
+
+/* Responsive - Mobile */
+@media (max-width: 767px) {
+  .widget-layout {
+    padding: 8px;
+  }
+
+  /* Make drag handle always visible and larger for touch */
+  .widget-drag-handle {
+    opacity: 1;
+    width: 60px;
+    height: 24px;
+    top: -12px;
+  }
+
+  .drag-handle-icon {
+    width: 30px;
+    height: 6px;
+  }
+
+  /* Make resize handle larger for touch */
+  .react-grid-item > .react-resizable-handle {
+    opacity: 1;
+    width: 30px;
+    height: 30px;
+  }
+
+  .react-grid-item > .react-resizable-handle::after {
+    width: 12px;
+    height: 12px;
+    border-width: 3px;
+  }
+}
+
+/* ============ DEBUG OVERLAY ============ */
+.widget-debug-overlay {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  right: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px 6px;
+  background: rgba(0, 0, 0, 0.85);
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 10px;
+  line-height: 1.2;
+  color: #fff;
+  z-index: 1000;
+  pointer-events: none;
+  user-select: text;
+}
+
+.widget-debug-id {
+  color: #4fc3f7;
+  font-weight: bold;
+}
+
+.widget-debug-coords {
+  color: #81c784;
+  font-family: inherit;
+}
+
+.widget-debug-breakpoint {
+  color: #ffb74d;
+  margin-left: auto;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+/* Quiz widget debug - position at top since quiz is tall */
+.widget-item.quiz-widget .widget-debug-overlay {
+  top: 4px;
+  bottom: auto;
+}
+
+.widget-debug-docked {
+  color: #f48fb1;
+  font-weight: bold;
+  width: 100%;
+}
+
+.widget-debug-delete {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 80, 80, 0.9);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.2s ease;
+  box-shadow: none;
+  pointer-events: auto; /* Override parent's pointer-events: none */
+}
+
+.widget-debug-delete:hover {
+  background: rgba(255, 50, 50, 1);
+  transform: scale(1.1);
+}
+
+.widget-debug-visibility {
+  position: absolute;
+  top: 2px;
+  right: 24px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(100, 180, 255, 0.9);
+  color: white;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.2s ease;
+  box-shadow: none;
+  pointer-events: auto;
+}
+
+.widget-debug-visibility:hover {
+  background: rgba(80, 160, 255, 1);
+  transform: scale(1.1);
+}
+
+/* Hidden widget state - only visible in debug mode */
+/* Use !important to override animation fill-mode opacity */
+.widget-item--hidden {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+/* In debug mode, show hidden widgets with reduced opacity */
+[data-widget-debug="true"] .widget-item--hidden {
+  opacity: 0.3 !important;
+  pointer-events: auto;
+}
+
+/* ============ DOCKED WIDGETS ============ */
+[data-widget-debug="true"] .widget-item--docked {
+  /* Visual indication that widget is docked */
+  outline: 2px solid rgba(100, 200, 150, 0.6);
+  outline-offset: -2px;
+}
+
+[data-widget-debug="true"] .widget-item--docked .widget-drag-handle {
+  background: rgba(100, 200, 150, 0.8);
+}
+
+/* ============ DOCK WIDGET ANIMATIONS ============ */
+
+/* Hide widgets that are waiting to be docked (will animate in when docked) */
+.widget-item--pending-dock {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Fade down effect - reveals widget from top to bottom */
+@keyframes dockFadeDown {
+  from {
+    clip-path: inset(0 0 100% 0);
+    opacity: 0;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+
+.widget-item--docked[data-dock-effect="fadeDown"] {
+  animation: dockFadeDown var(--dock-widget-duration, 300ms) var(--dock-widget-easing, ease-out) both;
+}
+
+/* Fade effect - simple opacity fade */
+@keyframes dockFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.widget-item--docked[data-dock-effect="fade"] {
+  animation: dockFade var(--dock-widget-duration, 300ms) var(--dock-widget-easing, ease-out) both;
+}
+
+/* Scale effect - grows from small to full size */
+@keyframes dockScale {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.widget-item--docked[data-dock-effect="scale"] {
+  animation: dockScale var(--dock-widget-duration, 300ms) var(--dock-widget-easing, ease-out) both;
+}
+
+/* Slide down effect - slides in from above */
+@keyframes dockSlideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.widget-item--docked[data-dock-effect="slideDown"] {
+  animation: dockSlideDown var(--dock-widget-duration, 300ms) var(--dock-widget-easing, ease-out) both;
+}
+
+/* ============ DEBUG BUTTONS ============ */
+.debug-buttons {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.debug-toggle-button {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.debug-toggle-button:hover {
+  transform: scale(1.1);
+  background: rgba(0, 0, 0, 0.85);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.debug-toggle-button:active {
+  transform: scale(0.95);
+}
+
+/* When debug mode is active, highlight the button */
+[data-widget-debug="true"] .debug-toggle-button {
+  border-color: rgba(100, 200, 150, 0.8);
+  box-shadow: 0 4px 12px rgba(100, 200, 150, 0.3);
+}
+
+.debug-restore-button {
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 2px solid rgba(255, 180, 100, 0.8);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  font-size: 14px;
+  color: rgba(255, 180, 100, 1);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 0 4px 12px rgba(255, 180, 100, 0.2);
+}
+
+.debug-restore-button:hover {
+  transform: scale(1.05);
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.debug-show-button {
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 2px solid rgba(100, 180, 255, 0.8);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  font-size: 14px;
+  color: rgba(100, 180, 255, 1);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 0 4px 12px rgba(100, 180, 255, 0.2);
+}
+
+.debug-show-button:hover {
+  transform: scale(1.05);
+  background: rgba(0, 0, 0, 0.85);
+}

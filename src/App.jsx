@@ -18,6 +18,7 @@ import QuizView from "./views/QuizView";
 import ResultsView from "./views/ResultsView";
 import { useQuizContext } from "./contexts/useQuizContext";
 import { BackgroundLayer } from "./backgrounds";
+import { WidgetLayout } from "./widgets";
 import "./App.css";
 
 export default function App() {
@@ -206,10 +207,10 @@ export default function App() {
           <Route
             path="/"
             element={
-              <div className="main-container">
+              <WidgetLayout>
                 <LanguageSwitcher />
                 {renderMainContent()}
-              </div>
+              </WidgetLayout>
             }
           />
           <Route path="/metodologia" element={<Methodology />} />

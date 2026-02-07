@@ -147,7 +147,7 @@ export default {
       // defaultSlot: "bottom",
       showOnPhase: ["results"],
       layouts: {
-        lg: { x: 43, y: 50, w: 25, h: 6 },
+        lg: { x: 43, y: 49, w: 25, h: 8 },
       }
     },
     // Custom election widget

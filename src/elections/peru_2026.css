@@ -72,6 +72,14 @@
   background: #c31e1e;
 }
 
+ [data-election="peru_2026"] .social-share {
+   margin-top: 10px;
+   margin-left: 20px;
+   margin-right: 20px;
+   margin-bottom: 10px;
+   background: #ffdcdc;
+ }
+
 @media (max-width: 767px) {
   [data-election="peru_2026"] .main-container,
   [data-election="peru_2026"] .election-content-area,

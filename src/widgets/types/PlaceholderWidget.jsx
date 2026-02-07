@@ -11,9 +11,15 @@ import './PlaceholderWidget.css';
  * Config options:
  * - label: Optional text to display in the placeholder
  * - color: Optional background color (default: semi-transparent)
+ * - invisible: If true, widget is fully transparent but still occupies space
  */
 function PlaceholderWidget({ config }) {
-  const { label, color, id } = config;
+  const { label, color, id, invisible } = config;
+
+  if (invisible) {
+    // Invisible spacer - occupies space but renders nothing visible
+    return <div className="placeholder-widget placeholder-widget--invisible" />;
+  }
 
   const style = color ? { backgroundColor: color } : {};
 

@@ -150,6 +150,7 @@ export function WidgetLayout({ children }) {
     registerWidgetElement,
     unregisterWidgetElement,
     activeDocks,
+    clearWidgetDock,
     getWidgetBoundsFromRef,
     onWidgetDragStart,
     onWidgetDrag,
@@ -205,6 +206,26 @@ export function WidgetLayout({ children }) {
     visibleWidgets.map(w => getWidgetKey(w)).sort().join(','),
     [visibleWidgets]
   );
+
+  // Track previous visible widgets to detect when widgets become invisible
+  const prevVisibleWidgetIdsRef = useRef(visibleWidgetIds);
+
+  // Clear docks for widgets that became invisible (so animation replays when they return)
+  useEffect(() => {
+    const prevIds = prevVisibleWidgetIdsRef.current.split(',').filter(Boolean);
+    const currentIds = visibleWidgetIds.split(',').filter(Boolean);
+
+    // Find widgets that were visible but are no longer
+    const hiddenWidgets = prevIds.filter(id => !currentIds.includes(id));
+
+    // Clear their docks
+    hiddenWidgets.forEach(widgetKey => {
+      clearWidgetDock(widgetKey);
+    });
+
+    // Update ref for next comparison
+    prevVisibleWidgetIdsRef.current = visibleWidgetIds;
+  }, [visibleWidgetIds, clearWidgetDock]);
 
   // Update layouts only when visible widgets actually change (not on every render)
   useEffect(() => {
@@ -461,12 +482,24 @@ export function WidgetLayout({ children }) {
 
             const debugInfo = debugMode && debugLayout[widgetKey];
 
+            // Get widget transition settings
+            const widgetTransition = dockInfo?.transition?.widget || widget.dockTransition?.widget;
+            const widgetTransitionStyle = widgetTransition ? {
+              '--dock-widget-duration': `${widgetTransition.duration || 300}ms`,
+              '--dock-widget-easing': widgetTransition.easing || 'ease-out',
+            } : {};
+
+            // Check if widget is waiting to dock (has dockedTo config but not yet docked)
+            const isPendingDock = !isDocked && widget.dockedTo && widgetTransition?.effect;
+
             return (
               <div
                 key={widgetKey}
-                className={`widget-item ${isQuiz ? 'quiz-widget' : 'floating-widget'} ${isDocked ? 'widget-item--docked' : ''}`}
+                className={`widget-item ${isQuiz ? 'quiz-widget' : 'floating-widget'} ${isDocked ? 'widget-item--docked' : ''} ${isPendingDock ? 'widget-item--pending-dock' : ''}`}
                 data-widget-key={widgetKey}
                 data-docked-to={dockInfo?.zoneId || undefined}
+                data-dock-effect={isDocked && widgetTransition?.effect ? widgetTransition.effect : undefined}
+                style={widgetTransitionStyle}
               >
                 {isDraggable && (
                   <div className="widget-drag-handle">

@@ -87,13 +87,16 @@ export function WidgetProvider({ children }) {
       setZoneBounds(prev => ({ ...prev, [zoneId]: bounds }));
 
       // Check if any pending docks are waiting for this zone
-      Object.entries(pendingDocksRef.current).forEach(([widgetKey, pendingZoneId]) => {
+      Object.entries(pendingDocksRef.current).forEach(([widgetKey, pendingDock]) => {
+        // Support both old string format and new object format
+        const pendingZoneId = pendingDock?.zoneId || pendingDock;
         if (pendingZoneId === zoneId) {
           // Check if widget is also registered
           const widgetElement = widgetElementsRef.current.get(widgetKey);
           if (widgetElement) {
             const widgetBounds = widgetElement.getBoundingClientRect();
             console.log('[Docking] Activating pending dock:', widgetKey, '->', zoneId);
+            const transition = pendingDock?.transition || { duration: 300, easing: 'ease-out' };
             setActiveDocks(prev => ({
               ...prev,
               [widgetKey]: {
@@ -102,6 +105,7 @@ export function WidgetProvider({ children }) {
                   width: widgetBounds.width,
                   height: widgetBounds.height,
                 },
+                transition,
                 fromConfig: true,
               },
             }));
@@ -132,7 +136,8 @@ export function WidgetProvider({ children }) {
       setWidgetBounds(prev => ({ ...prev, [widgetKey]: bounds }));
 
       // Check if this widget has a pending dock
-      const pendingZoneId = pendingDocksRef.current[widgetKey];
+      const pendingDock = pendingDocksRef.current[widgetKey];
+      const pendingZoneId = pendingDock?.zoneId || pendingDock; // Support both old string and new object format
       console.log('[Docking] Checking pending dock for', widgetKey, ':', pendingZoneId);
       console.log('[Docking] Available zones:', Array.from(dockingZonesRef.current.keys()));
 
@@ -142,6 +147,7 @@ export function WidgetProvider({ children }) {
         console.log('[Docking] Zone element for', pendingZoneId, ':', !!zoneElement);
         if (zoneElement) {
           console.log('[Docking] Activating pending dock:', widgetKey, '->', pendingZoneId);
+          const transition = pendingDock?.transition || { duration: 300, easing: 'ease-out' };
           setActiveDocks(prev => ({
             ...prev,
             [widgetKey]: {
@@ -150,6 +156,7 @@ export function WidgetProvider({ children }) {
                 width: bounds.width,
                 height: bounds.height,
               },
+              transition,
               fromConfig: true,
             },
           }));
@@ -466,6 +473,9 @@ export function WidgetProvider({ children }) {
 
         console.log('[Docking] Checking', widgetKey, '-> zone:', zoneId, 'zoneEl:', !!zoneElement, 'widgetEl:', !!widgetElement);
 
+        // Get transition config from widget
+        const dockTransition = widget.dockTransition || {};
+
         // If both zone and widget are already registered, activate immediately
         if (zoneElement && widgetElement) {
           const widgetBounds = widgetElement.getBoundingClientRect();
@@ -478,12 +488,24 @@ export function WidgetProvider({ children }) {
                 width: widgetBounds.width,
                 height: widgetBounds.height,
               },
+              transition: {
+                duration: dockTransition.duration ?? 300,
+                easing: dockTransition.easing ?? 'ease-out',
+                widget: dockTransition.widget || null,
+              },
               fromConfig: true,
             },
           }));
         } else if (!pendingDocksRef.current[widgetKey]) {
-          // Otherwise store as pending
-          pendingDocksRef.current[widgetKey] = zoneId;
+          // Otherwise store as pending (include transition config)
+          pendingDocksRef.current[widgetKey] = {
+            zoneId,
+            transition: {
+              duration: dockTransition.duration ?? 300,
+              easing: dockTransition.easing ?? 'ease-out',
+              widget: dockTransition.widget || null,
+            },
+          };
           console.log('[Docking] Stored as pending:', widgetKey, '->', zoneId);
         }
       }
@@ -494,6 +516,18 @@ export function WidgetProvider({ children }) {
   const onLayoutChange = useCallback((widgetType, layoutData) => {
     setLayout(widgetType, layoutData);
   }, [setLayout]);
+
+  // Clear dock for a widget (used when widget becomes invisible)
+  const clearWidgetDock = useCallback((widgetKey) => {
+    setActiveDocks(prev => {
+      if (prev[widgetKey]) {
+        const next = { ...prev };
+        delete next[widgetKey];
+        return next;
+      }
+      return prev;
+    });
+  }, []);
 
   const value = useMemo(() => ({
     widgets,
@@ -509,6 +543,7 @@ export function WidgetProvider({ children }) {
     registerWidgetElement,
     unregisterWidgetElement,
     activeDocks,
+    clearWidgetDock,
     draggingWidget,
     zoneBounds,
     widgetBounds,
@@ -528,6 +563,7 @@ export function WidgetProvider({ children }) {
     registerWidgetElement,
     unregisterWidgetElement,
     activeDocks,
+    clearWidgetDock,
     draggingWidget,
     zoneBounds,
     widgetBounds,

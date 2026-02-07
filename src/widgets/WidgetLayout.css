@@ -244,6 +244,76 @@
   background: rgba(100, 200, 150, 0.8);
 }
 
+/* ============ DOCK WIDGET ANIMATIONS ============ */
+
+/* Hide widgets that are waiting to be docked (will animate in when docked) */
+.widget-item--pending-dock {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Fade down effect - reveals widget from top to bottom */
+@keyframes dockFadeDown {
+  from {
+    clip-path: inset(0 0 100% 0);
+    opacity: 0;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+
+.widget-item--docked[data-dock-effect="fadeDown"] {
+  animation: dockFadeDown var(--dock-widget-duration, 300ms) var(--dock-widget-easing, ease-out) both;
+}
+
+/* Fade effect - simple opacity fade */
+@keyframes dockFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.widget-item--docked[data-dock-effect="fade"] {
+  animation: dockFade var(--dock-widget-duration, 300ms) var(--dock-widget-easing, ease-out) both;
+}
+
+/* Scale effect - grows from small to full size */
+@keyframes dockScale {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.widget-item--docked[data-dock-effect="scale"] {
+  animation: dockScale var(--dock-widget-duration, 300ms) var(--dock-widget-easing, ease-out) both;
+}
+
+/* Slide down effect - slides in from above */
+@keyframes dockSlideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.widget-item--docked[data-dock-effect="slideDown"] {
+  animation: dockSlideDown var(--dock-widget-duration, 300ms) var(--dock-widget-easing, ease-out) both;
+}
+
 /* ============ DEBUG TOGGLE BUTTON ============ */
 .debug-toggle-button {
   position: fixed;

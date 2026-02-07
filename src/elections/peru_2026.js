@@ -121,15 +121,26 @@ export default {
     { type: "quiz", draggable: false, defaultSlot: "center" },
     { type: "progress-indicator",
       defaultSlot: "top",
-      resizable: true,
+      resizable: false,
       style: "bar",
       showOnPhase: "quiz",
       layouts: {
-        lg:  { x: 40, y: 12, w: 16, h: 4 },
+        lg:  { x: 41, y: 9, w: 14, h: 5 },
         md:  { x: 0, y: 0, w: 18, h: 6 },
         // sm, xs, xxs will fall back to DEFAULT_LAYOUTS
       },
       dockedTo: "above-question",
+      dockTransition: {
+        duration: 300,      // milliseconds
+        easing: "ease-out",  // CSS easing function
+
+        // Widget animation (reveals widget)
+        widget: {
+          effect: "fadeDown",  // Reveals from top to bottom
+          duration: 400,
+          easing: "ease-out"
+        }
+      }
     },
     // { type: "countdown-timer", defaultSlot: "right", duration: 30 },
     { type: "social-share",
@@ -154,18 +165,21 @@ export default {
     //   }
     // },
     // Multiple placeholder widgets with unique IDs
-    {
-      type: "placeholder",
-      id: "test-header",
-      label: "Header Area",
-      layouts: { lg: { x: 0, y: 0, w: 96, h: 8 } }
-    },
     // {
     //   type: "placeholder",
-    //   id: "test-sidebar",
-    //   label: "Sidebar",
-    //   layouts: { lg: { x: 0, y: 10, w: 20, h: 40 } }
+    //   id: "test-header",
+    //   label: "Header Area",
+    //   resizable: true,
+    //   layouts: { lg: { x: 0, y: 0, w: 96, h: 8 } }
     // },
+    {
+      type: "placeholder",
+      id: "test-sidebar",
+      label: "",
+      layouts: { lg: { x: 0, y: 10, w: 20, h: 40 } },
+      resizable: false,
+      invisible: true,
+    },
     // {
     //   type: "placeholder",
     //   id: "button-overlay",

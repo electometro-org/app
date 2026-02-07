@@ -67,13 +67,17 @@ export function useDockingZone(zoneId) {
     ([, dock]) => dock.zoneId === zoneId
   )?.[0] || null;
 
-  // Get placeholder style for docked widget
+  // Get dock info and transition settings
   const dockInfo = dockedWidget ? activeDocks[dockedWidget] : null;
-  const placeholderStyle = dockInfo ? {
-    width: dockInfo.placeholder.width,
-    height: dockInfo.placeholder.height,
-    minHeight: dockInfo.placeholder.height,
-  } : null;
+  const transition = dockInfo?.transition || { duration: 300, easing: 'ease-out' };
+
+  // Build placeholder style with transition
+  const placeholderStyle = {
+    height: dockInfo ? dockInfo.placeholder.height : 0,
+    minHeight: dockInfo ? dockInfo.placeholder.height : 0,
+    overflow: 'hidden',
+    transition: `height ${transition.duration}ms ${transition.easing}, min-height ${transition.duration}ms ${transition.easing}`,
+  };
 
   // Check if this zone should be highlighted (widget center near zone)
   let isHighlighted = false;

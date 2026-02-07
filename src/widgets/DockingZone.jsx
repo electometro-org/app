@@ -64,14 +64,12 @@ export function DockingZone({ id, children, className = '' }) {
         </div>
       )}
 
-      {/* Placeholder for docked widget */}
-      {isDocked && (
-        <div
-          className="docking-zone__placeholder"
-          style={placeholderStyle}
-          data-docked-widget={dockedWidget}
-        />
-      )}
+      {/* Placeholder for docked widget - always rendered for smooth transitions */}
+      <div
+        className={`docking-zone__placeholder ${isDocked ? 'docking-zone__placeholder--active' : ''}`}
+        style={placeholderStyle}
+        data-docked-widget={dockedWidget || undefined}
+      />
 
       {/* Visual indicator when dragging near zone */}
       {isHighlighted && !isDocked && (

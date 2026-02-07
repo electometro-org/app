@@ -29,7 +29,11 @@
 .docking-zone__placeholder {
   position: relative;
   box-sizing: border-box;
-  transition: height 0.2s ease;
+  /* Transition is applied via inline style from widget config */
+}
+
+.docking-zone__placeholder--active {
+  /* Active state when widget is docked */
 }
 
 /* Visual indicator when dragging near zone - only in debug mode */

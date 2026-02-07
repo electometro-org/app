@@ -31,7 +31,7 @@ export default function QuizView({
 
   return (
     <>
-      <h3>{displayIndex} / {totalQuestions}</h3>
+      <h3 id={"questions-progress-counter"}>{displayIndex} / {totalQuestions}</h3>
 
       <BrandLogo branding={branding} />
 

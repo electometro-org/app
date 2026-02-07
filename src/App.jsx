@@ -104,8 +104,6 @@ export default function App() {
     // Step 4+: Quiz flow (questions, demographics, results)
     return (
       <div className="election-content-area">
-        <button onClick={handleReset} className="reset-button">{t('common.restart')}</button>
-
         {state.questions.length === 0 ? (
           <h2>{t('common.loading')}</h2>
         ) : state.currentQuestionIndex < state.questions.length ? (
@@ -191,6 +189,9 @@ export default function App() {
         branding={branding}
       />
       <>
+        {election && !showGenericIntro && !showElectionIntro && (
+            <button onClick={handleReset} className="reset-button">{t('common.restart')}</button>
+        )}
         <input
           type="text"
           id="website-url"

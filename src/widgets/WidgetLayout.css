@@ -42,7 +42,7 @@
 }
 
 /* Drag handle */
-.widget-drag-handle {
+[data-widget-debug="true"] .widget-drag-handle {
   position: absolute;
   top: 4px;
   left: 50%;
@@ -60,15 +60,15 @@
   border-radius: 4px;
 }
 
-.widget-item.floating-widget:hover .widget-drag-handle {
+[data-widget-debug="true"] .widget-item.floating-widget:hover .widget-drag-handle {
   opacity: 1;
 }
 
-.widget-drag-handle:active {
+[data-widget-debug="true"] .widget-drag-handle:active {
   cursor: grabbing;
 }
 
-.drag-handle-icon {
+[data-widget-debug="true"] .drag-handle-icon {
   display: block;
   width: 20px;
   height: 4px;
@@ -234,12 +234,12 @@
 }
 
 /* ============ DOCKED WIDGETS ============ */
-.widget-item--docked {
+[data-widget-debug="true"] .widget-item--docked {
   /* Visual indication that widget is docked */
   outline: 2px solid rgba(100, 200, 150, 0.6);
   outline-offset: -2px;
 }
 
-.widget-item--docked .widget-drag-handle {
+[data-widget-debug="true"] .widget-item--docked .widget-drag-handle {
   background: rgba(100, 200, 150, 0.8);
 }

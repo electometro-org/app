@@ -24,6 +24,11 @@
 }
 
 .widget-item.floating-widget {
+  /* No decoration by default - widget renders cleanly */
+}
+
+/* Show widget boundaries in debug mode */
+[data-widget-debug="true"] .widget-item.floating-widget {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
   backdrop-filter: blur(8px);

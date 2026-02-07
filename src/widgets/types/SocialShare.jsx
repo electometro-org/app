@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import { useTranslate } from '@tolgee/react';
 import { registerWidget } from '../registry';
 import './SocialShare.css';
 
@@ -8,9 +9,10 @@ import './SocialShare.css';
  * Share buttons for social media. By default, only shows on results phase.
  * Configurable via config.platforms (array of platform names)
  */
-function SocialShare({ config, quizState }) {
+function SocialShare({ config }) {
+  const { t } = useTranslate();
   const platforms = config.platforms || ['twitter', 'facebook', 'whatsapp', 'copy'];
-  const shareText = config.shareText || 'Check out my political compass results!';
+  const shareText = config.shareText || t('widgets.socialShare.defaultText');
   const shareUrl = config.shareUrl || (typeof window !== 'undefined' ? window.location.href : '');
 
   const handleShare = useCallback((platform) => {
@@ -61,20 +63,24 @@ function SocialShare({ config, quizState }) {
 
   return (
     <div className="social-share">
-      <div className="social-share-label">Share your results</div>
-      <div className="social-share-buttons">
-        {platforms.map(platform => (
-          <button
-            key={platform}
-            className={`social-share-button social-share-${platform}`}
-            onClick={() => handleShare(platform)}
-            title={platformNames[platform] || platform}
-            aria-label={`Share on ${platformNames[platform] || platform}`}
-          >
-            <span className="social-share-icon">{platformIcons[platform] || platform[0].toUpperCase()}</span>
-          </button>
-        ))}
+      <span className="social-share-emoji">👉</span>
+      <div className="social-share-content">
+        <div className="social-share-label">{t('widgets.socialShare.label')}</div>
+        <div className="social-share-buttons">
+          {platforms.map(platform => (
+            <button
+              key={platform}
+              className={`social-share-button social-share-${platform}`}
+              onClick={() => handleShare(platform)}
+              title={platformNames[platform] || platform}
+              aria-label={`Share on ${platformNames[platform] || platform}`}
+            >
+              <span className="social-share-icon">{platformIcons[platform] || platform[0].toUpperCase()}</span>
+            </button>
+          ))}
+        </div>
       </div>
+      <span className="social-share-emoji">👈</span>
     </div>
   );
 }

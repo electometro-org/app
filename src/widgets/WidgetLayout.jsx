@@ -37,6 +37,13 @@ const COLS = {
 // Compactor with allowOverlap enabled, no compaction (null), no collision prevention
 const overlappingCompactor = getCompactor(null, true, false);
 
+/**
+ * Get unique key for a widget (supports multiple instances of same type)
+ */
+function getWidgetKey(widget) {
+  return widget.id || widget.type;
+}
+
 // Default layouts per breakpoint
 const DEFAULT_LAYOUTS = {
   lg: {
@@ -77,8 +84,11 @@ const DEFAULT_LAYOUTS = {
  * Always ensures x, y, w, h are present by merging with defaults.
  */
 function getWidgetLayout(widget, breakpoint, savedLayouts) {
+  const widgetKey = getWidgetKey(widget);
+
   // Get base defaults (fallback chain: DEFAULT_LAYOUTS > config > absolute fallback)
   const absoluteFallback = { x: 0, y: 0, w: 8, h: 8 };
+  // For DEFAULT_LAYOUTS, use widget.type (not id) since defaults are per-type
   const defaultLayout = DEFAULT_LAYOUTS[breakpoint]?.[widget.type] || absoluteFallback;
   const configLayout = widget.layouts?.[breakpoint];
 
@@ -86,7 +96,8 @@ function getWidgetLayout(widget, breakpoint, savedLayouts) {
   const base = { ...defaultLayout, ...configLayout };
 
   // User-saved position (from localStorage) takes highest priority
-  const saved = savedLayouts?.[breakpoint]?.[widget.type];
+  // Use widgetKey for saved positions (allows multiple instances)
+  const saved = savedLayouts?.[breakpoint]?.[widgetKey];
   if (saved && (saved.x !== undefined || saved.y !== undefined)) {
     // Merge saved with base to ensure w/h are always present
     return { ...base, ...saved };
@@ -103,10 +114,11 @@ function generateResponsiveLayouts(widgets, savedLayouts) {
 
   Object.keys(BREAKPOINTS).forEach(breakpoint => {
     layouts[breakpoint] = widgets.map(widget => {
+      const widgetKey = getWidgetKey(widget);
       const pos = getWidgetLayout(widget, breakpoint, savedLayouts);
 
       return {
-        i: widget.type,
+        i: widgetKey,
         x: pos.x,
         y: pos.y,
         w: pos.w,
@@ -177,7 +189,7 @@ export function WidgetLayout({ children }) {
 
   // Track visible widget IDs to detect actual changes
   const visibleWidgetIds = useMemo(() =>
-    visibleWidgets.map(w => w.type).sort().join(','),
+    visibleWidgets.map(w => getWidgetKey(w)).sort().join(','),
     [visibleWidgets]
   );
 
@@ -191,22 +203,33 @@ export function WidgetLayout({ children }) {
 
       // Generate new layout, preserving positions from ref
       newLayouts[breakpoint] = visibleWidgets.map(widget => {
-        // First priority: use existing position from ref (includes hidden widgets that were moved)
-        if (breakpointPositions[widget.type]) {
+        const widgetKey = getWidgetKey(widget);
+
+        // Always get base layout first (ensures w/h are present)
+        const basePos = getWidgetLayout(widget, breakpoint, savedLayouts);
+
+        // If we have a cached position in ref, merge it with base
+        if (breakpointPositions[widgetKey]) {
           return {
-            ...breakpointPositions[widget.type],
+            i: widgetKey,
+            // Start with base (has guaranteed w/h), then overlay cached position
+            x: breakpointPositions[widgetKey].x ?? basePos.x,
+            y: breakpointPositions[widgetKey].y ?? basePos.y,
+            w: breakpointPositions[widgetKey].w ?? basePos.w,
+            h: breakpointPositions[widgetKey].h ?? basePos.h,
+            minW: 1,
+            minH: 1,
             static: widget.draggable === false,
           };
         }
 
         // Use the priority chain: saved > config > default > fallback
-        const pos = getWidgetLayout(widget, breakpoint, savedLayouts);
         return {
-          i: widget.type,
-          x: pos.x,
-          y: pos.y,
-          w: pos.w,
-          h: pos.h,
+          i: widgetKey,
+          x: basePos.x,
+          y: basePos.y,
+          w: basePos.w,
+          h: basePos.h,
           minW: 1,
           minH: 1,
           static: widget.draggable === false,
@@ -298,6 +321,7 @@ export function WidgetLayout({ children }) {
             const registered = getWidget(widget.type);
             if (!registered) return null;
 
+            const widgetKey = getWidgetKey(widget);
             const { component: Component } = registered;
             const isQuiz = widget.type === 'quiz';
             const isDraggable = !isQuiz && widget.draggable !== false;
@@ -308,11 +332,11 @@ export function WidgetLayout({ children }) {
               ...(isQuiz && { children }),
             };
 
-            const debugInfo = DEBUG_MODE && debugLayout[widget.type];
+            const debugInfo = DEBUG_MODE && debugLayout[widgetKey];
 
             return (
               <div
-                key={widget.type}
+                key={widgetKey}
                 className={`widget-item ${isQuiz ? 'quiz-widget' : 'floating-widget'}`}
               >
                 {isDraggable && (
@@ -323,7 +347,7 @@ export function WidgetLayout({ children }) {
                 <Component {...widgetProps} />
                 {debugInfo && (
                   <div className="widget-debug-overlay">
-                    <span className="widget-debug-id">{widget.type}</span>
+                    <span className="widget-debug-id">{widgetKey}</span>
                     <span className="widget-debug-coords">
                       x:{debugInfo.x} y:{debugInfo.y} w:{debugInfo.w} h:{debugInfo.h}
                     </span>

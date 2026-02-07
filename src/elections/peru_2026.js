@@ -132,6 +132,25 @@ export default {
       layouts: {
         lg: { x: 43, y: 50, w: 25, h: 6 },
       }
-    }
+    },
+    // Multiple placeholder widgets with unique IDs
+    {
+      type: "placeholder",
+      id: "test-header",
+      label: "Header Area",
+      layouts: { lg: { x: 0, y: 0, w: 96, h: 8 } }
+    },
+    // {
+    //   type: "placeholder",
+    //   id: "test-sidebar",
+    //   label: "Sidebar",
+    //   layouts: { lg: { x: 0, y: 10, w: 20, h: 40 } }
+    // },
+    // {
+    //   type: "placeholder",
+    //   id: "button-overlay",
+    //   color: "rgba(255, 0, 0, 0.2)",  // Custom color
+    //   layouts: { lg: { x: 30, y: 45, w: 30, h: 10 } }
+    // },
   ]
 }

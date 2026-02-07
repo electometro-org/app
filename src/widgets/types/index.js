@@ -8,3 +8,4 @@ import './QuizWidget';
 import './ProgressIndicator';
 import './CountdownTimer';
 import './SocialShare';
+import './PlaceholderWidget';

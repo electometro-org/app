@@ -60,12 +60,27 @@ export function useLayoutPersistence(electionId, defaultLayout = {}) {
     }
   }, [storageKey, layout]);
 
-  // Update a single widget's layout
+  // Update a single widget's layout (supports breakpoint-specific data)
   const setLayout = useCallback((widgetId, layoutData) => {
-    setLayoutState(prev => ({
-      ...prev,
-      [widgetId]: { ...prev[widgetId], ...layoutData },
-    }));
+    const { breakpoint, ...position } = layoutData;
+
+    setLayoutState(prev => {
+      if (breakpoint) {
+        // Breakpoint-specific layout
+        return {
+          ...prev,
+          [breakpoint]: {
+            ...prev[breakpoint],
+            [widgetId]: { ...prev[breakpoint]?.[widgetId], ...position },
+          },
+        };
+      }
+      // Flat layout (legacy)
+      return {
+        ...prev,
+        [widgetId]: { ...prev[widgetId], ...position },
+      };
+    });
   }, []);
 
   // Reset to default layout

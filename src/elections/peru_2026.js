@@ -121,11 +121,11 @@ export default {
     { type: "quiz", draggable: false, defaultSlot: "center" },
     { type: "progress-indicator",
       defaultSlot: "top",
-      resizable: false,
-      style: "bar",
-      showOnPhase: "quiz",
+      resizable: true,
+      style: "dots",
+      showOnPhase: ["quiz"],
       layouts: {
-        lg:  { x: 41, y: 9, w: 14, h: 5 },
+        lg:  { x: 41, y: 10, w: 14, h: 5 },
         md:  { x: 0, y: 0, w: 18, h: 6 },
         // sm, xs, xxs will fall back to DEFAULT_LAYOUTS
       },
@@ -172,14 +172,13 @@ export default {
     //   resizable: true,
     //   layouts: { lg: { x: 0, y: 0, w: 96, h: 8 } }
     // },
-    {
-      type: "placeholder",
-      id: "test-sidebar",
-      label: "",
-      layouts: { lg: { x: 0, y: 10, w: 20, h: 40 } },
-      resizable: false,
-      invisible: true,
-    },
+    // {
+    //   type: "placeholder",
+    //   id: "test-sidebar",
+    //   label: "",
+    //   layouts: { lg: { x: 0, y: 10, w: 20, h: 40 } },
+    //   invisible: false,
+    // },
     // {
     //   type: "placeholder",
     //   id: "button-overlay",

@@ -64,6 +64,14 @@
   background-color: transparent;
 }
 
+[data-election="peru_2026"] #questions-progress-counter {
+  display: none;
+}
+
+[data-election="peru_2026"] .progress-dot.completed {
+  background: #c31e1e;
+}
+
 @media (max-width: 767px) {
   [data-election="peru_2026"] .main-container,
   [data-election="peru_2026"] .election-content-area,

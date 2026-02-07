@@ -125,7 +125,7 @@ export default {
       style: "dots",
       showOnPhase: ["quiz"],
       layouts: {
-        lg:  { x: 34, y: 10, w: 28, h: 3 },
+        lg:  { x: 34, y: 11, w: 28, h: 3 },
         md:  { x: 0, y: 0, w: 18, h: 6 },
         // sm, xs, xxs will fall back to DEFAULT_LAYOUTS
       },

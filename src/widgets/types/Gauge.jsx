@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslate } from '@tolgee/react';
 import { registerWidget } from '../registry';
 import { useWidgetContext } from '../WidgetContext';
 import './Gauge.css';
@@ -63,12 +64,12 @@ function getOpinionFromAnswer(answer) {
   return null;
 }
 
-// Importance labels (Spanish)
-function getImportanceLabel(value) {
+// Importance label translation keys
+function getImportanceLabelKey(value) {
   if (value === null) return null;
-  if (value < 33) return 'poca';
-  if (value < 66) return 'normal';
-  return 'mucha';
+  if (value < 33) return 'widgets.gauge.importanceLow';
+  if (value < 66) return 'widgets.gauge.importanceNormal';
+  return 'widgets.gauge.importanceHigh';
 }
 
 // Size presets (height includes space for emojis above arc)
@@ -92,6 +93,8 @@ function Gauge({ config, quizState }) {
     emojiMid = '🤔',
     emojiHigh = '🚨',
   } = config;
+
+  const { t } = useTranslate();
 
   // Get preview state from widget context (set by OpinionButtons on hover)
   const { gaugePreview } = useWidgetContext();
@@ -170,15 +173,16 @@ function Gauge({ config, quizState }) {
     polarToCartesian(centerX, centerY, emojiRadius, 150),  // 83% position (right third)
   ];
 
-  // Get importance label
-  const importanceLabel = getImportanceLabel(value);
+  // Get importance label (translated)
+  const importanceLabelKey = getImportanceLabelKey(value);
+  const importanceLabel = importanceLabelKey ? t(importanceLabelKey) : null;
 
   return (
     <div className="gauge-widget">
       {/* Left label - Static "Importancia:" */}
       {showLabels && (
         <div className="gauge-label gauge-label--left">
-          <span className="gauge-label__text">Importancia:</span>
+          <span className="gauge-label__text">{t('widgets.gauge.importanceLabel')}</span>
         </div>
       )}
 

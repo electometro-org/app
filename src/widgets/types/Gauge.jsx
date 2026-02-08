@@ -148,20 +148,10 @@ function Gauge({ config, quizState }) {
   const arcLength = Math.PI * radius;
   const clampedValue = value !== null ? Math.min(100, Math.max(0, value)) : 0;
 
-  // Snap fill value to the end of the corresponding third
-  // First third (0-33) → fill to 33.33%
-  // Second third (33-66) → fill to 66.66%
-  // Third third (66-100) → fill to 100%
-  const getSnappedFillValue = (val) => {
-    if (val <= 0) return 0;
-    if (val < 33.33) return 33.33;
-    if (val < 66.66) return 66.66;
-    return 100;
-  };
-  const fillValue = getSnappedFillValue(clampedValue);
-  const strokeDashoffset = arcLength - (fillValue / 100) * arcLength;
+  // Arc is always fully filled when there's a value
+  const strokeDashoffset = value !== null ? 0 : arcLength;
 
-  // Pointer rotation (uses original value, not snapped)
+  // Pointer rotation
   const angle = (clampedValue / 100) * 180;
   const rotation = angle - 90;
 

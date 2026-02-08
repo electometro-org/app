@@ -189,6 +189,15 @@ function Gauge({ config, quizState }) {
           viewBox={`0 0 ${width} ${height}`}
           className="gauge-svg"
         >
+          {/* Gradient definition - from grayish to full color (left to right) */}
+          <defs>
+            <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={displayColor} stopOpacity="0.15" />
+              <stop offset="55%" stopColor={displayColor} stopOpacity="0.75" />
+              <stop offset="100%" stopColor={displayColor} />
+            </linearGradient>
+          </defs>
+
           {/* Background track */}
           <path
             d={fullArcPath}
@@ -210,11 +219,11 @@ function Gauge({ config, quizState }) {
           {/* Active parts - only render when there's a value */}
           {value !== null && (
             <>
-              {/* Main arc with smooth transition */}
+              {/* Main arc with gradient (weak to strong = low to high importance) */}
               <path
                 d={fullArcPath}
                 fill="none"
-                stroke={displayColor}
+                stroke="url(#gaugeGradient)"
                 strokeWidth={strokeWidth}
                 strokeLinecap="round"
                 strokeDasharray={arcLength}

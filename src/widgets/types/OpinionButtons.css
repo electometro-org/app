@@ -35,8 +35,36 @@
   cursor: default;
 }
 
-.opinion-button--selected:not(.opinion-button--hovered) {
+.opinion-button--selected:not(.opinion-button--hovered):not(.opinion-button--touched) {
   background-color: transparent;
+}
+
+/* Touch states (mobile) */
+.opinion-button--touched {
+  background-color: transparent;
+}
+
+.opinion-button--touch-confirmed {
+  /* Visual feedback when touch is confirmed */
+}
+
+/* Pulsating animation for touch interaction */
+@keyframes pulsate {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.opinion-button__highlight--pulsating {
+  animation: pulsate 0.6s ease-in-out infinite;
+}
+
+.opinion-button__highlight--confirmed {
+  opacity: 0.8 !important;
+  animation: none;
 }
 
 /* Highlight overlays */

@@ -54,6 +54,7 @@ function OpinionButtons({ config, quizState }) {
     disagreeColor = '#c32e2e',
     blockDuration = 1000,
     hoverReactivateDistance = 10,
+    touchConfirmDuration = 1000, // ms to hold before touch is confirmed
   } = config;
 
   const { currentQuestionIndex, questions, answers, weights, seenQuestions = [] } = quizState;
@@ -69,6 +70,13 @@ function OpinionButtons({ config, quizState }) {
   // Refs to track current hover during block (so timeout can read latest values)
   const hoveredButtonRef = useRef(null);
   const hoveredSectionRef = useRef(null);
+
+  // Touch state for mobile
+  const [touchedButton, setTouchedButton] = useState(null);
+  const [touchedSection, setTouchedSection] = useState(null);
+  const [isTouchConfirmed, setIsTouchConfirmed] = useState(false);
+  const touchConfirmTimerRef = useRef(null);
+  const touchStartSectionRef = useRef(null); // Track section when timer started
 
   // Block buttons briefly after question changes (gives user time to read)
   const [isBlocked, setIsBlocked] = useState(true); // Start blocked
@@ -280,6 +288,147 @@ function OpinionButtons({ config, quizState }) {
     widgetContext.setGaugePreview?.(null);
   }, [widgetContext]);
 
+  // Calculate section from touch position on a button
+  const getSectionFromTouch = useCallback((touch, buttonElement) => {
+    const rect = buttonElement.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const xPercentage = (x / rect.width) * 100;
+
+    // Check if touch is within button bounds
+    if (touch.clientX < rect.left || touch.clientX > rect.right ||
+        touch.clientY < rect.top || touch.clientY > rect.bottom) {
+      return null; // Touch is outside button
+    }
+
+    if (xPercentage < 33.3) return 1;
+    if (xPercentage < 66.6) return 2;
+    return 3;
+  }, []);
+
+  // Clear touch confirmation timer
+  const clearTouchConfirmTimer = useCallback(() => {
+    if (touchConfirmTimerRef.current) {
+      clearTimeout(touchConfirmTimerRef.current);
+      touchConfirmTimerRef.current = null;
+    }
+  }, []);
+
+  // Start touch confirmation timer
+  const startTouchConfirmTimer = useCallback((section) => {
+    clearTouchConfirmTimer();
+    touchStartSectionRef.current = section;
+
+    touchConfirmTimerRef.current = setTimeout(() => {
+      // Only confirm if still on the same section
+      if (touchStartSectionRef.current === section) {
+        setIsTouchConfirmed(true);
+      }
+    }, touchConfirmDuration);
+  }, [touchConfirmDuration, clearTouchConfirmTimer]);
+
+  // Handle touch start on button
+  const handleTouchStart = useCallback((option, event) => {
+    if (isBlocked) return;
+
+    event.preventDefault(); // Prevent mouse events from firing
+    const touch = event.touches[0];
+    const buttonElement = event.currentTarget;
+    const section = getSectionFromTouch(touch, buttonElement);
+
+    if (section) {
+      setTouchedButton(option);
+      setTouchedSection(section);
+      setIsTouchConfirmed(false);
+      startTouchConfirmTimer(section);
+
+      // Update gauge preview
+      const opinion = getOpinionType(option);
+      const gaugeValue = SECTION_TO_GAUGE_VALUE[section];
+      const color = opinion === 'agree' ? agreeColor : opinion === 'disagree' ? disagreeColor : neutralColor;
+
+      widgetContext.setGaugePreview?.({
+        value: gaugeValue,
+        color,
+        opinion,
+        isPointerTingling: true,
+        isColorCycling: false,
+      });
+    }
+  }, [isBlocked, getSectionFromTouch, startTouchConfirmTimer, getOpinionType, agreeColor, disagreeColor, neutralColor, widgetContext]);
+
+  // Handle touch move on button
+  const handleTouchMove = useCallback((option, event) => {
+    if (!touchedButton) return;
+
+    const touch = event.touches[0];
+    const buttonElement = event.currentTarget;
+    const section = getSectionFromTouch(touch, buttonElement);
+
+    if (section === null) {
+      // Touch moved outside button - cancel interaction
+      clearTouchConfirmTimer();
+      setTouchedButton(null);
+      setTouchedSection(null);
+      setIsTouchConfirmed(false);
+      widgetContext.setGaugePreview?.(null);
+      return;
+    }
+
+    // If section changed, restart the confirmation timer
+    if (section !== touchedSection) {
+      setTouchedSection(section);
+      setIsTouchConfirmed(false);
+      startTouchConfirmTimer(section);
+
+      // Update gauge preview for new section
+      const opinion = getOpinionType(option);
+      const gaugeValue = SECTION_TO_GAUGE_VALUE[section];
+      const color = opinion === 'agree' ? agreeColor : opinion === 'disagree' ? disagreeColor : neutralColor;
+
+      widgetContext.setGaugePreview?.({
+        value: gaugeValue,
+        color,
+        opinion,
+        isPointerTingling: true,
+        isColorCycling: false,
+      });
+    }
+  }, [touchedButton, touchedSection, getSectionFromTouch, clearTouchConfirmTimer, startTouchConfirmTimer, getOpinionType, agreeColor, disagreeColor, neutralColor, widgetContext]);
+
+  // Handle touch end
+  const handleTouchEnd = useCallback((option, event) => {
+    event.preventDefault();
+    clearTouchConfirmTimer();
+
+    if (isTouchConfirmed && touchedButton && touchedSection) {
+      // Record the answer
+      const weight = SECTION_TO_WEIGHT[touchedSection];
+      quizContext.dispatch({ type: 'SET_WEIGHTS', index: currentQuestionIndex, weight });
+      widgetContext.setGaugePreview?.(null);
+      quizContext.handleAnswerClick(option);
+    }
+
+    // Reset touch state
+    setTouchedButton(null);
+    setTouchedSection(null);
+    setIsTouchConfirmed(false);
+    widgetContext.setGaugePreview?.(null);
+  }, [isTouchConfirmed, touchedButton, touchedSection, clearTouchConfirmTimer, quizContext, currentQuestionIndex, widgetContext]);
+
+  // Handle touch cancel (e.g., phone call interrupts)
+  const handleTouchCancel = useCallback(() => {
+    clearTouchConfirmTimer();
+    setTouchedButton(null);
+    setTouchedSection(null);
+    setIsTouchConfirmed(false);
+    widgetContext.setGaugePreview?.(null);
+  }, [clearTouchConfirmTimer, widgetContext]);
+
+  // Cleanup touch timer on unmount
+  useEffect(() => {
+    return () => clearTouchConfirmTimer();
+  }, [clearTouchConfirmTimer]);
+
   if (!currentQuestion || options.length === 0) {
     return null;
   }
@@ -295,25 +444,31 @@ function OpinionButtons({ config, quizState }) {
         const opinion = getOpinionType(option);
         const isSelected = currentAnswer === option;
         const isHovered = hoveredButton === option && !isBlocked;
+        const isTouched = touchedButton === option;
+        const isActive = isHovered || isTouched; // Either hover or touch activates the button
 
         return (
           <button
             key={index}
             data-opinion={opinion}
-            className={`opinion-button ${isSelected ? 'opinion-button--selected' : ''} ${isHovered ? 'opinion-button--hovered' : ''} ${isBlocked ? 'opinion-button--blocked' : ''}`}
+            className={`opinion-button ${isSelected ? 'opinion-button--selected' : ''} ${isHovered ? 'opinion-button--hovered' : ''} ${isTouched ? 'opinion-button--touched' : ''} ${isTouchConfirmed && isTouched ? 'opinion-button--touch-confirmed' : ''} ${isBlocked ? 'opinion-button--blocked' : ''}`}
             onClick={(e) => handleClick(option, e)}
             onMouseMove={(e) => handleButtonMouseMove(option, e)}
             onMouseEnter={(e) => handleButtonMouseEnter(option, e)}
+            onTouchStart={(e) => handleTouchStart(option, e)}
+            onTouchMove={(e) => handleTouchMove(option, e)}
+            onTouchEnd={(e) => handleTouchEnd(option, e)}
+            onTouchCancel={handleTouchCancel}
           >
-            {/* Selected state background (when not hovered) */}
-            {isSelected && !isHovered && (
+            {/* Selected state background (when not hovered/touched) */}
+            {isSelected && !isActive && (
               <div
                 className="opinion-button__highlight opinion-button__highlight--base"
                 data-opinion={opinion}
               />
             )}
 
-            {/* Hovered state */}
+            {/* Hovered state (desktop) */}
             {isHovered && (
               <>
                 {/* Moving highlight following cursor */}
@@ -336,8 +491,31 @@ function OpinionButtons({ config, quizState }) {
               </>
             )}
 
-            {/* Emoji indicators on hover */}
-            {showEmojis && isHovered && (
+            {/* Touched state (mobile) */}
+            {isTouched && (
+              <>
+                {/* Highlight for touched section - pulsates until confirmed */}
+                {touchedSection && (
+                  <div
+                    className={`opinion-button__highlight opinion-button__highlight--section ${!isTouchConfirmed ? 'opinion-button__highlight--pulsating' : 'opinion-button__highlight--confirmed'}`}
+                    data-opinion={opinion}
+                    style={{ left: `${(touchedSection - 1) * 33.33}%` }}
+                  />
+                )}
+
+                {/* Intense highlight for selected section (if already answered this question) */}
+                {isSelected && selectedSection && (
+                  <div
+                    className="opinion-button__highlight opinion-button__highlight--selected-section"
+                    data-opinion={opinion}
+                    style={{ left: `${(selectedSection - 1) * 33.33}%` }}
+                  />
+                )}
+              </>
+            )}
+
+            {/* Emoji indicators on hover or touch */}
+            {showEmojis && isActive && (
               <>
                 <div className="opinion-button__divider opinion-button__divider--left" />
                 <div className="opinion-button__divider opinion-button__divider--right" />
@@ -348,7 +526,7 @@ function OpinionButtons({ config, quizState }) {
             )}
 
             {/* Button text */}
-            <span className={`opinion-button__text ${isHovered ? 'opinion-button__text--hidden' : ''}`}>
+            <span className={`opinion-button__text ${isActive ? 'opinion-button__text--hidden' : ''}`}>
               {t(option)}
             </span>
           </button>

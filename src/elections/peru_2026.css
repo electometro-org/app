@@ -43,8 +43,21 @@
   font-size: 0.8rem;
 }
 
+/* Hide default option buttons - replaced by opinion-buttons widget */
 [data-election="peru_2026"] .option-button {
+  display: none;
+}
+
+/* Hide default importance slider - replaced by opinion-buttons widget */
+[data-election="peru_2026"] .importance-slider-container {
+  display: none;
+}
+
+/* Style the opinion buttons widget to match election theme */
+[data-election="peru_2026"] .opinion-button {
   border-radius: 15px;
+  background-color: var(--buttonColor);
+  color: var(--fontColor);
 }
 
 [data-election="peru_2026"] .results-toggle-container .toggle-option-button {
@@ -72,13 +85,22 @@
   background: #c31e1e;
 }
 
- [data-election="peru_2026"] .social-share {
-   margin-top: 10px;
-   margin-left: 20px;
-   margin-right: 20px;
-   margin-bottom: 10px;
-   background: #ffdcdc;
- }
+[data-election="peru_2026"] .social-share {
+ margin-top: 10px;
+ margin-left: 20px;
+ margin-right: 20px;
+ margin-bottom: 10px;
+ background: #ffdcdc;
+}
+
+[data-election="peru_2026"] .gauge-widget {
+  margin-left: 20px;
+}
+
+[data-election="peru_2026"] .opinion-buttons {
+  width: 90%;
+  gap: 15px;
+}
 
 @media (max-width: 767px) {
   [data-election="peru_2026"] .main-container,

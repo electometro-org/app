@@ -20,6 +20,8 @@ import './OpinionButtons.css';
  * - agreeColor: string (default: '#4a9c6d')
  * - neutralColor: string (default: '#6b7280')
  * - disagreeColor: string (default: '#c32e2e')
+ * - blockDuration: number (default: 1000) - ms to block buttons on new question
+ * - hoverReactivateDistance: number (default: 10) - pixels to move before hover reactivates after click
  */
 
 // Map importance section (1, 2, 3) to weight value
@@ -50,6 +52,8 @@ function OpinionButtons({ config, quizState }) {
     agreeColor = '#4a9c6d',
     neutralColor = '#6b7280',
     disagreeColor = '#c32e2e',
+    blockDuration = 1000,
+    hoverReactivateDistance = 10,
   } = config;
 
   const { currentQuestionIndex, questions, answers, weights, seenQuestions = [] } = quizState;
@@ -73,7 +77,6 @@ function OpinionButtons({ config, quizState }) {
   // Track mouse position to require movement before re-enabling hover
   const lastClickPosRef = useRef(null);
   const [hasMovedEnough, setHasMovedEnough] = useState(false);
-  const MIN_MOVE_DISTANCE = 10; // pixels
 
   // Helper to get opinion type (needed in timeout callback)
   const getOpinionType = (option) => {
@@ -127,11 +130,11 @@ function OpinionButtons({ config, quizState }) {
           isColorCycling: false,
         });
       }
-    }, 1000);
+    }, blockDuration);
 
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isBlocked]);
+  }, [isBlocked, blockDuration]);
 
   // Get the option buttons from the question
   const options = currentQuestion?.options || [];
@@ -210,7 +213,7 @@ function OpinionButtons({ config, quizState }) {
       const dx = event.clientX - lastClickPosRef.current.x;
       const dy = event.clientY - lastClickPosRef.current.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
-      if (distance >= MIN_MOVE_DISTANCE) {
+      if (distance >= hoverReactivateDistance) {
         setHasMovedEnough(true);
         setHoveredButton(option); // Trigger hover now that we've moved enough
       } else {

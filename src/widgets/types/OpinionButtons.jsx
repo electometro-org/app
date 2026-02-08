@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslate } from '@tolgee/react';
 import { registerWidget } from '../registry';
 import { useWidgetContext } from '../WidgetContext';
@@ -61,6 +61,44 @@ function OpinionButtons({ config, quizState }) {
   const [hoveredButton, setHoveredButton] = useState(null);
   const [hoveredSection, setHoveredSection] = useState(null);
 
+  // Block buttons briefly after question changes (gives user time to read)
+  const [isBlocked, setIsBlocked] = useState(false);
+  const blockTimeoutRef = useRef(null);
+  const prevQuestionIndexRef = useRef(currentQuestionIndex);
+
+  // Track mouse position to require movement before re-enabling hover
+  const lastClickPosRef = useRef(null);
+  const [hasMovedEnough, setHasMovedEnough] = useState(false);
+  const MIN_MOVE_DISTANCE = 5; // pixels
+
+  useEffect(() => {
+    if (currentQuestionIndex !== prevQuestionIndexRef.current) {
+      prevQuestionIndexRef.current = currentQuestionIndex;
+      setIsBlocked(true);
+      setHoveredButton(null);
+      setHoveredSection(null);
+      widgetContext.setGaugePreview?.(null);
+
+      if (blockTimeoutRef.current) {
+        clearTimeout(blockTimeoutRef.current);
+      }
+
+      blockTimeoutRef.current = setTimeout(() => {
+        setIsBlocked(false);
+      }, 1000);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentQuestionIndex]);
+
+  // Cleanup timeout on unmount only
+  useEffect(() => {
+    return () => {
+      if (blockTimeoutRef.current) {
+        clearTimeout(blockTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Get the option buttons from the question
   const options = currentQuestion?.options || [];
 
@@ -105,6 +143,10 @@ function OpinionButtons({ config, quizState }) {
     const section = getSectionFromEvent(event);
     const weight = SECTION_TO_WEIGHT[section];
 
+    // Store click position and require mouse movement before hover reactivates
+    lastClickPosRef.current = { x: event.clientX, y: event.clientY };
+    setHasMovedEnough(false);
+
     // Update weight first, then answer (answer triggers navigation)
     quizContext.dispatch({ type: 'SET_WEIGHTS', index: currentQuestionIndex, weight });
 
@@ -117,8 +159,30 @@ function OpinionButtons({ config, quizState }) {
 
   // Handle mouse move on button
   const handleButtonMouseMove = useCallback((option, event) => {
+    if (isBlocked) return;
+
     const section = getSectionFromEvent(event);
+
+    // Check if mouse has moved enough from reference position
+    if (!hasMovedEnough) {
+      if (!lastClickPosRef.current) {
+        // Set initial reference position on first mouse move
+        lastClickPosRef.current = { x: event.clientX, y: event.clientY };
+        return;
+      }
+      const dx = event.clientX - lastClickPosRef.current.x;
+      const dy = event.clientY - lastClickPosRef.current.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance >= MIN_MOVE_DISTANCE) {
+        setHasMovedEnough(true);
+        setHoveredButton(option); // Trigger hover now that we've moved enough
+      } else {
+        return; // Not moved enough yet, skip hover effects
+      }
+    }
+
     setHoveredSection(section);
+    setHoveredButton(option);
 
     const opinion = getOpinionType(option);
     const gaugeValue = SECTION_TO_GAUGE_VALUE[section];
@@ -138,14 +202,15 @@ function OpinionButtons({ config, quizState }) {
       color,
       opinion,
       isPointerTingling: shouldTingle,
-      isColorCycling: shouldCycleColors,
+      isColorCycleColors: shouldCycleColors,
     });
-  }, [currentAnswer, enableColorCycling, widgetContext]);
+  }, [currentAnswer, enableColorCycling, widgetContext, isBlocked, hasMovedEnough]);
 
   // Handle mouse enter on button
   const handleButtonMouseEnter = useCallback((option) => {
+    if (isBlocked || !hasMovedEnough) return;
     setHoveredButton(option);
-  }, []);
+  }, [isBlocked, hasMovedEnough]);
 
   // Handle mouse leave from container
   const handleContainerMouseLeave = useCallback(() => {
@@ -176,7 +241,8 @@ function OpinionButtons({ config, quizState }) {
           <button
             key={index}
             data-opinion={opinion}
-            className={`opinion-button ${isSelected ? 'opinion-button--selected' : ''} ${isHovered ? 'opinion-button--hovered' : ''}`}
+            className={`opinion-button ${isSelected ? 'opinion-button--selected' : ''} ${isHovered ? 'opinion-button--hovered' : ''} ${isBlocked ? 'opinion-button--blocked' : ''}`}
+            disabled={isBlocked}
             onClick={(e) => handleClick(option, e)}
             onMouseMove={(e) => handleButtonMouseMove(option, e)}
             onMouseEnter={() => handleButtonMouseEnter(option)}

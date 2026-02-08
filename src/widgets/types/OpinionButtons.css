@@ -26,6 +26,15 @@
   background-color: transparent;
 }
 
+.opinion-button--blocked {
+  pointer-events: none;
+}
+
+.opinion-button--blocked:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
 .opinion-button--selected:not(.opinion-button--hovered) {
   background-color: transparent;
 }

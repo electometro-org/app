@@ -249,24 +249,25 @@ function Gauge({ config, quizState }) {
                 />
               )}
 
-              {/* Pointer */}
-              {showPointer && (
-                <g
-                  transform={`rotate(${rotation} ${centerX} ${centerY})`}
-                  className="gauge-pointer-group"
-                >
-                  <g
-                    className={isPointerTingling ? 'gauge-pointer--tingling' : ''}
-                    style={{ '--gauge-center-x': `${centerX}px`, '--gauge-center-y': `${centerY}px` }}
-                  >
-                    <polygon
-                      points={`${centerX},${centerY - radius + strokeWidth / 2} ${centerX + strokeWidth / 4},${centerY} ${centerX - strokeWidth / 4},${centerY}`}
-                      className="gauge-pointer"
-                    />
-                  </g>
-                </g>
-              )}
             </>
+          )}
+
+          {/* Pointer - always visible, rests at 0 when no selection */}
+          {showPointer && (
+            <g
+              transform={`rotate(${rotation} ${centerX} ${centerY})`}
+              className="gauge-pointer-group"
+            >
+              <g
+                className={isPointerTingling ? 'gauge-pointer--tingling' : ''}
+                style={{ '--gauge-center-x': `${centerX}px`, '--gauge-center-y': `${centerY}px` }}
+              >
+                <polygon
+                  points={`${centerX},${centerY - radius + strokeWidth / 2} ${centerX + strokeWidth / 4},${centerY} ${centerX - strokeWidth / 4},${centerY}`}
+                  className="gauge-pointer"
+                />
+              </g>
+            </g>
           )}
 
           {/* Emojis on the arc */}

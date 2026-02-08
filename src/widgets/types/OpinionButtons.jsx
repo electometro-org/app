@@ -66,9 +66,8 @@ function OpinionButtons({ config, quizState }) {
   const hoveredSectionRef = useRef(null);
 
   // Block buttons briefly after question changes (gives user time to read)
-  const [isBlocked, setIsBlocked] = useState(false);
-  const blockTimeoutRef = useRef(null);
-  const prevQuestionIndexRef = useRef(currentQuestionIndex);
+  const [isBlocked, setIsBlocked] = useState(true); // Start blocked
+  const prevQuestionIndexRef = useRef(null); // null to detect first mount
 
   // Track mouse position to require movement before re-enabling hover
   const lastClickPosRef = useRef(null);
@@ -83,6 +82,7 @@ function OpinionButtons({ config, quizState }) {
     return 'neutral';
   };
 
+  // Detect question changes and trigger block
   useEffect(() => {
     if (currentQuestionIndex !== prevQuestionIndexRef.current) {
       prevQuestionIndexRef.current = currentQuestionIndex;
@@ -92,43 +92,38 @@ function OpinionButtons({ config, quizState }) {
       // Reset movement requirement for new question
       setHasMovedEnough(true);
       lastClickPosRef.current = null;
-
-      if (blockTimeoutRef.current) {
-        clearTimeout(blockTimeoutRef.current);
-      }
-
-      blockTimeoutRef.current = setTimeout(() => {
-        setIsBlocked(false);
-
-        // Apply gauge preview based on current hover (read from refs for latest values)
-        const button = hoveredButtonRef.current;
-        const section = hoveredSectionRef.current;
-        if (button && section) {
-          const opinion = getOpinionType(button);
-          const gaugeValue = SECTION_TO_GAUGE_VALUE[section];
-          const color = opinion === 'agree' ? agreeColor : opinion === 'disagree' ? disagreeColor : neutralColor;
-
-          widgetContext.setGaugePreview?.({
-            value: gaugeValue,
-            color,
-            opinion,
-            isPointerTingling: true,
-            isColorCycling: false,
-          });
-        }
-      }, 1000);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentQuestionIndex]);
 
-  // Cleanup timeout on unmount only
+  // Handle the block timeout separately (survives StrictMode double-run)
   useEffect(() => {
-    return () => {
-      if (blockTimeoutRef.current) {
-        clearTimeout(blockTimeoutRef.current);
+    if (!isBlocked) return;
+
+    const timeout = setTimeout(() => {
+      setIsBlocked(false);
+
+      // Apply gauge preview based on current hover (read from refs for latest values)
+      const button = hoveredButtonRef.current;
+      const section = hoveredSectionRef.current;
+      if (button && section) {
+        const opinion = getOpinionType(button);
+        const gaugeValue = SECTION_TO_GAUGE_VALUE[section];
+        const color = opinion === 'agree' ? agreeColor : opinion === 'disagree' ? disagreeColor : neutralColor;
+
+        widgetContext.setGaugePreview?.({
+          value: gaugeValue,
+          color,
+          opinion,
+          isPointerTingling: true,
+          isColorCycling: false,
+        });
       }
-    };
-  }, []);
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isBlocked]);
 
   // Get the option buttons from the question
   const options = currentQuestion?.options || [];

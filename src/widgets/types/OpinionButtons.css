@@ -27,7 +27,7 @@
 }
 
 .opinion-button--blocked {
-  pointer-events: none;
+  cursor: default;
 }
 
 .opinion-button--blocked:disabled {

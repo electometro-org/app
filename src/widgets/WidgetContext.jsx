@@ -524,11 +524,13 @@ export function WidgetProvider({ children }) {
     answers: state.answers,
     weights: state.weights,
     questions: state.questions,
+    seenQuestions: state.seenQuestions || [],
   }), [
     state.currentQuestionIndex,
     state.questions,
     state.answers,
     state.weights,
+    state.seenQuestions,
     totalQuestions,
     displayIndex,
     showGenericIntro,

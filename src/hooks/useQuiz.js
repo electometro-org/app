@@ -9,6 +9,7 @@ const initialState = {
   currentQuestionIndex: 0,
   answers: [],
   weights: [],
+  seenQuestions: [], // Track which questions have been viewed
   comparisonResults: null,
   selectedEntity: null,
   entityDetails: {},
@@ -43,14 +44,21 @@ function reducer(state, action) {
       return { ...state, entityDetails: action.payload };
     case "SET_HOVERED_OPTION":
       return { ...state, hoveredOption: action.payload };
+    case "MARK_QUESTION_SEEN":
+      // Only add if not already in the array
+      if (state.seenQuestions.includes(action.payload)) {
+        return state;
+      }
+      return { ...state, seenQuestions: [...state.seenQuestions, action.payload] };
     case "RESET":
-      // Preserve questions but reset answers, progress, and results
+      // Preserve questions but reset answers, progress, results, and seen questions
       return {
         ...initialState,
         questions: state.questions,
         questionDetails: state.questionDetails,
         answers: Array(state.questions.length).fill(null),
         weights: Array(state.questions.length).fill(2),
+        seenQuestions: [],
       };
     default:
       return state;
@@ -121,6 +129,7 @@ export function useQuiz(election) {
     selectEntity: (entity) => dispatch({ type: "SET_SELECTED_ENTITY", payload: entity }),
     setEntityDetails: (details) => dispatch({ type: "SET_ENTITY_DETAILS", payload: details }),
     setHoveredOption: (option) => dispatch({ type: "SET_HOVERED_OPTION", payload: option }),
+    markQuestionSeen: (index) => dispatch({ type: "MARK_QUESTION_SEEN", payload: index }),
     reset: () => dispatch({ type: "RESET" }),
   }), []);
 

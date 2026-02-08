@@ -193,63 +193,61 @@ export default {
     //   color: "rgba(255, 0, 0, 0.2)",  // Custom color
     //   layouts: { lg: { x: 30, y: 45, w: 30, h: 10 } }
     // },
+    // Gauge widget - shows opinion (color) and importance (arc position)
+    {
+      type: 'gauge',
+      size: 'medium',
+      showPointer: true,
+      layouts: {
+        lg: {x: 31, y: 31, w: 33, h: 11},
+        xxs: {x: 3, y: 31, w: 17, h: 16},
+      },
+      agreeColor: '#4a9c6d',
+      neutralColor: '#6b7280',
+      disagreeColor: '#c32e2e',
+      showOnPhase: ['quiz'],
+      resizable: true,
+      dockedTo: 'below-question',
+      dockTransition: {
+        duration: 300,
+        easing: 'ease-out',
+        widget: {
+          effect: 'fadeDown',
+          duration: 400,
+          easing: 'ease-out'
+        }
+      }
+    },
+// Opinion buttons - combined opinion + importance selection
+// Replaces default answer buttons and importance slider
+    {
+      type: 'opinion-buttons',
+      showOnPhase: ['quiz'],
+      showEmojis: true,
+      resizable: true,
+      draggable: true,
+      layouts: {
+        lg: {x: 40, y: 19, w: 18, h: 13},
+        xxs: {x: 5, y: 20, w: 16, h: 12},
+      },
+      emojiNotImportant: '🤷',
+      emojiNeutral: '🤔',
+      emojiVeryImportant: '🚨',
+      agreeColor: '#4a9c6d',
+      neutralColor: '#6b7280',
+      disagreeColor: '#c32e2e',
+      blockDuration: 1000,           // ms to block buttons on new question
+      hoverReactivateDistance: 10,   // pixels to move before hover reactivates after click
+      dockedTo: 'above-buttons',
+      dockTransition: {
+        duration: 300,
+        easing: 'ease-out',
+        widget: {
+          effect: 'fadeDown',
+          duration: 400,
+          easing: 'ease-out'
+        }
+      }
+    }
   ]
-
-  // Gauge widget - shows opinion (color) and importance (arc position)
-  {
-    type: 'gauge',
-    size: 'medium',
-    showPointer: true,
-    layouts: {
-      lg: {x: 31, y: 31, w: 33, h: 11 },
-      xxs: {x: 3, y: 31, w: 17, h: 16},
-    },
-    agreeColor: '#4a9c6d',
-    neutralColor: '#6b7280',
-    disagreeColor: '#c32e2e',
-    showOnPhase: ['quiz'],
-    resizable: true,
-    dockedTo: 'below-question',
-    dockTransition: {
-      duration: 300,
-      easing: 'ease-out',
-      widget: {
-        effect: 'fadeDown',
-        duration: 400,
-        easing: 'ease-out'
-      }
-    }
-  },
-  // Opinion buttons - combined opinion + importance selection
-  // Replaces default answer buttons and importance slider
-  {
-    type: 'opinion-buttons',
-    showOnPhase: ['quiz'],
-    showEmojis: true,
-    resizable: true,
-    draggable: true,
-    layouts: {
-      lg: {x: 40, y: 19, w: 18, h: 13 },
-      xxs: {x: 5, y: 20, w: 16, h: 12},
-    },
-    emojiNotImportant: '🤷',
-    emojiNeutral: '🤔',
-    emojiVeryImportant: '🚨',
-    agreeColor: '#4a9c6d',
-    neutralColor: '#6b7280',
-    disagreeColor: '#c32e2e',
-    blockDuration: 1000,           // ms to block buttons on new question
-    hoverReactivateDistance: 10,   // pixels to move before hover reactivates after click
-    dockedTo: 'above-buttons',
-    dockTransition: {
-      duration: 300,
-      easing: 'ease-out',
-      widget: {
-        effect: 'fadeDown',
-        duration: 400,
-        easing: 'ease-out'
-      }
-    }
-  }
-]
 }

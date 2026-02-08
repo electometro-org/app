@@ -20,6 +20,11 @@
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.15s ease;
+  /* Prevent long-press context menu and text selection on mobile */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
 }
 
 .opinion-button:hover {

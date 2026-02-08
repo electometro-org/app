@@ -86,6 +86,13 @@ function OpinionButtons({ config, quizState }) {
   const lastClickPosRef = useRef(null);
   const [hasMovedEnough, setHasMovedEnough] = useState(false);
 
+  // Track recent touch activity to ignore simulated mouse events
+  const lastTouchTimeRef = useRef(0);
+  const TOUCH_MOUSE_DELAY = 500; // ms to ignore mouse events after touch
+
+  // Ref for the container to detect touch outside
+  const containerRef = useRef(null);
+
   // Helper to get opinion type (needed in timeout callback)
   const getOpinionType = (option) => {
     const optionLower = typeof option === 'string' ? option.toLowerCase() : '';
@@ -198,6 +205,9 @@ function OpinionButtons({ config, quizState }) {
 
   // Handle mouse move on button
   const handleButtonMouseMove = useCallback((option, event) => {
+    // Ignore simulated mouse events after touch
+    if (Date.now() - lastTouchTimeRef.current < TOUCH_MOUSE_DELAY) return;
+
     const section = getSectionFromEvent(event);
 
     // Always update refs for timeout to read
@@ -256,6 +266,9 @@ function OpinionButtons({ config, quizState }) {
 
   // Handle mouse enter on button
   const handleButtonMouseEnter = useCallback((option, event) => {
+    // Ignore simulated mouse events after touch
+    if (Date.now() - lastTouchTimeRef.current < TOUCH_MOUSE_DELAY) return;
+
     // Calculate section from mouse position
     const rect = event.currentTarget.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -331,6 +344,14 @@ function OpinionButtons({ config, quizState }) {
     if (isBlocked) return;
 
     event.preventDefault(); // Prevent mouse events from firing
+    lastTouchTimeRef.current = Date.now(); // Track touch time to ignore simulated mouse events
+
+    // Clear any hover state when touch starts
+    setHoveredButton(null);
+    setHoveredSection(null);
+    hoveredButtonRef.current = null;
+    hoveredSectionRef.current = null;
+
     const touch = event.touches[0];
     const buttonElement = event.currentTarget;
     const section = getSectionFromTouch(touch, buttonElement);
@@ -398,6 +419,7 @@ function OpinionButtons({ config, quizState }) {
   // Handle touch end
   const handleTouchEnd = useCallback((option, event) => {
     event.preventDefault();
+    lastTouchTimeRef.current = Date.now(); // Track touch time to ignore simulated mouse events
     clearTouchConfirmTimer();
 
     if (isTouchConfirmed && touchedButton && touchedSection) {
@@ -417,6 +439,7 @@ function OpinionButtons({ config, quizState }) {
 
   // Handle touch cancel (e.g., phone call interrupts)
   const handleTouchCancel = useCallback(() => {
+    lastTouchTimeRef.current = Date.now();
     clearTouchConfirmTimer();
     setTouchedButton(null);
     setTouchedSection(null);
@@ -429,6 +452,29 @@ function OpinionButtons({ config, quizState }) {
     return () => clearTouchConfirmTimer();
   }, [clearTouchConfirmTimer]);
 
+  // Document-level touchend to catch touch ending outside buttons
+  useEffect(() => {
+    const handleDocumentTouchEnd = (event) => {
+      // Only clean up if touch ended outside our container
+      if (touchedButton && containerRef.current && !containerRef.current.contains(event.target)) {
+        lastTouchTimeRef.current = Date.now();
+        clearTouchConfirmTimer();
+        setTouchedButton(null);
+        setTouchedSection(null);
+        setIsTouchConfirmed(false);
+        widgetContext.setGaugePreview?.(null);
+      }
+    };
+
+    document.addEventListener('touchend', handleDocumentTouchEnd);
+    document.addEventListener('touchcancel', handleDocumentTouchEnd);
+
+    return () => {
+      document.removeEventListener('touchend', handleDocumentTouchEnd);
+      document.removeEventListener('touchcancel', handleDocumentTouchEnd);
+    };
+  }, [touchedButton, clearTouchConfirmTimer, widgetContext]);
+
   if (!currentQuestion || options.length === 0) {
     return null;
   }
@@ -437,6 +483,7 @@ function OpinionButtons({ config, quizState }) {
 
   return (
     <div
+      ref={containerRef}
       className="opinion-buttons"
       onMouseLeave={handleContainerMouseLeave}
     >
@@ -459,6 +506,7 @@ function OpinionButtons({ config, quizState }) {
             onTouchMove={(e) => handleTouchMove(option, e)}
             onTouchEnd={(e) => handleTouchEnd(option, e)}
             onTouchCancel={handleTouchCancel}
+            onContextMenu={(e) => e.preventDefault()}
           >
             {/* Selected state background (when not hovered/touched) */}
             {isSelected && !isActive && (

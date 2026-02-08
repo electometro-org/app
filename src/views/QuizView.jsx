@@ -71,18 +71,18 @@ export default function QuizView({
       <DockingZone id="above-buttons" />
 
       <div>
-        <label>{t('quiz.importanceQuestion')}</label>
-        <br />
         <div className="importance-slider-container">
-          <span>{t('quiz.lowImportance')}</span>
-          <input
-            type="range"
-            min="1"
-            max="3"
-            value={weight}
-            onChange={(e) => onWeightChange(Number(e.target.value))}
-          />
-          <span>{t('quiz.highImportance')}</span>
+          <label>{t('quiz.importanceQuestion')}</label>
+          <br />
+            <span>{t('quiz.lowImportance')}</span>
+            <input
+              type="range"
+              min="1"
+              max="3"
+              value={weight}
+              onChange={(e) => onWeightChange(Number(e.target.value))}
+            />
+            <span>{t('quiz.highImportance')}</span>
         </div>
       </div>
 

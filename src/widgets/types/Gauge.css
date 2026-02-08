@@ -17,7 +17,7 @@
 
 /* Labels */
 .gauge-label {
-  min-width: 120px;
+  min-width: 60px;
   display: flex;
   flex-direction: column;
   justify-content: center;

@@ -135,7 +135,8 @@ function Gauge({ config, quizState }) {
   // Use preview values if available (from OpinionButtons hover), otherwise use saved values
   const value = gaugePreview?.value ?? baseValue;
   const color = gaugePreview?.color ?? baseColor;
-  const isPointerTingling = gaugePreview?.isPointerTingling ?? false;
+  // Pointer tingles on hover OR when a selection has been made
+  const isPointerTingling = gaugePreview?.isPointerTingling ?? (baseValue !== null);
   const isColorCycling = gaugePreview?.isColorCycling ?? false;
 
   // Get size dimensions

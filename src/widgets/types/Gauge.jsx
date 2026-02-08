@@ -72,6 +72,15 @@ function getImportanceLabelKey(value) {
   return 'widgets.gauge.importanceHigh';
 }
 
+// Opinion label translation keys
+function getOpinionLabelKey(opinion) {
+  if (!opinion) return null;
+  if (opinion === 'agree') return 'widgets.gauge.opinionAgree';
+  if (opinion === 'disagree') return 'widgets.gauge.opinionDisagree';
+  if (opinion === 'neutral') return 'widgets.gauge.opinionNeutral';
+  return null;
+}
+
 // Size presets (height includes space for emojis above arc)
 const SIZE_PRESETS = {
   small: { width: 120, height: 85, radius: 48, strokeWidth: 12, emojiSize: 16, emojiOffset: 15 },
@@ -97,7 +106,7 @@ function Gauge({ config, quizState }) {
   const { t } = useTranslate();
 
   // Get preview state from widget context (set by OpinionButtons on hover)
-  const { gaugePreview } = useWidgetContext();
+  const { gaugePreview, pulseOpacity } = useWidgetContext();
 
   const { currentQuestionIndex, answers, weights } = quizState;
 
@@ -138,6 +147,7 @@ function Gauge({ config, quizState }) {
   // Use preview values if available (from OpinionButtons hover), otherwise use saved values
   const value = gaugePreview?.value ?? baseValue;
   const color = gaugePreview?.color ?? baseColor;
+  const previewOpinion = gaugePreview?.opinion ?? null;
   // Pointer tingles on hover OR when a selection has been made
   const isPointerTingling = gaugePreview?.isPointerTingling ?? (baseValue !== null);
   const isColorCycling = gaugePreview?.isColorCycling ?? false;
@@ -179,12 +189,31 @@ function Gauge({ config, quizState }) {
 
   return (
     <div className="gauge-widget">
-      {/* Left label - Static "Importancia:" */}
-      {showLabels && (
-        <div className="gauge-label gauge-label--left">
-          <span className="gauge-label__text">{t('widgets.gauge.importanceLabel')}</span>
-        </div>
-      )}
+      {/* Left label - "Opinión" subtitle on top, opinion value below with colored underline */}
+      {showLabels && (() => {
+        const displayOpinion = previewOpinion || baseOpinion;
+        const underlineColor = displayOpinion === 'agree' ? agreeColor
+          : displayOpinion === 'disagree' ? disagreeColor
+          : displayOpinion === 'neutral' ? neutralColor
+          : 'transparent';
+
+        return (
+          <div className="gauge-label gauge-label--left">
+            <span className="gauge-label__text gauge-label__subtitle">
+              {t('widgets.gauge.opinionLabel')}
+            </span>
+            <span
+              className="gauge-label__text gauge-label__value"
+              style={displayOpinion ? {
+                borderBottom: `2px solid ${underlineColor}`,
+                paddingBottom: '2px'
+              } : undefined}
+            >
+              {displayOpinion ? t(getOpinionLabelKey(displayOpinion)) : '\u00A0'}
+            </span>
+          </div>
+        );
+      })()}
 
       {/* Gauge SVG */}
       <div className="gauge-svg-container">
@@ -275,52 +304,53 @@ function Gauge({ config, quizState }) {
             </g>
           )}
 
-          {/* Emojis on the arc */}
-          {showEmojis && (
-            <>
-              <text
-                x={emojiPositions[0].x}
-                y={emojiPositions[0].y}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontSize={emojiSize}
-                className="gauge-emoji"
-              >
-                {emojiLow}
-              </text>
-              <text
-                x={emojiPositions[1].x}
-                y={emojiPositions[1].y}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontSize={emojiSize}
-                className="gauge-emoji"
-              >
-                {emojiMid}
-              </text>
-              <text
-                x={emojiPositions[2].x}
-                y={emojiPositions[2].y}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontSize={emojiSize}
-                className="gauge-emoji"
-              >
-                {emojiHigh}
-              </text>
-            </>
-          )}
+          {/* Emojis on the arc - always dim, selected one bright, hovered one pulses */}
+          {showEmojis && (() => {
+            // Determine which emoji index is saved (0=low, 1=mid, 2=high)
+            const savedEmojiIndex = baseValue === 17 ? 0 : baseValue === 50 ? 1 : baseValue === 83 ? 2 : null;
+            // Determine which emoji index is being hovered
+            const hoveredEmojiIndex = gaugePreview?.value === 17 ? 0 : gaugePreview?.value === 50 ? 1 : gaugePreview?.value === 83 ? 2 : null;
+            const emojis = [emojiLow, emojiMid, emojiHigh];
+
+            return emojis.map((emoji, index) => {
+              const isSavedEmoji = savedEmojiIndex === index;
+              const isHoveredEmoji = hoveredEmojiIndex === index;
+              const shouldPulse = isHoveredEmoji && !isSavedEmoji;
+
+              // Use shared pulseOpacity for synced pulsing, otherwise dim or full
+              const opacity = shouldPulse ? pulseOpacity : (isSavedEmoji ? 1 : 0.3);
+
+              return (
+                <text
+                  key={index}
+                  x={emojiPositions[index].x}
+                  y={emojiPositions[index].y}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fontSize={emojiSize}
+                  className="gauge-emoji"
+                  style={{ opacity }}
+                >
+                  {emoji}
+                </text>
+              );
+            });
+          })()}
         </svg>
       </div>
 
-      {/* Right label - Importance value */}
+      {/* Right label - "Importancia" subtitle on top, importance value below (pulses when hovering over different importance) */}
       {showLabels && (
         <div className="gauge-label gauge-label--right">
-          {importanceLabel && (
-            <span className="gauge-label__text gauge-label__value">
-              {importanceLabel}
-            </span>
-          )}
+          <span className="gauge-label__text gauge-label__subtitle">
+            {t('widgets.gauge.importanceLabel')}
+          </span>
+          <span
+            className="gauge-label__text gauge-label__value"
+            style={gaugePreview && gaugePreview.value !== baseValue ? { opacity: pulseOpacity } : undefined}
+          >
+            {importanceLabel || '\u00A0'}
+          </span>
         </div>
       )}
     </div>

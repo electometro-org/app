@@ -17,7 +17,8 @@
 
 /* Labels */
 .gauge-label {
-  min-width: 60px;
+  width: 100px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -43,6 +44,15 @@
 .gauge-label__value {
   font-weight: 700;
   font-size: 1.1rem;
+  min-height: 1.2em;
+  transition: opacity 0.15s ease;
+}
+
+
+.gauge-label__subtitle {
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0.8;
 }
 
 /* Background track */
@@ -111,7 +121,10 @@
 .gauge-emoji {
   pointer-events: none;
   user-select: none;
+  transition: opacity 0.15s ease;
 }
+
+
 
 /* Responsive adjustments */
 @media (max-width: 600px) {

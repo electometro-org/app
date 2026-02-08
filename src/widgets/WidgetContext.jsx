@@ -82,6 +82,44 @@ export function WidgetProvider({ children }) {
   // { value: number, color: string, isPointerTingling: boolean, isColorCycling: boolean }
   const [gaugePreview, setGaugePreview] = useState(null);
 
+  // Shared pulse opacity for synchronized pulsing (0.3 to 1)
+  const [pulseOpacity, setPulseOpacity] = useState(1);
+  const pulseIntervalRef = useRef(null);
+  const pulseStartTimeRef = useRef(null);
+
+  // Run pulse animation when gaugePreview is active (using interval for efficiency)
+  useEffect(() => {
+    if (gaugePreview) {
+      // Use a shared start time so all elements stay in sync
+      if (!pulseStartTimeRef.current) {
+        pulseStartTimeRef.current = performance.now();
+      }
+      const duration = 1000; // 1 second cycle
+      const updateRate = 50; // Update every 50ms (20fps) - smooth enough, CPU-friendly
+
+      const updateOpacity = () => {
+        const elapsed = performance.now() - pulseStartTimeRef.current;
+        const phase = (elapsed % duration) / duration;
+        // Ease in-out sine wave: 0.3 to 1 and back
+        const opacity = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(phase * 2 * Math.PI - Math.PI / 2));
+        setPulseOpacity(opacity);
+      };
+
+      updateOpacity(); // Initial update
+      pulseIntervalRef.current = setInterval(updateOpacity, updateRate);
+
+      return () => {
+        if (pulseIntervalRef.current) {
+          clearInterval(pulseIntervalRef.current);
+        }
+        setPulseOpacity(1);
+      };
+    } else {
+      // Reset start time when not hovering so next hover starts fresh
+      pulseStartTimeRef.current = null;
+    }
+  }, [gaugePreview]);
+
   // Register a docking zone
   const registerDockingZone = useCallback((zoneId, element) => {
     if (element && DOCKING_ZONES.includes(zoneId)) {
@@ -660,6 +698,7 @@ export function WidgetProvider({ children }) {
     // Gauge preview (for OpinionButtons coordination)
     gaugePreview,
     setGaugePreview,
+    pulseOpacity,
   }), [
     widgets,
     layout,
@@ -689,6 +728,7 @@ export function WidgetProvider({ children }) {
     updateAllBounds,
     gaugePreview,
     setGaugePreview,
+    pulseOpacity,
   ]);
 
   return (

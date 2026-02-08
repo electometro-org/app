@@ -1,0 +1,161 @@
+/* Gauge Widget */
+.gauge-widget {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px;
+}
+
+.gauge-svg-container {
+  flex-shrink: 0;
+}
+
+.gauge-svg {
+  overflow: visible;
+}
+
+/* Labels */
+.gauge-label {
+  width: 100px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.gauge-label--left {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.gauge-label--right {
+  text-align: left;
+  align-items: flex-start;
+}
+
+.gauge-label__text {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--fontColor, #fff);
+  white-space: nowrap;
+}
+
+.gauge-label__value {
+  font-weight: 700;
+  font-size: 1.1rem;
+  min-height: 1.2em;
+  transition: opacity 0.15s ease;
+}
+
+
+.gauge-label__subtitle {
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+/* Background track */
+.gauge-track {
+  opacity: 0.3;
+}
+
+/* Pivot point at center */
+.gauge-pivot {
+  fill: var(--fontColor, #fff);
+}
+
+/* Main arc - animated fill */
+.gauge-arc {
+  transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;
+}
+
+.gauge-arc--hidden {
+  opacity: 0;
+}
+
+/* Pointer group - handles rotation transition */
+.gauge-pointer-group {
+  transition: transform 0.5s ease;
+}
+
+/* Pointer shape */
+.gauge-pointer {
+  fill: var(--fontColor, #fff);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Pointer tingling animation - rotates around gauge center */
+@keyframes gauge-tingle {
+  0%, 100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+.gauge-pointer--tingling {
+  animation: gauge-tingle 150ms ease-in-out infinite;
+  transform-origin: var(--gauge-center-x) var(--gauge-center-y);
+}
+
+/* Color cycling animation */
+@keyframes gauge-iterate-colors {
+  0%, 100% {
+    stroke: var(--gauge-agree, #4a9c6d);
+  }
+  33% {
+    stroke: var(--gauge-neutral, #6b7280);
+  }
+  66% {
+    stroke: var(--gauge-disagree, #c32e2e);
+  }
+}
+
+.gauge-arc--cycling {
+  animation: gauge-iterate-colors 1s linear infinite;
+}
+
+/* Emojis on the arc */
+.gauge-emoji {
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.15s ease;
+}
+
+
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .gauge-widget {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .gauge-label {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .gauge-label--left,
+  .gauge-label--right {
+    text-align: center;
+    align-items: center;
+  }
+
+  .gauge-label__text {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .gauge-widget {
+    padding: 4px;
+  }
+
+  .gauge-label__text {
+    font-size: 0.8rem;
+  }
+}

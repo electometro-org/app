@@ -82,19 +82,23 @@ function OpinionButtons({ config, quizState }) {
     return 'neutral';
   };
 
-  // Detect question changes and trigger block
+  // Detect question changes and trigger block (only for unseen questions)
   useEffect(() => {
     if (currentQuestionIndex !== prevQuestionIndexRef.current) {
       prevQuestionIndexRef.current = currentQuestionIndex;
-      setIsBlocked(true);
-      widgetContext.setGaugePreview?.(null);
+
+      // Only block if question hasn't been answered yet
+      if (!currentAnswer) {
+        setIsBlocked(true);
+        widgetContext.setGaugePreview?.(null);
+      }
 
       // Reset movement requirement for new question
       setHasMovedEnough(true);
       lastClickPosRef.current = null;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentQuestionIndex]);
+  }, [currentQuestionIndex, currentAnswer]);
 
   // Handle the block timeout separately (survives StrictMode double-run)
   useEffect(() => {

@@ -78,6 +78,10 @@ export function WidgetProvider({ children }) {
   // Widget currently being dragged
   const [draggingWidget, setDraggingWidget] = useState(null);
 
+  // Gauge preview state (for OpinionButtons hover coordination)
+  // { value: number, color: string, isPointerTingling: boolean, isColorCycling: boolean }
+  const [gaugePreview, setGaugePreview] = useState(null);
+
   // Register a docking zone
   const registerDockingZone = useCallback((zoneId, element) => {
     if (element && DOCKING_ZONES.includes(zoneId)) {
@@ -480,11 +484,13 @@ export function WidgetProvider({ children }) {
     phase: getQuizPhase(state, showGenericIntro, showElectionIntro, showDemographics, turnstileVerified),
     election,
     answers: state.answers,
+    weights: state.weights,
     questions: state.questions,
   }), [
     state.currentQuestionIndex,
     state.questions,
     state.answers,
+    state.weights,
     totalQuestions,
     displayIndex,
     showGenericIntro,
@@ -651,6 +657,9 @@ export function WidgetProvider({ children }) {
     onWidgetDrag,
     onWidgetDragEnd,
     updateAllBounds,
+    // Gauge preview (for OpinionButtons coordination)
+    gaugePreview,
+    setGaugePreview,
   }), [
     widgets,
     layout,
@@ -678,6 +687,8 @@ export function WidgetProvider({ children }) {
     onWidgetDrag,
     onWidgetDragEnd,
     updateAllBounds,
+    gaugePreview,
+    setGaugePreview,
   ]);
 
   return (

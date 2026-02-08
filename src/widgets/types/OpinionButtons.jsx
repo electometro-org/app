@@ -61,6 +61,10 @@ function OpinionButtons({ config, quizState }) {
   const [hoveredButton, setHoveredButton] = useState(null);
   const [hoveredSection, setHoveredSection] = useState(null);
 
+  // Refs to track current hover during block (so timeout can read latest values)
+  const hoveredButtonRef = useRef(null);
+  const hoveredSectionRef = useRef(null);
+
   // Block buttons briefly after question changes (gives user time to read)
   const [isBlocked, setIsBlocked] = useState(false);
   const blockTimeoutRef = useRef(null);
@@ -69,13 +73,20 @@ function OpinionButtons({ config, quizState }) {
   // Track mouse position to require movement before re-enabling hover
   const lastClickPosRef = useRef(null);
   const [hasMovedEnough, setHasMovedEnough] = useState(false);
-  const MIN_MOVE_DISTANCE = 5; // pixels
+  const MIN_MOVE_DISTANCE = 10; // pixels
+
+  // Helper to get opinion type (needed in timeout callback)
+  const getOpinionType = (option) => {
+    const optionLower = typeof option === 'string' ? option.toLowerCase() : '';
+    if (optionLower.includes('agree') && !optionLower.includes('disagree')) return 'agree';
+    if (optionLower.includes('disagree')) return 'disagree';
+    return 'neutral';
+  };
 
   useEffect(() => {
     if (currentQuestionIndex !== prevQuestionIndexRef.current) {
       prevQuestionIndexRef.current = currentQuestionIndex;
       setIsBlocked(true);
-      // Don't clear hover state - let it persist so we know what's under the mouse
       widgetContext.setGaugePreview?.(null);
 
       // Reset movement requirement for new question
@@ -88,6 +99,23 @@ function OpinionButtons({ config, quizState }) {
 
       blockTimeoutRef.current = setTimeout(() => {
         setIsBlocked(false);
+
+        // Apply gauge preview based on current hover (read from refs for latest values)
+        const button = hoveredButtonRef.current;
+        const section = hoveredSectionRef.current;
+        if (button && section) {
+          const opinion = getOpinionType(button);
+          const gaugeValue = SECTION_TO_GAUGE_VALUE[section];
+          const color = opinion === 'agree' ? agreeColor : opinion === 'disagree' ? disagreeColor : neutralColor;
+
+          widgetContext.setGaugePreview?.({
+            value: gaugeValue,
+            color,
+            opinion,
+            isPointerTingling: true,
+            isColorCycling: false,
+          });
+        }
       }, 1000);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -102,41 +130,8 @@ function OpinionButtons({ config, quizState }) {
     };
   }, []);
 
-  // When block ends, apply gauge preview if mouse is over a button
-  const wasBlockedRef = useRef(isBlocked);
-  useEffect(() => {
-    // Detect transition from blocked to not blocked
-    if (wasBlockedRef.current && !isBlocked && hoveredButton && hoveredSection) {
-      const optionLower = typeof hoveredButton === 'string' ? hoveredButton.toLowerCase() : '';
-      let opinion = 'neutral';
-      if (optionLower.includes('agree') && !optionLower.includes('disagree')) opinion = 'agree';
-      else if (optionLower.includes('disagree')) opinion = 'disagree';
-
-      const gaugeValue = SECTION_TO_GAUGE_VALUE[hoveredSection];
-      const color = opinion === 'agree' ? agreeColor : opinion === 'disagree' ? disagreeColor : neutralColor;
-
-      widgetContext.setGaugePreview?.({
-        value: gaugeValue,
-        color,
-        opinion,
-        isPointerTingling: true,
-        isColorCycling: false,
-      });
-    }
-    wasBlockedRef.current = isBlocked;
-  }, [isBlocked, hoveredButton, hoveredSection, agreeColor, disagreeColor, neutralColor, widgetContext]);
-
   // Get the option buttons from the question
   const options = currentQuestion?.options || [];
-
-  // Map option to opinion type
-  const getOpinionType = (option) => {
-    const optionLower = typeof option === 'string' ? option.toLowerCase() : '';
-    if (optionLower.includes('agree') && !optionLower.includes('disagree')) return 'agree';
-    if (optionLower.includes('disagree')) return 'disagree';
-    if (optionLower.includes('neutral')) return 'neutral';
-    return 'neutral'; // fallback
-  };
 
   // Get color for opinion
   const getOpinionColor = (opinion) => {
@@ -167,6 +162,9 @@ function OpinionButtons({ config, quizState }) {
 
   // Handle button click - records both opinion AND importance
   const handleClick = useCallback((option, event) => {
+    // Prevent clicks during block
+    if (isBlocked) return;
+
     const section = getSectionFromEvent(event);
     const weight = SECTION_TO_WEIGHT[section];
 
@@ -182,11 +180,15 @@ function OpinionButtons({ config, quizState }) {
 
     // Call the answer handler (this may trigger navigation to next question)
     quizContext.handleAnswerClick(option);
-  }, [quizContext, currentQuestionIndex, widgetContext]);
+  }, [quizContext, currentQuestionIndex, widgetContext, isBlocked]);
 
   // Handle mouse move on button
   const handleButtonMouseMove = useCallback((option, event) => {
     const section = getSectionFromEvent(event);
+
+    // Always update refs for timeout to read
+    hoveredButtonRef.current = option;
+    hoveredSectionRef.current = section;
 
     // During block, track hover state but don't show gauge effects
     if (isBlocked) {
@@ -239,20 +241,34 @@ function OpinionButtons({ config, quizState }) {
   }, [currentAnswer, enableColorCycling, widgetContext, isBlocked, hasMovedEnough]);
 
   // Handle mouse enter on button
-  const handleButtonMouseEnter = useCallback((option) => {
-    // During block, still track hover state
+  const handleButtonMouseEnter = useCallback((option, event) => {
+    // Calculate section from mouse position
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const xPercentage = (x / rect.width) * 100;
+    const section = xPercentage < 33.3 ? 1 : xPercentage < 66.6 ? 2 : 3;
+
+    // Always update refs for timeout to read
+    hoveredButtonRef.current = option;
+    hoveredSectionRef.current = section;
+
+    // During block, track hover state
     if (isBlocked) {
       setHoveredButton(option);
+      setHoveredSection(section);
       return;
     }
     if (!hasMovedEnough) return;
     setHoveredButton(option);
+    setHoveredSection(section);
   }, [isBlocked, hasMovedEnough]);
 
   // Handle mouse leave from container
   const handleContainerMouseLeave = useCallback(() => {
     setHoveredButton(null);
     setHoveredSection(null);
+    hoveredButtonRef.current = null;
+    hoveredSectionRef.current = null;
 
     // Clear gauge preview (stops animations)
     widgetContext.setGaugePreview?.(null);
@@ -279,10 +295,9 @@ function OpinionButtons({ config, quizState }) {
             key={index}
             data-opinion={opinion}
             className={`opinion-button ${isSelected ? 'opinion-button--selected' : ''} ${isHovered ? 'opinion-button--hovered' : ''} ${isBlocked ? 'opinion-button--blocked' : ''}`}
-            disabled={isBlocked}
             onClick={(e) => handleClick(option, e)}
             onMouseMove={(e) => handleButtonMouseMove(option, e)}
-            onMouseEnter={() => handleButtonMouseEnter(option)}
+            onMouseEnter={(e) => handleButtonMouseEnter(option, e)}
           >
             {/* Selected state background (when not hovered) */}
             {isSelected && !isHovered && (

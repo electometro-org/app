@@ -52,10 +52,11 @@ function OpinionButtons({ config, quizState }) {
     disagreeColor = '#c32e2e',
   } = config;
 
-  const { currentQuestionIndex, questions, answers, weights } = quizState;
+  const { currentQuestionIndex, questions, answers, weights, seenQuestions = [] } = quizState;
   const currentQuestion = questions?.[currentQuestionIndex];
   const currentAnswer = answers?.[currentQuestionIndex];
   const currentWeight = weights?.[currentQuestionIndex];
+  const hasSeenQuestion = seenQuestions.includes(currentQuestionIndex);
 
   // Local hover state
   const [hoveredButton, setHoveredButton] = useState(null);
@@ -87,8 +88,8 @@ function OpinionButtons({ config, quizState }) {
     if (currentQuestionIndex !== prevQuestionIndexRef.current) {
       prevQuestionIndexRef.current = currentQuestionIndex;
 
-      // Only block if question hasn't been answered yet
-      if (!currentAnswer) {
+      // Only block if question hasn't been seen yet
+      if (!hasSeenQuestion) {
         setIsBlocked(true);
         widgetContext.setGaugePreview?.(null);
       }
@@ -98,7 +99,7 @@ function OpinionButtons({ config, quizState }) {
       lastClickPosRef.current = null;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentQuestionIndex, currentAnswer]);
+  }, [currentQuestionIndex, hasSeenQuestion]);
 
   // Handle the block timeout separately (survives StrictMode double-run)
   useEffect(() => {
@@ -106,6 +107,9 @@ function OpinionButtons({ config, quizState }) {
 
     const timeout = setTimeout(() => {
       setIsBlocked(false);
+
+      // Mark question as seen after block ends (use ref for current value)
+      quizContext.dispatch({ type: 'MARK_QUESTION_SEEN', payload: prevQuestionIndexRef.current });
 
       // Apply gauge preview based on current hover (read from refs for latest values)
       const button = hoveredButtonRef.current;

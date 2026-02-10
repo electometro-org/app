@@ -69,7 +69,7 @@ export default function QuizView({
       <div className="question-options" key={`options-${question.id || displayIndex}`}>
         {question.options.map((option, index) => (
           <button
-            className={`option-button ${selectedAnswer === option ? 'selected-answer' : ''} ${clickedOption === option ? 'just-clicked' : ''}`}
+            className={`option-button ${selectedAnswer === option && !clickedOption ? 'selected-answer' : ''} ${clickedOption === option ? 'just-clicked' : ''}`}
             key={index}
             onClick={() => {
               if (buttonsBlocked || clickedOption) return;

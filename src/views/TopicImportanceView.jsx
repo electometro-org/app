@@ -88,7 +88,7 @@ export default function TopicImportanceView({
       <div className="topic-importance-header">
         <BrandLogo branding={branding} />
         <h2>{t('topicImportance.title')}</h2>
-        <p>{t('topicImportance.instructions1')}</p>
+        {/*<p>{t('topicImportance.instructions1')}</p>*/}
         <p>
           {t('topicImportance.instructions2a')}
           <span className="topic-info-btn inline-example" aria-hidden="true">

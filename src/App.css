@@ -265,7 +265,6 @@ button {
 }
 
 .option-button.selected-answer {
-  text-decoration: underline;
   border-color: var(--accentLight) !important;
   animation: questionFadeIn 0.4s ease-out;
   background-color: var(--accentLight);

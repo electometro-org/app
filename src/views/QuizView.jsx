@@ -11,6 +11,7 @@ export default function QuizView({
   hoveredOption,
   isFirstQuestion,
   isLastQuestion,
+  hasSeenQuestion,
   branding,
   onAnswer,
   onSkip,
@@ -19,16 +20,20 @@ export default function QuizView({
   onEndQuiz,
 }) {
   const { t } = useTranslate();
-  const [buttonsBlocked, setButtonsBlocked] = useState(true);
+  const [buttonsBlocked, setButtonsBlocked] = useState(!hasSeenQuestion);
 
-  // Block buttons for 1 second when question changes
+  // Block buttons briefly when question changes, but only for unseen questions
   useEffect(() => {
+    if (hasSeenQuestion) {
+      setButtonsBlocked(false);
+      return;
+    }
     setButtonsBlocked(true);
     const timer = setTimeout(() => {
       setButtonsBlocked(false);
     }, 350);
     return () => clearTimeout(timer);
-  }, [question.id, displayIndex]);
+  }, [question.id, displayIndex, hasSeenQuestion]);
 
   const handleSkipOrFinish = () => {
     if (isLastQuestion) {

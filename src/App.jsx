@@ -120,6 +120,7 @@ export default function App() {
             hoveredOption={state.hoveredOption}
             isFirstQuestion={state.currentQuestionIndex === 0}
             isLastQuestion={state.currentQuestionIndex === state.questions.length - 1}
+            hasSeenQuestion={state.answers[state.currentQuestionIndex] != null}
             branding={branding}
             onAnswer={handleAnswerClick}
             onSkip={handleSkip}

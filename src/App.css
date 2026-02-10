@@ -267,6 +267,21 @@ button {
   color: var(--fontColorLight);
   background-color: var(--buttonNext);
   border: 1px solid rgba(255,255,255,0.12);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.back-and-skip-buttons.end-survey-ready {
+  background-color: var(--accent);
+  animation: pulseButton 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseButton {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .demographics-panel .wide-input {

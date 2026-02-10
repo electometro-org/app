@@ -36,17 +36,19 @@ export default function QuizView({
 
       <DockingZone id="above-question" />
 
-      <div className="question-text-container">
-        <h2>
-          {question.question_key
-            ? t(question.question_key)
-            : question.question}
-        </h2>
+      <div className="question-content" key={question.id || displayIndex}>
+        <div className="question-text-container">
+          <h2>
+            {question.question_key
+              ? t(question.question_key)
+              : question.question}
+          </h2>
+        </div>
       </div>
 
       <DockingZone id="below-question" />
 
-      <div>
+      <div className="question-options" key={`options-${question.id || displayIndex}`}>
         {question.options.map((option, index) => (
           <button
             className="option-button"

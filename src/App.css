@@ -218,6 +218,26 @@ button {
   gap: 10px;
 }
 
+.question-content{
+  animation: questionFadeIn 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+@keyframes questionFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .question-text-container {
   min-height: 7em;
   display: flex;

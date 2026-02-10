@@ -7,7 +7,6 @@ export default function QuizView({
   displayIndex,
   totalQuestions,
   selectedAnswer,
-  weight,
   hoveredOption,
   isFirstQuestion,
   isLastQuestion,
@@ -15,7 +14,6 @@ export default function QuizView({
   onAnswer,
   onSkip,
   onGoBack,
-  onWeightChange,
   onHover,
   onEndQuiz,
 }) {
@@ -69,22 +67,6 @@ export default function QuizView({
       </div>
 
       <DockingZone id="above-buttons" />
-
-      <div>
-        <div className="importance-slider-container">
-          <label>{t('quiz.importanceQuestion')}</label>
-          <br />
-            <span>{t('quiz.lowImportance')}</span>
-            <input
-              type="range"
-              min="1"
-              max="3"
-              value={weight}
-              onChange={(e) => onWeightChange(Number(e.target.value))}
-            />
-            <span>{t('quiz.highImportance')}</span>
-        </div>
-      </div>
 
       <div>
         <button

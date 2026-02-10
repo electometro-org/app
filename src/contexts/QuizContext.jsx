@@ -55,6 +55,7 @@ export function QuizProvider({ children }) {
   const [isMobile, setIsMobile] = useState(isClient ? window.innerWidth < 768 : false);
   const [selectedResultType, setSelectedResultType] = useState(resultTypes[0] || null);
   const [mobileOpen, setMobileOpen] = useState(null);
+  const [showTopicImportance, setShowTopicImportance] = useState(false);
   const [showDemographics, setShowDemographics] = useState(false);
   const [demographics, setDemographics] = useState(null);
   const [showTurnstileOverlay, setShowTurnstileOverlay] = useState(false);
@@ -108,6 +109,28 @@ export function QuizProvider({ children }) {
 
   const totalQuestions = uniqueIndices.length;
   const displayIndex = uniqueIndices.indexOf(state.currentQuestionIndex) + 1;
+
+  // Compute unique topics from questions for Topic Importance view
+  // Each topic includes its questions for the info dialog
+  const uniqueTopics = useMemo(() => {
+    const topicMap = new Map();
+    state.questions.forEach(q => {
+      if (!q.topic_key) return;
+      if (!topicMap.has(q.topic_key)) {
+        topicMap.set(q.topic_key, {
+          label: q.tema || q.topic_key,
+          topic_key: q.topic_key,
+          questions: [],
+        });
+      }
+      topicMap.get(q.topic_key).questions.push({
+        id: q.id,
+        question: q.question,
+        question_key: q.question_key,
+      });
+    });
+    return Array.from(topicMap.values());
+  }, [state.questions]);
 
   // Navigation helpers using imported functions
   const goToUniqueAfter = (currentIndex) => findNextUniqueIndex(uniqueIndices, currentIndex);
@@ -188,10 +211,30 @@ export function QuizProvider({ children }) {
       answered_count: answeredCount
     });
 
-    setShowDemographics(true);
+    // Show Topic Importance view instead of demographics
+    setShowTopicImportance(true);
     dispatch({ type: "SET_SELECTED_ENTITY", payload: null });
     dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: state.questions.length });
+  };
 
+  // Apply topic importance: boost weights for questions with "very important" topics
+  const applyTopicImportanceToWeights = () => {
+    state.questions.forEach((q, i) => {
+      if (state.topicImportance[q.topic_key]) {
+        // Boost weight: 2 -> 3 for "very important" topics
+        dispatch({ type: "SET_WEIGHTS", index: i, weight: 3 });
+      }
+    });
+  };
+
+  // Handle continuing from Topic Importance view to Demographics
+  const handleTopicImportanceContinue = () => {
+    // Apply topic importance to weights before proceeding
+    applyTopicImportanceToWeights();
+    setShowTopicImportance(false);
+    setShowDemographics(true);
+
+    // Now compute results with updated weights
     const userAnswers = buildUserAnswers(state.questions, state.answers, state.weights);
 
     const partyPromise = config.partyVotesUrl ? fetchJsonSafe(config.partyVotesUrl) : Promise.resolve(null);
@@ -212,6 +255,11 @@ export function QuizProvider({ children }) {
         });
       })
       .catch(err => console.error("Error fetching votes:", err));
+  };
+
+  // Handle toggling topic importance
+  const handleToggleTopicImportance = (topicKey) => {
+    dispatch({ type: "TOGGLE_TOPIC_IMPORTANCE", topicKey });
   };
 
   const submitDemographicsAndComputeResults = (demo) => {
@@ -274,6 +322,7 @@ export function QuizProvider({ children }) {
     setTurnstileVerified(false);
     setShowTurnstileOverlay(false);
     setShowDemographics(false);
+    setShowTopicImportance(false);
     dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: state.questions.length - 1 });
   };
 
@@ -287,6 +336,7 @@ export function QuizProvider({ children }) {
       setShowElectionIntro(false);
       setElectionIntroInitialized(false);
     }
+    setShowTopicImportance(false);
     setShowDemographics(false);
     setTurnstileVerified(false);
     setShowTurnstileOverlay(false);
@@ -346,6 +396,8 @@ export function QuizProvider({ children }) {
     setSelectedResultType,
     mobileOpen,
     setMobileOpen,
+    showTopicImportance,
+    setShowTopicImportance,
     showDemographics,
     setShowDemographics,
     demographics,
@@ -367,6 +419,7 @@ export function QuizProvider({ children }) {
     uniqueIndices,
     totalQuestions,
     displayIndex,
+    uniqueTopics,
     partyComplete,
     partyIncomplete,
     presComplete,
@@ -382,6 +435,8 @@ export function QuizProvider({ children }) {
     handleAnswerClick,
     handleMobileToggle,
     handleEndQuiz,
+    handleTopicImportanceContinue,
+    handleToggleTopicImportance,
     handleEntityClick,
     handleBackToSurvey,
     handleReset,

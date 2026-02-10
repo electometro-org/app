@@ -29,11 +29,12 @@ const VALID_SLOTS = ['top', 'bottom', 'left', 'right'];
 /**
  * Determine current quiz phase
  */
-function getQuizPhase(state, showGenericIntro, showElectionIntro, showDemographics, turnstileVerified) {
+function getQuizPhase(state, showGenericIntro, showElectionIntro, showTopicImportance, showDemographics, turnstileVerified) {
   if (showGenericIntro) return 'intro';
   if (showElectionIntro) return 'election-intro';
   if (!state.questions || state.questions.length === 0) return 'loading';
   if (state.currentQuestionIndex < state.questions.length) return 'quiz';
+  if (showTopicImportance) return 'topic-importance';
   if (showDemographics && !turnstileVerified) return 'demographics';
   if (state.comparisonResults) return 'results';
   return 'loading';
@@ -52,6 +53,7 @@ export function WidgetProvider({ children }) {
     election,
     showGenericIntro,
     showElectionIntro,
+    showTopicImportance,
     showDemographics,
     turnstileVerified,
     displayIndex,
@@ -519,7 +521,7 @@ export function WidgetProvider({ children }) {
     currentQuestionIndex: state.currentQuestionIndex,
     totalQuestions: state.questions?.length || totalQuestions || 0,
     displayIndex: displayIndex || state.currentQuestionIndex + 1,
-    phase: getQuizPhase(state, showGenericIntro, showElectionIntro, showDemographics, turnstileVerified),
+    phase: getQuizPhase(state, showGenericIntro, showElectionIntro, showTopicImportance, showDemographics, turnstileVerified),
     election,
     answers: state.answers,
     weights: state.weights,
@@ -535,6 +537,7 @@ export function WidgetProvider({ children }) {
     displayIndex,
     showGenericIntro,
     showElectionIntro,
+    showTopicImportance,
     showDemographics,
     turnstileVerified,
     election,

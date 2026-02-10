@@ -15,6 +15,7 @@ import GenericIntroView from "./views/GenericIntroView";
 import ElectionSelector from "./views/ElectionSelector";
 import ElectionIntroView from "./views/ElectionIntroView";
 import QuizView from "./views/QuizView";
+import TopicImportanceView from "./views/TopicImportanceView";
 import ResultsView from "./views/ResultsView";
 import { useQuizContext } from "./contexts/useQuizContext";
 import { BackgroundLayer } from "./backgrounds";
@@ -38,6 +39,7 @@ export default function App() {
     selectedResultType,
     setSelectedResultType,
     mobileOpen,
+    showTopicImportance,
     showDemographics,
     showTurnstileOverlay,
     turnstileVerified,
@@ -48,6 +50,7 @@ export default function App() {
     // Computed values
     displayIndex,
     totalQuestions,
+    uniqueTopics,
     partyComplete,
     partyIncomplete,
     presComplete,
@@ -60,6 +63,8 @@ export default function App() {
     handleAnswerClick,
     handleMobileToggle,
     handleEndQuiz,
+    handleTopicImportanceContinue,
+    handleToggleTopicImportance,
     handleEntityClick,
     handleBackToSurvey,
     handleReset,
@@ -112,7 +117,6 @@ export default function App() {
             displayIndex={displayIndex}
             totalQuestions={totalQuestions}
             selectedAnswer={state.answers[state.currentQuestionIndex]}
-            weight={state.weights?.[state.currentQuestionIndex] ?? 2}
             hoveredOption={state.hoveredOption}
             isFirstQuestion={state.currentQuestionIndex === 0}
             isLastQuestion={state.currentQuestionIndex === state.questions.length - 1}
@@ -120,15 +124,18 @@ export default function App() {
             onAnswer={handleAnswerClick}
             onSkip={handleSkip}
             onGoBack={handleGoBack}
-            onWeightChange={(weight) =>
-              dispatch({
-                type: "SET_WEIGHTS",
-                index: state.currentQuestionIndex,
-                weight,
-              })
-            }
             onHover={(option) => dispatch({ type: "SET_HOVERED_OPTION", payload: option })}
             onEndQuiz={handleEndQuiz}
+          />
+        ) : showTopicImportance ? (
+          <TopicImportanceView
+            topics={uniqueTopics}
+            topicImportance={state.topicImportance}
+            questions={state.questions}
+            answers={state.answers}
+            branding={branding}
+            onToggle={handleToggleTopicImportance}
+            onContinue={handleTopicImportanceContinue}
           />
         ) : (
           <>

@@ -10,6 +10,7 @@ const initialState = {
   answers: [],
   weights: [],
   seenQuestions: [], // Track which questions have been viewed
+  topicImportance: {}, // { [topic_key]: boolean } - true = very important
   comparisonResults: null,
   selectedEntity: null,
   entityDetails: {},
@@ -50,8 +51,16 @@ function reducer(state, action) {
         return state;
       }
       return { ...state, seenQuestions: [...state.seenQuestions, action.payload] };
+    case "TOGGLE_TOPIC_IMPORTANCE":
+      return {
+        ...state,
+        topicImportance: {
+          ...state.topicImportance,
+          [action.topicKey]: !state.topicImportance[action.topicKey],
+        },
+      };
     case "RESET":
-      // Preserve questions but reset answers, progress, results, and seen questions
+      // Preserve questions but reset answers, progress, results, seen questions, and topic importance
       return {
         ...initialState,
         questions: state.questions,
@@ -59,6 +68,7 @@ function reducer(state, action) {
         answers: Array(state.questions.length).fill(null),
         weights: Array(state.questions.length).fill(2),
         seenQuestions: [],
+        topicImportance: {},
       };
     default:
       return state;

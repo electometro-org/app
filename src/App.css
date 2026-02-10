@@ -547,3 +547,394 @@ button,
 #turnstile-overlay-widget {
   margin-top: 10px;
 }
+
+/* Topic Importance View */
+.topic-importance-container {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  max-width: 700px;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.topic-importance-header {
+  flex-shrink: 0;
+}
+
+.topic-importance-header h2 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.topic-importance-header p {
+  margin: 0;
+  opacity: 0.8;
+  font-style: italic;
+}
+
+.topic-importance-header p:first-of-type {
+  margin-top: 2%;
+}
+
+.topic-importance-header p:last-of-type {
+  margin-top: 0.5%;
+  margin-bottom: 5%;
+}
+
+/* Desktop: Two columns of equal-width buttons */
+.topic-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(200px, 280px));
+  gap: 12px 20px;
+  margin: 0 auto;
+  justify-content: center;
+}
+
+.topic-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid #ccc !important;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 15px;
+  min-height: 52px;
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.topic-button:hover {
+  transform: translateY(-1px);
+}
+
+/* Info button on left */
+.topic-info-btn {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid #ccc !important;
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+  margin-right: 12px;
+}
+
+.topic-info-btn:hover {
+  transform: scale(1.1);
+}
+
+.topic-info-btn.inline-example {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin: 0 4px;
+  cursor: default;
+}
+
+.info-icon {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Topic label in center */
+.topic-label {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Checkbox on right */
+.topic-checkbox {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin-left: 12px;
+}
+
+.checkbox-icon {
+  width: 100%;
+  height: 100%;
+}
+
+.checkbox-bg {
+  fill: transparent;
+  stroke: #ccc;
+  stroke-width: 2;
+  transition: all 0.2s ease;
+}
+
+.checkmark {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Continue button wrapper */
+.topic-continue-wrapper {
+  flex-shrink: 0;
+  padding-top: 16px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.topic-continue-wrapper.visible {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.topic-continue-wrapper.hidden {
+  opacity: 0;
+  transform: translateY(100%);
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.continue-button {
+  padding: 14px 40px;
+  background: #333;
+  color: #fff;
+  border: none !important;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.continue-button:hover {
+  transform: translateY(-2px);
+}
+
+/* Info Dialog Overlay */
+.topic-info-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  box-sizing: border-box;
+  animation: fadeIn 0.2s ease;
+}
+
+.topic-info-dialog {
+  background: #fff;
+  color: #333;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: slideUp 0.25s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  text-align: center;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
+
+.topic-info-overlay.closing {
+  animation: fadeOut 0.2s ease forwards;
+}
+
+.topic-info-dialog.closing {
+  animation: slideDown 0.2s ease forwards;
+}
+
+.topic-info-dialog h3 {
+  margin: 0 0 20px 0;
+  font-size: 1.3em;
+  border-bottom: 2px solid #333;
+  padding-bottom: 12px;
+}
+
+.topic-questions-list {
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.topic-question-item {
+  display: flex;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid #ccc;
+  user-select: contain;
+  -webkit-user-select: text;
+  flex-direction: column;
+}
+
+.topic-question-item:last-child {
+  border-bottom: none;
+}
+
+.question-number {
+  flex-shrink: 0;
+  font-weight: 600;
+  color: #333;
+  min-width: 24px;
+}
+
+.question-text {
+  line-height: 1.5;
+  text-align: center;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.user-answer-container {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.user-answer-label {
+  font-size: 0.95em;
+  font-style: italic;
+  opacity: 0.7;
+  margin-right: 4px;
+}
+
+.user-answer {
+  font-size: 0.95em;
+  font-style: italic;
+  opacity: 0.7;
+  font-weight: bold;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+}
+
+.dialog-close-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 24px;
+  background: #333;
+  color: #fff;
+  border: none !important;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+/* Mobile: Single column list */
+@media (max-width: 767px) {
+  .topic-importance-container {
+    padding: 12px;
+    padding-bottom: 100px; /* Space for fixed continue button */
+  }
+
+  .topic-importance-header h2 {
+    font-size: 1.3em;
+    margin-top: 10px;
+  }
+
+  .topic-importance-header p {
+    font-size: 0.95em;
+    margin-bottom: 2%;
+  }
+
+  .topic-buttons-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    max-width: 100%;
+    justify-items: center;
+  }
+
+  .topic-button {
+    width: 100%;
+    max-width: 320px;
+    min-height: 56px;
+    padding: 12px 14px;
+  }
+
+  .topic-label {
+    font-size: 14px;
+  }
+
+  .topic-continue-wrapper {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: linear-gradient(transparent, #f5f5f5 30%);
+    padding: 30px 20px 20px;
+    z-index: 9999;
+  }
+
+  .topic-continue-wrapper .continue-button {
+    width: 100%;
+    max-width: 320px;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .topic-info-dialog {
+    max-height: 80vh;
+    padding: 20px;
+    margin: 10px;
+  }
+
+  .topic-info-dialog h3 {
+    font-size: 1.15em;
+  }
+}

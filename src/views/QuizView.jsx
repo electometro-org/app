@@ -90,13 +90,14 @@ export default function QuizView({
       <DockingZone id="above-buttons" />
 
       <div>
-        <button
-          className="back-and-skip-buttons"
-          onClick={onGoBack}
-          disabled={isFirstQuestion}
-        >
-          {t('common.back')}
-        </button>
+        {!isFirstQuestion && (
+          <button
+            className="back-and-skip-buttons"
+            onClick={onGoBack}
+          >
+            {t('common.back')}
+          </button>
+        )}
         <button
           className={`back-and-skip-buttons ${isLastQuestion && selectedAnswer ? 'end-survey-ready' : ''}`}
           onClick={handleSkipOrFinish}

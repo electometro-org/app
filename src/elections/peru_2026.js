@@ -122,7 +122,11 @@ export default {
       draggable: false,
       defaultSlot: "center",
       layouts: {
-        xxs: {x: 0, y: 3, w: 24, h: 75},
+        lg:  { x: 24, y: 0, w: 48, h: 40 },
+        md:  { x: 12, y: 0, w: 48, h: 35 },
+        sm:  { x: 4, y: 8, w: 40, h: 35 },
+        xs:  { x: 0, y: 8, w: 32, h: 35 },
+        xxs: { x: 0, y: 3, w: 24, h: 40 },
       }
     },
     { type: "progress-indicator",

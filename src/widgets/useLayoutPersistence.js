@@ -1,6 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
 
 const STORAGE_PREFIX = 'electometro-layout-';
+// Only persist layouts in development mode
+const ENABLE_PERSISTENCE = import.meta.env.DEV;
 
 /**
  * Hook for persisting widget layouts per-election in localStorage
@@ -13,7 +15,7 @@ export function useLayoutPersistence(electionId, defaultLayout = {}) {
 
   // Initialize layout from localStorage or defaults
   const [layout, setLayoutState] = useState(() => {
-    if (!storageKey) return defaultLayout;
+    if (!storageKey || !ENABLE_PERSISTENCE) return defaultLayout;
 
     try {
       const saved = localStorage.getItem(storageKey);
@@ -30,7 +32,7 @@ export function useLayoutPersistence(electionId, defaultLayout = {}) {
 
   // Update layout when election changes
   useEffect(() => {
-    if (!storageKey) {
+    if (!storageKey || !ENABLE_PERSISTENCE) {
       setLayoutState(defaultLayout);
       return;
     }
@@ -49,9 +51,9 @@ export function useLayoutPersistence(electionId, defaultLayout = {}) {
     }
   }, [storageKey, defaultLayout]);
 
-  // Save to localStorage whenever layout changes
+  // Save to localStorage whenever layout changes (only in dev mode)
   useEffect(() => {
-    if (!storageKey) return;
+    if (!storageKey || !ENABLE_PERSISTENCE) return;
 
     try {
       localStorage.setItem(storageKey, JSON.stringify(layout));
@@ -86,7 +88,7 @@ export function useLayoutPersistence(electionId, defaultLayout = {}) {
   // Reset to default layout
   const resetLayout = useCallback(() => {
     setLayoutState(defaultLayout);
-    if (storageKey) {
+    if (storageKey && ENABLE_PERSISTENCE) {
       try {
         localStorage.removeItem(storageKey);
       } catch (e) {

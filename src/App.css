@@ -233,7 +233,7 @@ button {
   width: 100%;
   color: var(--fontColor);
   border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 5px;
+  border-radius: 15px;
   outline: none;
 }
 

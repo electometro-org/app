@@ -74,7 +74,13 @@ export default function QuizView({
             onClick={() => {
               if (buttonsBlocked || clickedOption) return;
               setClickedOption(option);
-              setTimeout(() => onAnswer(option), 150);
+              setTimeout(() => {
+                onAnswer(option);
+                // On last question, reset clickedOption so user can change their answer
+                if (isLastQuestion) {
+                  setClickedOption(null);
+                }
+              }, 150);
             }}
             onMouseEnter={() => onHover(option)}
             onMouseLeave={() => onHover(null)}

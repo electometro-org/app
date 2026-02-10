@@ -23,10 +23,14 @@ function ProgressIndicator({ config, quizState }) {
 
   const renderContent = () => {
     switch (style) {
-      case 'dots':
+      case 'dots': {
+        // Calculate optimal dots per row for even wrapping
+        // For 10 dots: 5 per row, for 12: 6, for 7: 4+3, etc.
+        const dotsPerRow = Math.ceil(totalQuestions / 2);
         return (
           <div
             className="progress-dots"
+            style={{ '--dots-per-row': dotsPerRow }}
             aria-label={`Progress: ${currentQuestionIndex} of ${totalQuestions} steps completed.`}
           >
             {Array.from({ length: totalQuestions }, (_, i) => {
@@ -49,6 +53,7 @@ function ProgressIndicator({ config, quizState }) {
             })}
           </div>
         );
+      }
 
       case 'percentage':
         return (

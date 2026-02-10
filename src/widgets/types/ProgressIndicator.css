@@ -49,11 +49,10 @@
 /* Dots Style */
 .progress-dots {
   display: flex;
-  gap: 12px;
   flex-wrap: wrap;
+  gap: 12px;
   justify-content: center;
   align-items: center;
-  /*max-width: 300px;*/
 }
 
 .progress-dot {
@@ -111,7 +110,9 @@
   }
 
   .progress-dots {
-    /*max-width: 200px;*/
+    display: grid;
+    grid-template-columns: repeat(var(--dots-per-row, 5), auto);
+    gap: 8px;
   }
 
   .progress-dot {

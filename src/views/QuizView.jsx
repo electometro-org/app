@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useTranslate } from "@tolgee/react";
 import { BrandLogo } from "../components/BrandImage";
 import { DockingZone } from "../widgets";
@@ -18,6 +19,16 @@ export default function QuizView({
   onEndQuiz,
 }) {
   const { t } = useTranslate();
+  const [buttonsBlocked, setButtonsBlocked] = useState(true);
+
+  // Block buttons for 1 second when question changes
+  useEffect(() => {
+    setButtonsBlocked(true);
+    const timer = setTimeout(() => {
+      setButtonsBlocked(false);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [question.id, displayIndex]);
 
   const handleSkipOrFinish = () => {
     if (isLastQuestion) {
@@ -53,14 +64,17 @@ export default function QuizView({
           <button
             className="option-button"
             key={index}
-            onClick={() => onAnswer(option)}
+            onClick={() => !buttonsBlocked && onAnswer(option)}
             onMouseEnter={() => onHover(option)}
             onMouseLeave={() => onHover(null)}
+            disabled={buttonsBlocked}
             style={{
               backgroundColor:
                 selectedAnswer === option || hoveredOption === option
                   ? "var(--buttonHover)"
-                  : "var(--buttonColor)"
+                  : "var(--buttonColor)",
+              opacity: buttonsBlocked ? 0.6 : 1,
+              cursor: buttonsBlocked ? "wait" : "pointer"
             }}
           >
             {t(option)}

@@ -67,17 +67,13 @@ export default function QuizView({
       <div className="question-options" key={`options-${question.id || displayIndex}`}>
         {question.options.map((option, index) => (
           <button
-            className="option-button"
+            className={`option-button ${selectedAnswer === option ? 'selected-answer' : ''}`}
             key={index}
             onClick={() => !buttonsBlocked && onAnswer(option)}
             onMouseEnter={() => onHover(option)}
             onMouseLeave={() => onHover(null)}
             disabled={buttonsBlocked}
             style={{
-              backgroundColor:
-                selectedAnswer === option || hoveredOption === option
-                  ? "var(--buttonHover)"
-                  : "var(--buttonColor)",
               opacity: buttonsBlocked ? 0.6 : 1,
               cursor: buttonsBlocked ? "wait" : "pointer"
             }}

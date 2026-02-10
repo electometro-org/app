@@ -264,6 +264,23 @@ button {
   }
 }
 
+.option-button.selected-answer {
+  text-decoration: underline;
+  border-color: var(--accentLight) !important;
+  animation: questionFadeIn 0.4s ease-out;
+  background-color: var(--accentLight);
+  color: var(--fontColorLight);
+}
+
+@keyframes selectedGlow {
+  0%, 100% {
+    box-shadow: 0 0 12px 3px var(--accent);
+  }
+  50% {
+    box-shadow: 0 0 18px 5px var(--accent);
+  }
+}
+
 .back-and-skip-buttons {
   margin-left: 5px;
   margin-right: 5px;

@@ -437,7 +437,7 @@ export function WidgetLayout({ children }) {
   }, [visibleWidgets, registerWidgetElement, unregisterWidgetElement]);
 
   return (
-    <div ref={containerRef} className="widget-layout" data-widget-debug={debugMode || undefined}>
+    <div ref={containerRef} className="widget-layout" data-widget-debug={debugMode || undefined} data-phase={quizState.phase}>
       {/* Debug mode toggle button */}
       {DEBUG_MODE_AVAILABLE && (
         <div className="debug-buttons">

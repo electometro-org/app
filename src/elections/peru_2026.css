@@ -38,19 +38,9 @@
 }
 
 [data-election="peru_2026"] .question-text-container {
-  min-height: 10em;
+  min-height: 8em;
   max-width: 90%;
   font-size: 0.8rem;
-}
-
-/* Hide default option buttons - replaced by opinion-buttons widget */
-[data-election="peru_2026"] .option-button {
-  display: none;
-}
-
-/* Hide default importance slider - replaced by opinion-buttons widget */
-[data-election="peru_2026"] .importance-slider-container {
-  display: none;
 }
 
 /* Style the opinion buttons widget to match election theme */
@@ -102,7 +92,114 @@
   gap: 15px;
 }
 
+/* Topic Importance View - Peru 2026 colors */
+[data-election="peru_2026"] .topic-importance-header p {
+  color: var(--fontColor);
+}
+
+[data-election="peru_2026"] .topic-button {
+  border-color: var(--buttonShadow) !important;
+  background: var(--buttonColor);
+  color: var(--fontColor);
+}
+
+[data-election="peru_2026"] .topic-button:hover {
+  border-color: var(--accent) !important;
+  box-shadow: 0 4px 12px var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .topic-button.very-important {
+  background: var(--accent);
+  color: var(--fontColorLight);
+  border-color: var(--accent) !important;
+}
+
+[data-election="peru_2026"] .topic-button.very-important .topic-info-btn {
+  background: rgba(255, 255, 255, 0.25);
+  color: var(--fontColorLight);
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+[data-election="peru_2026"] .topic-button.very-important .checkbox-bg {
+  fill: rgba(255, 255, 255, 0.3);
+  stroke: var(--fontColorLight);
+}
+
+[data-election="peru_2026"] .topic-button.very-important .checkbox-bg.checked {
+  fill: var(--fontColorLight);
+  stroke: var(--fontColorLight);
+}
+
+[data-election="peru_2026"] .topic-button.very-important .checkmark {
+  stroke: var(--accent);
+}
+
+[data-election="peru_2026"] .topic-info-btn {
+  border-color: var(--buttonShadow) !important;
+  color: var(--fontColor);
+}
+
+[data-election="peru_2026"] .topic-info-btn:hover {
+  background: var(--accent);
+  color: var(--fontColorLight);
+  border-color: var(--accent) !important;
+}
+
+[data-election="peru_2026"] .checkbox-bg {
+  stroke: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .checkbox-bg.checked {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+
+[data-election="peru_2026"] .checkmark {
+  stroke: var(--fontColorLight);
+}
+
+[data-election="peru_2026"] .continue-button {
+  background: var(--buttonNext);
+  color: var(--fontColorLight);
+}
+
+[data-election="peru_2026"] .continue-button:hover {
+  background: var(--buttonNextHover);
+  box-shadow: 0 4px 12px var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .topic-info-dialog {
+  background: var(--introBoxBg);
+  color: var(--fontColor);
+  user-select: none;
+}
+
+[data-election="peru_2026"] .topic-info-dialog h3 {
+  border-bottom-color: var(--accent);
+}
+
+[data-election="peru_2026"] .topic-question-item {
+  border-bottom-color: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .question-number {
+  color: var(--accent);
+}
+
+[data-election="peru_2026"] .dialog-close-btn {
+  background: var(--buttonNext);
+  color: var(--fontColorLight);
+}
+
+[data-election="peru_2026"] .dialog-close-btn:hover {
+  background: var(--buttonNextHover);
+}
+
 @media (max-width: 767px) {
+  [data-election="peru_2026"] .topic-continue-wrapper {
+    background: linear-gradient(transparent, var(--background) 30%);
+  }
+
   [data-election="peru_2026"] .main-container,
   [data-election="peru_2026"] .election-content-area,
   [data-election="peru_2026"] .entity-details-inline {

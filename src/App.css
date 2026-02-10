@@ -257,6 +257,27 @@ button {
   outline: none;
 }
 
+.option-button:hover:not(.selected-answer):not(.just-clicked) {
+  background-color: color-mix(in srgb, var(--accentLight) 15%, var(--buttonColor));
+}
+
+.option-button.just-clicked {
+  animation: clickFadeOut 0.35s ease-out forwards;
+}
+
+@keyframes clickFadeOut {
+  from {
+    opacity: 1;
+    background-color: var(--accentLight);
+    color: var(--fontColorLight);
+  }
+  to {
+    opacity: 0.3;
+    background-color: var(--accentLight);
+    color: var(--fontColorLight);
+  }
+}
+
 @media (max-width: 767px) {
   .option-button {
     padding: 12px 40px;

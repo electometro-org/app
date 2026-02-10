@@ -21,9 +21,11 @@ export default function QuizView({
 }) {
   const { t } = useTranslate();
   const [buttonsBlocked, setButtonsBlocked] = useState(!hasSeenQuestion);
+  const [clickedOption, setClickedOption] = useState(null);
 
   // Block buttons briefly when question changes, but only for unseen questions
   useEffect(() => {
+    setClickedOption(null); // Reset clicked state on question change
     if (hasSeenQuestion) {
       setButtonsBlocked(false);
       return;
@@ -67,9 +69,13 @@ export default function QuizView({
       <div className="question-options" key={`options-${question.id || displayIndex}`}>
         {question.options.map((option, index) => (
           <button
-            className={`option-button ${selectedAnswer === option ? 'selected-answer' : ''}`}
+            className={`option-button ${selectedAnswer === option ? 'selected-answer' : ''} ${clickedOption === option ? 'just-clicked' : ''}`}
             key={index}
-            onClick={() => !buttonsBlocked && onAnswer(option)}
+            onClick={() => {
+              if (buttonsBlocked || clickedOption) return;
+              setClickedOption(option);
+              setTimeout(() => onAnswer(option), 150);
+            }}
             onMouseEnter={() => onHover(option)}
             onMouseLeave={() => onHover(null)}
             disabled={buttonsBlocked}

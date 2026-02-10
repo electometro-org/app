@@ -15,7 +15,7 @@
 }
 
 /* During intro phases, prevent scrolling into empty space */
-.widget-layout:not([data-phase="topic-importance"],[data-phase="results"]) {
+.widget-layout:not([data-phase="topic-importance"],[data-phase="results"],[data-phase="demographics"]) {
 /*.widget-layout[data-phase="election-intro"],*/
 /*.widget-layout[data-phase="quiz"]{*/
   max-height: 100vh;

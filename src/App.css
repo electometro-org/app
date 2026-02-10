@@ -269,7 +269,7 @@ button {
   outline: none;
 }
 
-.option-button:hover:not(.selected-answer):not(.just-clicked) {
+.option-button:hover:not(.selected-answer):not(.just-clicked):not(:disabled) {
   background-color: color-mix(in srgb, var(--accentLight) 15%, var(--buttonColor));
 }
 

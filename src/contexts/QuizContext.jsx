@@ -215,6 +215,9 @@ export function QuizProvider({ children }) {
     setShowTopicImportance(true);
     dispatch({ type: "SET_SELECTED_ENTITY", payload: null });
     dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: state.questions.length });
+
+    // Scroll to top when switching views
+    window.scrollTo(0, 0);
   };
 
   // Apply topic importance: boost weights for questions with "very important" topics
@@ -233,6 +236,9 @@ export function QuizProvider({ children }) {
     applyTopicImportanceToWeights();
     setShowTopicImportance(false);
     setShowDemographics(true);
+
+    // Scroll to top when switching views
+    window.scrollTo(0, 0);
 
     // Now compute results with updated weights
     const userAnswers = buildUserAnswers(state.questions, state.answers, state.weights);
@@ -375,6 +381,9 @@ export function QuizProvider({ children }) {
     setTurnstileVerified(true);
     setShowTurnstileOverlay(false);
     setShowDemographics(false);
+
+    // Scroll to top when showing results
+    window.scrollTo(0, 0);
   };
 
   const value = {

@@ -95,6 +95,11 @@ export default function QuizView({
         <button
           className={`back-and-skip-buttons ${isLastQuestion && selectedAnswer ? 'end-survey-ready' : ''}`}
           onClick={handleSkipOrFinish}
+          disabled={buttonsBlocked}
+          style={{
+            opacity: buttonsBlocked ? 0.6 : 1,
+            cursor: buttonsBlocked ? "wait" : "pointer"
+          }}
         >
           {isLastQuestion ? t('quiz.finishSurvey') : t('common.skip')}
         </button>

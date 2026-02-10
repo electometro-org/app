@@ -106,7 +106,7 @@ export default function QuizView({
             cursor: buttonsBlocked ? "wait" : "pointer"
           }}
         >
-          {isLastQuestion ? t('quiz.finishSurvey') : t('common.skip')}
+          {isLastQuestion ? t('quiz.finishSurvey') : (selectedAnswer ? t('common.next') : t('common.skip'))}
         </button>
       </div>
 

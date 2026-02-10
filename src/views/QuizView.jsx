@@ -31,7 +31,7 @@ export default function QuizView({
     setButtonsBlocked(true);
     const timer = setTimeout(() => {
       setButtonsBlocked(false);
-    }, 350);
+    }, 400);
     return () => clearTimeout(timer);
   }, [question.id, displayIndex, hasSeenQuestion]);
 

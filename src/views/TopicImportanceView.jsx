@@ -42,6 +42,7 @@ export default function TopicImportanceView({
   const lastTopicRef = useRef(null);
   const showContinueRef = useRef(showContinue);
   const scrollParentRef = useRef(null);
+  const continueWrapperRef = useRef(null);
 
   useEffect(() => {
     showContinueRef.current = showContinue;
@@ -148,11 +149,6 @@ export default function TopicImportanceView({
   // Floating "scroll down" helper for topic grid.
   // Independent from continue logic so it cannot break continue visibility.
   useEffect(() => {
-    if (!isMobile) {
-      setShowScrollDownFab(false);
-      return;
-    }
-
     const lastTopic = lastTopicRef.current;
     if (!lastTopic) {
       setShowScrollDownFab(false);
@@ -176,15 +172,28 @@ export default function TopicImportanceView({
       }
 
       const lastRect = el.getBoundingClientRect();
+      let viewportTop = 0;
       let viewportBottom = window.innerHeight || document.documentElement.clientHeight || 0;
 
       if (scrollParent && scrollParent !== document.documentElement && scrollParent !== document.body) {
         const containerRect = scrollParent.getBoundingClientRect();
+        viewportTop = containerRect.top;
         viewportBottom = containerRect.bottom;
       }
 
       const reachedLastTopic = lastRect.bottom <= (viewportBottom - SCROLL_FAB_HIDE_OFFSET_PX);
-      setShowScrollDownFab(!reachedLastTopic && !showContinueRef.current);
+      const continueEl = continueWrapperRef.current;
+      const continueVisible = (() => {
+        if (!continueEl) return false;
+        if (continueEl.classList.contains('hidden')) return false;
+        const rect = continueEl.getBoundingClientRect();
+        return rect.bottom > (viewportTop + 8) && rect.top < (viewportBottom - 8);
+      })();
+      // On mobile, hide once Continue is shown to avoid overlap.
+      const blockedByContinue = isMobile && showContinueRef.current;
+      // Desktop-only: also hide when continue is already visible in viewport.
+      const desktopContinueVisible = !isMobile && continueVisible;
+      setShowScrollDownFab(!reachedLastTopic && !blockedByContinue && !desktopContinueVisible);
     };
 
     const onScroll = () => {
@@ -363,7 +372,7 @@ export default function TopicImportanceView({
         ))}
       </div>
 
-      {isMobile && showScrollDownFab && createPortal(
+      {showScrollDownFab && createPortal(
         <button
           className="topic-scroll-down-fab"
           type="button"
@@ -380,7 +389,7 @@ export default function TopicImportanceView({
       {/* Continue button - use Portal on mobile for reliable fixed positioning */}
       {isMobile ? (
         createPortal(
-          <div className={`topic-continue-wrapper ${showContinue ? 'visible' : 'hidden'}`}>
+          <div ref={continueWrapperRef} className={`topic-continue-wrapper ${showContinue ? 'visible' : 'hidden'}`}>
             <button className="continue-button" onClick={onContinue}>
               {t('common.continue')}
             </button>
@@ -388,7 +397,7 @@ export default function TopicImportanceView({
           document.body
         )
       ) : (
-        <div className={`topic-continue-wrapper ${showContinue ? 'visible' : 'hidden'}`}>
+        <div ref={continueWrapperRef} className={`topic-continue-wrapper ${showContinue ? 'visible' : 'hidden'}`}>
           <button className="continue-button" onClick={onContinue}>
             {t('common.continue')}
           </button>

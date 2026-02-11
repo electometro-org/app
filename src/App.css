@@ -711,7 +711,32 @@ button,
   }
 }
 
-/* Info button on left */
+/* Topic state indicator on left */
+.topic-state-indicator {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid #ccc !important;
+  background: rgba(0, 0, 0, 0.03);
+  color: #333;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin-left: 12px;
+}
+
+.topic-state-indicator.inline-example {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin: 0 4px;
+  cursor: default;
+}
+
+/* Info button on right */
 .topic-info-btn {
   flex-shrink: 0;
   width: 26px;
@@ -744,6 +769,12 @@ button,
   cursor: default;
 }
 
+.topic-state-indicator__glyph {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .info-icon {
   font-family: Georgia, serif;
   font-style: italic;
@@ -762,32 +793,14 @@ button,
   text-overflow: ellipsis;
 }
 
-/* Checkbox on right */
-.topic-checkbox {
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  margin-left: 12px;
+.topic-state-indicator--normal {
+  opacity: 0.9;
 }
 
-.checkbox-icon {
-  width: 100%;
-  height: 100%;
-}
-
-.checkbox-bg {
-  fill: transparent;
-  stroke: #ccc;
-  stroke-width: 2;
-  transition: all 0.2s ease;
-}
-
-.checkmark {
-  fill: none;
-  stroke: #fff;
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.topic-state-indicator--high {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
 }
 
 /* Continue button wrapper */

@@ -278,7 +278,15 @@ export default function TopicImportanceView({
       <div className="topic-importance-header">
         <BrandLogo branding={branding} />
         <h2>{t('topicImportance.title')}</h2>
-        {/*<p>{t('topicImportance.instructions1')}</p>*/}
+        <p>
+          {t('topicImportance.instructions1a')}
+          <span className={`topic-state-indicator topic-state-indicator--normal inline-example`} aria-hidden="true">
+            <span className="topic-state-indicator__glyph">
+                  ○
+            </span>
+          </span>
+          {t('topicImportance.instructions1b')}
+        </p>
         <p>
           {t('topicImportance.instructions2a')}
           <span className="topic-info-btn inline-example" aria-hidden="true">
@@ -308,17 +316,10 @@ export default function TopicImportanceView({
               {t(topic.topic_key) || topic.label}
             </span>
 
-            <span className="topic-checkbox">
-              <svg viewBox="0 0 24 24" className="checkbox-icon">
-                {topicImportance[topic.topic_key] ? (
-                  <>
-                    <rect x="3" y="3" width="18" height="18" rx="3" className="checkbox-bg checked" />
-                    <path d="M9 12l2 2 4-4" className="checkmark" />
-                  </>
-                ) : (
-                  <rect x="3" y="3" width="18" height="18" rx="3" className="checkbox-bg" />
-                )}
-              </svg>
+            <span className={`topic-state-indicator ${topicImportance[topic.topic_key] ? 'topic-state-indicator--high' : 'topic-state-indicator--normal'}`}>
+              <span className="topic-state-indicator__glyph">
+                {topicImportance[topic.topic_key] ? '●' : '○'}
+              </span>
             </span>
           </div>
         ))}

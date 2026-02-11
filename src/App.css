@@ -212,6 +212,7 @@ button {
 .intro-container h2 {
   width: 100%;
   margin: 0;
+  font-size: clamp(2.25rem, 6.4vw, 3.6rem);
   text-wrap: balance;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;

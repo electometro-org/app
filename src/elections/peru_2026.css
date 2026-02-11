@@ -34,7 +34,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  font-size: 1.3em;
+  font-size: 1.5em;
 }
 
 [data-election="peru_2026"] .question-text-container {
@@ -114,24 +114,22 @@
   border-color: var(--accent) !important;
 }
 
+[data-election="peru_2026"] .topic-button.very-important .topic-state-indicator {
+  background: rgba(255, 255, 255, 0.25);
+  color: var(--fontColorLight);
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
 [data-election="peru_2026"] .topic-button.very-important .topic-info-btn {
   background: rgba(255, 255, 255, 0.25);
   color: var(--fontColorLight);
   border-color: rgba(255, 255, 255, 0.4) !important;
 }
 
-[data-election="peru_2026"] .topic-button.very-important .checkbox-bg {
-  fill: rgba(255, 255, 255, 0.3);
-  stroke: var(--fontColorLight);
-}
-
-[data-election="peru_2026"] .topic-button.very-important .checkbox-bg.checked {
-  fill: var(--fontColorLight);
-  stroke: var(--fontColorLight);
-}
-
-[data-election="peru_2026"] .topic-button.very-important .checkmark {
-  stroke: var(--accent);
+[data-election="peru_2026"] .topic-state-indicator {
+  border-color: var(--buttonShadow) !important;
+  color: var(--fontColor);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 [data-election="peru_2026"] .topic-info-btn {
@@ -143,19 +141,6 @@
   background: var(--accent);
   color: var(--fontColorLight);
   border-color: var(--accent) !important;
-}
-
-[data-election="peru_2026"] .checkbox-bg {
-  stroke: var(--buttonShadow);
-}
-
-[data-election="peru_2026"] .checkbox-bg.checked {
-  fill: var(--accent);
-  stroke: var(--accent);
-}
-
-[data-election="peru_2026"] .checkmark {
-  stroke: var(--fontColorLight);
 }
 
 [data-election="peru_2026"] .continue-button {
@@ -195,6 +180,18 @@
   background: var(--buttonNextHover);
 }
 
+[data-election="peru_2026"] .topic-scroll-down-fab {
+  --topic-fab-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(244, 244, 244, 0.92) 100%);
+  --topic-fab-text: var(--buttonNext);
+  --topic-fab-border: var(--accent);
+  --topic-fab-glow-weak: rgba(195, 46, 46, 0.34);
+  --topic-fab-glow-strong: rgba(195, 46, 46, 0.2);
+}
+
+[data-election="peru_2026"] .topic-scroll-down-fab span:last-child {
+  color: var(--accent);
+}
+
 @media (max-width: 767px) {
   [data-election="peru_2026"] .topic-continue-wrapper {
     background: linear-gradient(transparent, var(--background) 30%);
@@ -207,6 +204,6 @@
   }
 
   [data-election="peru_2026"] .question-text-container h2 {
-    font-size: 1rem;
+    font-size: 1.3rem;
   }
 }

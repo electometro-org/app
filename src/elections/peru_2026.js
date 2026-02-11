@@ -138,7 +138,7 @@ export default {
         lg:  { x: 34, y: 10, w: 28, h: 3 },
         md:  { x: 0, y: 0, w: 18, h: 6 },
         xxs: { x: 4, y: 12, w: 15, h: 4 },
-        // sm, xs, xxs will fall back to DEFAULT_LAYOUTS
+        // sm, xs fall back to DEFAULT_LAYOUTS
       },
       dockedTo: "above-question",
       dockTransition: {

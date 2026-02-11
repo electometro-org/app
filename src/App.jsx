@@ -222,10 +222,10 @@ export default function App() {
               </WidgetLayout>
             }
           />
-          <Route path="/metodologia" element={<Methodology />} />
-          <Route path="/contacto" element={<Contact />} />
-          <Route path="/politica-privacidad" element={<PrivacyPolicy />} />
-          <Route path="/configuracion-privacidad" element={<CookieSettings />} />
+          <Route path="/metodologia" element={<div className="static-page-shell"><Methodology /></div>} />
+          <Route path="/contacto" element={<div className="static-page-shell"><Contact /></div>} />
+          <Route path="/politica-privacidad" element={<div className="static-page-shell"><PrivacyPolicy /></div>} />
+          <Route path="/configuracion-privacidad" element={<div className="static-page-shell"><CookieSettings /></div>} />
         </Routes>
         <PrivacyNotice />
       </>

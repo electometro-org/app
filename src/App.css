@@ -11,6 +11,11 @@ body {
   overflow-x: hidden;
 }
 
+.static-page-shell {
+  position: relative;
+  z-index: 2;
+}
+
 button {
   background-color: var(--buttonColor);
   color:            var(--fontColor);

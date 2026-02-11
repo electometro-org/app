@@ -56,6 +56,11 @@ export function QuizProvider({ children }) {
   const [selectedResultType, setSelectedResultType] = useState(resultTypes[0] || null);
   const [mobileOpen, setMobileOpen] = useState(null);
   const [showTopicImportance, setShowTopicImportance] = useState(false);
+  const [minAnswersGate, setMinAnswersGate] = useState({
+    open: false,
+    answered: 0,
+    required: 0,
+  });
   const [showDemographics, setShowDemographics] = useState(false);
   const [demographics, setDemographics] = useState(null);
   const [showTurnstileOverlay, setShowTurnstileOverlay] = useState(false);
@@ -205,7 +210,26 @@ export function QuizProvider({ children }) {
   };
 
   const handleEndQuiz = () => {
-    const answeredCount = Object.values(state.answers || {}).filter(Boolean).length;
+    const answeredCount = Object.values(state.answers || {}).filter(answer => answer != null).length;
+    const minRatio = Number(config?.minAnsweredRatioForResults ?? 0.5);
+    const clampedMinRatio = Number.isFinite(minRatio) ? Math.min(1, Math.max(0, minRatio)) : 0.5;
+    const requiredCount = Math.ceil((state.questions?.length || 0) * clampedMinRatio);
+
+    if (answeredCount < requiredCount) {
+      setMinAnswersGate({
+        open: true,
+        answered: answeredCount,
+        required: requiredCount,
+      });
+      trackEvent("quiz_finish_blocked_min_answers", {
+        total_questions: state.questions.length,
+        answered_count: answeredCount,
+        required_count: requiredCount,
+        required_ratio: clampedMinRatio,
+      });
+      return;
+    }
+
     trackEvent("quiz_completed", {
       total_questions: state.questions.length,
       answered_count: answeredCount
@@ -218,6 +242,19 @@ export function QuizProvider({ children }) {
 
     // Scroll to top when switching views
     window.scrollTo(0, 0);
+  };
+
+  const closeMinAnswersGate = () => {
+    setMinAnswersGate(prev => ({ ...prev, open: false }));
+  };
+
+  const goToNextUnanswered = () => {
+    const nextUnanswered = uniqueIndices.find(index => state.answers?.[index] == null);
+    if (nextUnanswered !== undefined) {
+      dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: nextUnanswered });
+      closeMinAnswersGate();
+      window.scrollTo(0, 0);
+    }
   };
 
   // Apply topic importance: boost weights for questions with "very important" topics
@@ -329,6 +366,7 @@ export function QuizProvider({ children }) {
     setShowTurnstileOverlay(false);
     setShowDemographics(false);
     setShowTopicImportance(false);
+    setMinAnswersGate({ open: false, answered: 0, required: 0 });
     dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: state.questions.length - 1 });
   };
 
@@ -343,6 +381,7 @@ export function QuizProvider({ children }) {
       setElectionIntroInitialized(false);
     }
     setShowTopicImportance(false);
+    setMinAnswersGate({ open: false, answered: 0, required: 0 });
     setShowDemographics(false);
     setTurnstileVerified(false);
     setShowTurnstileOverlay(false);
@@ -407,6 +446,7 @@ export function QuizProvider({ children }) {
     setMobileOpen,
     showTopicImportance,
     setShowTopicImportance,
+    minAnswersGate,
     showDemographics,
     setShowDemographics,
     demographics,
@@ -444,6 +484,8 @@ export function QuizProvider({ children }) {
     handleAnswerClick,
     handleMobileToggle,
     handleEndQuiz,
+    closeMinAnswersGate,
+    goToNextUnanswered,
     handleTopicImportanceContinue,
     handleToggleTopicImportance,
     handleEntityClick,

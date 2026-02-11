@@ -1096,6 +1096,111 @@ button,
   padding-bottom: 12px;
 }
 
+.quiz-min-answers-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 10010;
+  box-sizing: border-box;
+}
+
+.quiz-min-answers-dialog {
+  max-width: 500px;
+  width: 100%;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: #fff;
+  color: #333;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: slideUp 0.25s ease;
+  text-align: center;
+}
+
+.quiz-min-answers-dialog h3 {
+  margin: 0 0 20px 0;
+  font-size: 1.3em;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 12px;
+  text-align: center;
+}
+
+.quiz-min-answers-dialog p {
+  margin: 0 0 24px 0;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.quiz-min-answers-answered {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+.quiz-min-answers-answered--bold {
+  font-weight: 700;
+}
+
+.quiz-min-answers-line {
+  display: block;
+}
+
+.quiz-min-answers-line + .quiz-min-answers-line {
+  margin-top: 6px;
+}
+
+.quiz-min-answers-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.quiz-min-answers-btn {
+  border: none !important;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.15;
+  cursor: pointer;
+  transition: transform 0.18s ease, filter 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+}
+
+.quiz-min-answers-btn--primary {
+  background: var(--buttonNext, #2f3b46);
+  color: var(--fontColorLight, #fff);
+}
+
+.quiz-min-answers-btn--secondary {
+  background: transparent;
+  color: #333;
+  border: 1px solid rgba(51, 51, 51, 0.45) !important;
+}
+
+.quiz-min-answers-actions .back-and-skip-buttons,
+.quiz-min-answers-actions .quiz-min-answers-btn {
+  margin: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .quiz-min-answers-btn--primary:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+  }
+
+  .quiz-min-answers-btn--secondary:hover {
+    background: rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
+  }
+}
+
 .topic-questions-list {
   text-align: left;
   margin-bottom: 24px;

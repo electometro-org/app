@@ -40,6 +40,7 @@ export default function App() {
     setSelectedResultType,
     mobileOpen,
     showTopicImportance,
+    minAnswersGate,
     showDemographics,
     showTurnstileOverlay,
     turnstileVerified,
@@ -63,6 +64,8 @@ export default function App() {
     handleAnswerClick,
     handleMobileToggle,
     handleEndQuiz,
+    closeMinAnswersGate,
+    goToNextUnanswered,
     handleTopicImportanceContinue,
     handleToggleTopicImportance,
     handleEntityClick,
@@ -127,6 +130,9 @@ export default function App() {
             onGoBack={handleGoBack}
             onHover={(option) => dispatch({ type: "SET_HOVERED_OPTION", payload: option })}
             onEndQuiz={handleEndQuiz}
+            minAnswersGate={minAnswersGate}
+            onCloseMinAnswersGate={closeMinAnswersGate}
+            onGoToNextUnanswered={goToNextUnanswered}
           />
         ) : showTopicImportance ? (
           <TopicImportanceView

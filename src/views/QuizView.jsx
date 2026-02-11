@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useTranslate } from "@tolgee/react";
 import { BrandLogo } from "../components/BrandImage";
 import { DockingZone } from "../widgets";
@@ -18,10 +19,36 @@ export default function QuizView({
   onGoBack,
   onHover,
   onEndQuiz,
+  minAnswersGate,
+  onCloseMinAnswersGate,
+  onGoToNextUnanswered,
 }) {
   const { t } = useTranslate();
   const [buttonsBlocked, setButtonsBlocked] = useState(!hasSeenQuestion);
   const [clickedOption, setClickedOption] = useState(null);
+  const minAnswersTitle = t("quiz.minAnswersRequiredTitle");
+  const minAnswersActionClose = t("quiz.minAnswersRequiredClose");
+  const minAnswersActionNextUnanswered = t("quiz.minAnswersRequiredNextUnanswered");
+  const minAnswersBodyLine1Template = t("quiz.minAnswersRequiredBody1");
+  const minAnswersBodyLine2Template = t("quiz.minAnswersRequiredBody2");
+  const requiredText = String(minAnswersGate?.required ?? 0);
+  const answeredText = String(minAnswersGate?.answered ?? 0);
+  const renderBodyLine = (template, answeredClassName = "quiz-min-answers-answered") => {
+    const withRequired = template.replace("[required]", requiredText);
+    const parts = withRequired.split("[answered]");
+
+    if (parts.length > 1) {
+      return (
+        <>
+          {parts[0]}
+          <span className={answeredClassName}>{answeredText}</span>
+          {parts.slice(1).join("[answered]")}
+        </>
+      );
+    }
+
+    return withRequired;
+  };
 
   // Block buttons briefly when question changes, but only for unseen questions
   useEffect(() => {
@@ -122,6 +149,39 @@ export default function QuizView({
       </div>
 
       <DockingZone id="below-buttons" />
+
+      {minAnswersGate?.open && createPortal(
+        <div className="quiz-min-answers-overlay" onClick={onCloseMinAnswersGate}>
+          <div className="quiz-min-answers-dialog" onClick={(e) => e.stopPropagation()}>
+            <h3>
+              {minAnswersTitle}
+            </h3>
+            <p>
+              <span className="quiz-min-answers-line">
+                {renderBodyLine(minAnswersBodyLine1Template)}
+              </span>
+              <span className="quiz-min-answers-line">
+                {renderBodyLine(minAnswersBodyLine2Template, "quiz-min-answers-answered--bold")}
+              </span>
+            </p>
+            <div className="quiz-min-answers-actions">
+              <button
+                className="back-and-skip-buttons end-survey-ready"
+                onClick={onGoToNextUnanswered}
+              >
+                {minAnswersActionNextUnanswered}
+              </button>
+              <button
+                className="quiz-min-answers-btn quiz-min-answers-btn--secondary"
+                onClick={onCloseMinAnswersGate}
+              >
+                {minAnswersActionClose}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </>
   );
 }

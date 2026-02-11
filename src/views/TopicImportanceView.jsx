@@ -4,6 +4,7 @@ import { useTranslate } from "@tolgee/react";
 import { BrandLogo } from "../components/BrandImage";
 
 const MOBILE_CONTINUE_RESERVED_PX = 112;
+const SCROLL_FAB_HIDE_OFFSET_PX = 88;
 
 function getScrollParent(element) {
   if (!element) return null;
@@ -35,8 +36,11 @@ export default function TopicImportanceView({
   const [isClosing, setIsClosing] = useState(false);
   const [showContinue, setShowContinue] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [showScrollDownFab, setShowScrollDownFab] = useState(false);
+  const topicGridRef = useRef(null);
   const lastTopicRef = useRef(null);
   const showContinueRef = useRef(showContinue);
+  const scrollParentRef = useRef(null);
 
   useEffect(() => {
     showContinueRef.current = showContinue;
@@ -151,6 +155,113 @@ export default function TopicImportanceView({
     };
   }, [isMobile, topics]);
 
+  // Floating "scroll down" helper for topic grid.
+  // Independent from continue logic so it cannot break continue visibility.
+  useEffect(() => {
+    if (!isMobile) {
+      setShowScrollDownFab(false);
+      return;
+    }
+
+    const lastTopic = lastTopicRef.current;
+    if (!lastTopic) {
+      setShowScrollDownFab(false);
+      return;
+    }
+
+    const scrollParent = getScrollParent(lastTopic);
+    scrollParentRef.current = scrollParent;
+    const eventTarget = (scrollParent === document.documentElement || scrollParent === document.body)
+      ? window
+      : scrollParent;
+
+    let rafId = null;
+    let intervalId = null;
+
+    const updateFabVisibility = () => {
+      const el = lastTopicRef.current;
+      if (!el) {
+        setShowScrollDownFab(false);
+        return;
+      }
+
+      const lastRect = el.getBoundingClientRect();
+      let viewportBottom = window.innerHeight || document.documentElement.clientHeight || 0;
+
+      if (scrollParent && scrollParent !== document.documentElement && scrollParent !== document.body) {
+        const containerRect = scrollParent.getBoundingClientRect();
+        viewportBottom = containerRect.bottom;
+      }
+
+      const reachedLastTopic = lastRect.bottom <= (viewportBottom - SCROLL_FAB_HIDE_OFFSET_PX);
+      setShowScrollDownFab(!reachedLastTopic && !showContinueRef.current);
+    };
+
+    const onScroll = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        updateFabVisibility();
+      });
+    };
+
+    eventTarget.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    onScroll();
+    intervalId = setInterval(updateFabVisibility, 250);
+
+    return () => {
+      eventTarget.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isMobile, topics, showContinue]);
+
+  const handleScrollDownFabClick = () => {
+    const grid = topicGridRef.current;
+    if (!grid) return;
+
+    const scrollParent = scrollParentRef.current || getScrollParent(lastTopicRef.current);
+    const topicButtons = Array.from(grid.querySelectorAll('.topic-button'));
+    if (topicButtons.length === 0) return;
+
+    let viewportTop = 0;
+    let viewportBottom = window.innerHeight || document.documentElement.clientHeight || 0;
+    if (scrollParent && scrollParent !== document.documentElement && scrollParent !== document.body) {
+      const containerRect = scrollParent.getBoundingClientRect();
+      viewportTop = containerRect.top;
+      viewportBottom = containerRect.bottom;
+    }
+    const viewportHeight = Math.max(1, viewportBottom - viewportTop);
+    const preferredStartLine = viewportTop + (viewportHeight * 0.62);
+
+    // Prefer a deeper next target so each tap advances meaningfully.
+    const nextTopic = topicButtons.find((button) => {
+      const rect = button.getBoundingClientRect();
+      return rect.top >= preferredStartLine;
+    });
+
+    if (nextTopic) {
+      nextTopic.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    // Fallback to the first topic just below viewport top.
+    const fallbackTopic = topicButtons.find((button) => {
+      const rect = button.getBoundingClientRect();
+      return rect.top > viewportTop + 8;
+    });
+    if (fallbackTopic) {
+      fallbackTopic.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    if (lastTopicRef.current) {
+      lastTopicRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  };
+
   const openInfoDialog = (topic, e) => {
     e.stopPropagation();
     setInfoDialog(topic);
@@ -171,6 +282,7 @@ export default function TopicImportanceView({
     if (questionIndex === -1 || questionIndex === undefined) return null;
     return answers?.[questionIndex] || null;
   };
+  const scrollDownTopicsLabel = t('topicImportance.seeMoreTopics');
 
   return (
     <div className="topic-importance-container">
@@ -187,7 +299,7 @@ export default function TopicImportanceView({
         </p>
       </div>
 
-      <div className="topic-buttons-grid">
+      <div className="topic-buttons-grid" ref={topicGridRef}>
         {topics.map((topic, index) => (
           <div
             key={topic.topic_key}
@@ -222,6 +334,20 @@ export default function TopicImportanceView({
           </div>
         ))}
       </div>
+
+      {isMobile && showScrollDownFab && createPortal(
+        <button
+          className="topic-scroll-down-fab"
+          type="button"
+          onClick={handleScrollDownFabClick}
+          aria-label={scrollDownTopicsLabel}
+          title={scrollDownTopicsLabel}
+        >
+          <span>{scrollDownTopicsLabel}</span>
+          <span aria-hidden="true">▼</span>
+        </button>,
+        document.body
+      )}
 
       {/* Continue button - use Portal on mobile for reliable fixed positioning */}
       {isMobile ? (

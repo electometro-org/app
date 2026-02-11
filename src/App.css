@@ -822,6 +822,64 @@ button,
   transition: all 0.2s ease;
 }
 
+/* Floating helper to advance through topics on mobile */
+.topic-scroll-down-fab {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  min-width: 160px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 2px solid var(--topic-fab-border, color-mix(in srgb, var(--topic-fab-text, #fff) 35%, transparent)) !important;
+  background: var(--topic-fab-bg, var(--buttonNext, #20292e));
+  color: var(--topic-fab-text, var(--fontColorLight, #fff));
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  z-index: 9998;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
+  transition: opacity 0.2s ease, filter 0.2s ease;
+  pointer-events: auto;
+  animation: topicScrollFabBlink 1.15s ease-in-out infinite;
+  backdrop-filter: blur(3px) saturate(1.05);
+  -webkit-backdrop-filter: blur(3px) saturate(1.05);
+}
+
+@keyframes topicScrollFabBlink {
+  0%, 100% {
+    filter: brightness(1);
+    box-shadow:
+      0 10px 22px rgba(0, 0, 0, 0.22),
+      0 0 0 0 var(--topic-fab-glow-weak, rgba(255, 255, 255, 0.24));
+  }
+  50% {
+    filter: brightness(1.08);
+    box-shadow:
+      0 12px 26px rgba(0, 0, 0, 0.28),
+      0 0 0 7px var(--topic-fab-glow-strong, rgba(255, 255, 255, 0.12));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topic-scroll-down-fab {
+    animation: none;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .topic-scroll-down-fab:hover {
+    transform: translateX(-50%);
+    filter: brightness(1.05);
+  }
+}
+
 @media (hover: hover) and (pointer: fine) {
   .continue-button:hover {
     transform: translateY(-2px);
@@ -1028,6 +1086,15 @@ button,
     max-width: 320px;
     display: block;
     margin: 0 auto;
+  }
+
+  .topic-scroll-down-fab {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    min-width: 154px;
+    height: 42px;
+    font-size: 15px;
   }
 
   .topic-info-dialog {

@@ -218,6 +218,14 @@ button {
   text-size-adjust: 100%;
 }
 
+.intro-container > button {
+  min-width: 11ch;
+  font-size: 1.3rem;
+  line-height: 1.2;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 .election-intro-pitch-inline {
   width: min(760px, 94vw);
   margin: 0;

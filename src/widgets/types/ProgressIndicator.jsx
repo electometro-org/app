@@ -24,33 +24,33 @@ function ProgressIndicator({ config, quizState }) {
   const renderContent = () => {
     switch (style) {
       case 'dots': {
-        // Calculate optimal dots per row for even wrapping
-        // For 10 dots: 5 per row, for 12: 6, for 7: 4+3, etc.
         const dotsPerRow = Math.ceil(totalQuestions / 2);
         return (
-          <div
-            className="progress-dots"
-            style={{ '--dots-per-row': dotsPerRow }}
-            aria-label={`Progress: ${currentQuestionIndex} of ${totalQuestions} steps completed.`}
-          >
-            {Array.from({ length: totalQuestions }, (_, i) => {
-              const isCompleted = i < currentQuestionIndex;
-              const isCurrent = i === currentQuestionIndex;
-              return (
-                <div
-                  key={i}
-                  role="img"
-                  aria-label={
-                    isCompleted
-                      ? `Step ${i + 1} completed`
-                      : isCurrent
-                        ? `Current step ${i + 1}`
-                        : `Step ${i + 1}`
-                  }
-                  className={`progress-dot ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}`}
-                />
-              );
-            })}
+          <div className="progress-dots-strip">
+            <div
+              className="progress-dots"
+              style={{ '--dots-per-row': dotsPerRow }}
+              aria-label={`Progress: ${currentQuestionIndex} of ${totalQuestions} steps completed.`}
+            >
+              {Array.from({ length: totalQuestions }, (_, i) => {
+                const isCompleted = i < currentQuestionIndex;
+                const isCurrent = i === currentQuestionIndex;
+                return (
+                  <div
+                    key={i}
+                    role="img"
+                    aria-label={
+                      isCompleted
+                        ? `Step ${i + 1} completed`
+                        : isCurrent
+                          ? `Current step ${i + 1}`
+                          : `Step ${i + 1}`
+                    }
+                    className={`progress-dot ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}`}
+                  />
+                );
+              })}
+            </div>
           </div>
         );
       }
@@ -95,7 +95,7 @@ function ProgressIndicator({ config, quizState }) {
   };
 
   return (
-    <div className="progress-indicator">
+    <div className={`progress-indicator progress-indicator--${style}`}>
       {renderContent()}
     </div>
   );

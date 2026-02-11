@@ -1,10 +1,20 @@
 /* Progress Indicator Base */
 .progress-indicator {
+  height: 100%;
+  box-sizing: border-box;
   padding: 8px 16px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
-  backdrop-filter: blur(4px);
   color: var(--fontColor, #fff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-indicator--bar .progress-bar-container {
+  width: min(100%, 420px);
+}
+
+.progress-indicator--dots {
+  padding: 8px 12px;
 }
 
 /* Bar Style */
@@ -49,10 +59,23 @@
 /* Dots Style */
 .progress-dots {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  flex-wrap: nowrap;
+  gap: 10px;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  max-width: 100%;
+}
+
+.progress-dots-strip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: min(100%, 640px);
+  min-height: 36px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .progress-dot {
@@ -60,7 +83,12 @@
   height: 12px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
+  transform: scale(1);
+  transform-origin: center;
+  box-shadow: none;
+  transition: background-color 0.25s ease, transform 0.25s ease, box-shadow 0.15s linear;
+  flex: 0 0 auto;
+  will-change: transform, box-shadow, background-color;
 }
 
 .progress-dot.completed {
@@ -69,10 +97,10 @@
 
 .progress-dot.current {
   background: #fff;
-  transform: scale(1.25);
+  transform: scale(1.2);
   box-shadow:
-    0 0 0 2px var(--backgroundColor, #1a1a2e),
-    0 0 0 4px rgba(255, 255, 255, 0.8);
+    0 0 0 2px color-mix(in srgb, var(--buttonNext, #8a0000) 35%, transparent),
+    0 0 0 4px rgba(255, 255, 255, 0.55);
 }
 
 /* Percentage Style */
@@ -102,7 +130,7 @@
 /* Responsive */
 @media (max-width: 767px) {
   .progress-indicator {
-    padding: 6px 12px;
+    padding: 4px 8px;
   }
 
   .progress-bar-container {
@@ -111,12 +139,20 @@
 
   .progress-dots {
     display: grid;
-    grid-template-columns: repeat(var(--dots-per-row, 5), auto);
+    grid-template-columns: repeat(var(--dots-per-row, 10), auto);
+    justify-content: center;
+    align-items: center;
     gap: 8px;
   }
 
   .progress-dot {
-    width: 8px;
-    height: 8px;
+    width: 11px;
+    height: 11px;
+  }
+
+  .progress-dots-strip {
+    width: min(100%, 320px);
+    min-height: 32px;
+    padding: 6px 6px;
   }
 }

@@ -590,6 +590,10 @@ button {
     margin-top: 10px;
   }
 
+  .election-intro-line--first.is-visible {
+    margin-bottom: 10px;
+  }
+
   .election-intro-line--second {
     max-height: 0;
     margin-top: 0;

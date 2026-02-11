@@ -204,6 +204,17 @@ button {
   flex-direction: column;
   gap: 10px;
   font-size: 1.3em;
+  width: min(760px, 94vw);
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.intro-container h2 {
+  width: 100%;
+  margin: 0;
+  text-wrap: balance;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 .election-intro-pitch-inline {
@@ -576,6 +587,10 @@ button {
   .question-text-container h2 {
     font-size: 1.1rem;
     line-height: 1.3;
+  }
+
+  .intro-container {
+    width: min(680px, 95vw);
   }
 
   .election-intro-pitch-inline {

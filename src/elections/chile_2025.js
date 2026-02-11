@@ -33,5 +33,6 @@ export default {
   questionTypes:   ["presidential"],
   resultTypes:     ["party", 
                     // "parliamentaryCandidates", 
-                    "presidentialCandidates"]
+                    "presidentialCandidates"],
+  minAnsweredRatioForResults: 0.5,
 }

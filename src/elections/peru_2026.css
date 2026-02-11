@@ -75,6 +75,10 @@
   background: #c31e1e;
 }
 
+[data-election="peru_2026"] .progress-dots-strip {
+  background: rgb(186 186 186);
+}
+
 [data-election="peru_2026"] .social-share {
  margin-top: 10px;
  margin-left: 20px;

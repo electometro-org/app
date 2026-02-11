@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useTranslate } from "@tolgee/react";
 import { BrandLogo } from "../components/BrandImage";
 
-const MOBILE_CONTINUE_RESERVED_PX = 140;
+const MOBILE_CONTINUE_RESERVED_PX = 112;
 
 function getScrollParent(element) {
   if (!element) return null;
@@ -86,21 +86,27 @@ export default function TopicImportanceView({
       const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
       const triggerLine = viewportHeight - MOBILE_CONTINUE_RESERVED_PX;
 
-      // Show when the last item fully reaches the visible zone above the fixed continue bar.
-      if (rect.bottom <= triggerLine) {
+      // Show when the last item reaches the visible zone above the fixed continue bar.
+      if (rect.top <= triggerLine) {
         setShowContinue(true);
         return;
+      }
+
+      // Fallback: if user is near the bottom of the active scroll container.
+      const scrollingElement =
+        scrollParent === document.documentElement || scrollParent === document.body
+          ? (document.scrollingElement || document.documentElement)
+          : scrollParent;
+      const remaining = scrollingElement.scrollHeight - (scrollingElement.scrollTop + scrollingElement.clientHeight);
+      if (remaining <= 40) {
+        setShowContinue(true);
       }
     };
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          // Guard against premature IO triggers in desktop responsive emulation.
-          const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
-          const triggerLine = viewportHeight - MOBILE_CONTINUE_RESERVED_PX;
-          if (entry.boundingClientRect.bottom <= triggerLine) {
+          if (entry.isIntersecting) {
             setShowContinue(true);
           }
         });
@@ -108,7 +114,7 @@ export default function TopicImportanceView({
       {
         root: observerRoot,
         threshold: 0.01, // Trigger when any sliver of the last topic is visible
-        rootMargin: '0px',
+        rootMargin: `0px 0px ${MOBILE_CONTINUE_RESERVED_PX}px 0px`,
       }
     );
 

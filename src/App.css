@@ -981,7 +981,7 @@ button,
 @media (max-width: 767px) {
   .topic-importance-container {
     padding: 12px;
-    padding-bottom: calc(150px + env(safe-area-inset-bottom)); /* Keep last topic above fixed continue button */
+    padding-bottom: calc(145px + env(safe-area-inset-bottom)); /* Keep last topic above fixed continue button */
   }
 
   .topic-importance-header h2 {

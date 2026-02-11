@@ -35,7 +35,9 @@ export default function PrivacyNotice() {
           ×
         </button>
         <p>
-          <strong>{t('privacyNotice.title')}</strong> {t('privacyNotice.description')}{' '}
+          <strong>{t('privacyNotice.title')}</strong>
+          <br />
+          {t('privacyNotice.description')}{' '}
           <Link to="/politica-privacidad">{t('privacyNotice.moreInfo')}</Link>
         </p>
       </div>

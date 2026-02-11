@@ -279,15 +279,6 @@ export default function TopicImportanceView({
         <BrandLogo branding={branding} />
         <h2>{t('topicImportance.title')}</h2>
         <p>
-          {t('topicImportance.instructions1a')}
-          <span className={`topic-state-indicator topic-state-indicator--normal inline-example`} aria-hidden="true">
-            <span className="topic-state-indicator__glyph">
-                  ○
-            </span>
-          </span>
-          {t('topicImportance.instructions1b')}
-        </p>
-        <p>
           {t('topicImportance.instructions2a')}
           <span className="topic-info-btn inline-example" aria-hidden="true">
             <span className="info-icon">i</span>

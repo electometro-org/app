@@ -5,6 +5,7 @@ import { BrandLogo } from "../components/BrandImage";
 
 const MOBILE_CONTINUE_RESERVED_PX = 112;
 const SCROLL_FAB_HIDE_OFFSET_PX = 88;
+const CONTINUE_REVEAL_SAFETY_PX = 24;
 
 function getScrollParent(element) {
   if (!element) return null;
@@ -212,12 +213,29 @@ export default function TopicImportanceView({
     if (!grid) return;
 
     const scrollParent = scrollParentRef.current || getScrollParent(lastTopicRef.current);
+    const isWindowScroll = !scrollParent || scrollParent === document.documentElement || scrollParent === document.body;
     const topicButtons = Array.from(grid.querySelectorAll('.topic-button'));
     if (topicButtons.length === 0) return;
+    const lastTopic = lastTopicRef.current;
+
+    const nudgeIntoContinueZoneIfNeeded = () => {
+      if (!lastTopic || showContinueRef.current) return;
+      const triggerLine = (window.innerHeight || document.documentElement.clientHeight || 0) - MOBILE_CONTINUE_RESERVED_PX;
+      const rect = lastTopic.getBoundingClientRect();
+      const shortBy = rect.bottom - triggerLine;
+      if (shortBy > 0) {
+        const extra = shortBy + CONTINUE_REVEAL_SAFETY_PX;
+        if (isWindowScroll) {
+          window.scrollBy({ top: extra, behavior: 'smooth' });
+        } else {
+          scrollParent.scrollBy({ top: extra, behavior: 'smooth' });
+        }
+      }
+    };
 
     let viewportTop = 0;
     let viewportBottom = window.innerHeight || document.documentElement.clientHeight || 0;
-    if (scrollParent && scrollParent !== document.documentElement && scrollParent !== document.body) {
+    if (!isWindowScroll) {
       const containerRect = scrollParent.getBoundingClientRect();
       viewportTop = containerRect.top;
       viewportBottom = containerRect.bottom;
@@ -232,7 +250,23 @@ export default function TopicImportanceView({
     });
 
     if (nextTopic) {
+      // If target is the last topic, align it with the continue reveal zone.
+      if (lastTopic && nextTopic === lastTopic) {
+        const triggerLine = (window.innerHeight || document.documentElement.clientHeight || 0) - MOBILE_CONTINUE_RESERVED_PX;
+        const rect = lastTopic.getBoundingClientRect();
+        const delta = Math.max(0, rect.bottom - triggerLine + CONTINUE_REVEAL_SAFETY_PX);
+        if (delta > 0) {
+          if (isWindowScroll) {
+            window.scrollBy({ top: delta, behavior: 'smooth' });
+          } else {
+            scrollParent.scrollBy({ top: delta, behavior: 'smooth' });
+          }
+          setTimeout(nudgeIntoContinueZoneIfNeeded, 520);
+          return;
+        }
+      }
       nextTopic.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(nudgeIntoContinueZoneIfNeeded, 520);
       return;
     }
 
@@ -246,8 +280,21 @@ export default function TopicImportanceView({
       return;
     }
 
-    if (lastTopicRef.current) {
-      lastTopicRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    if (lastTopic) {
+      const triggerLine = (window.innerHeight || document.documentElement.clientHeight || 0) - MOBILE_CONTINUE_RESERVED_PX;
+      const rect = lastTopic.getBoundingClientRect();
+      const delta = Math.max(0, rect.bottom - triggerLine + CONTINUE_REVEAL_SAFETY_PX);
+      if (delta > 0) {
+        if (isWindowScroll) {
+          window.scrollBy({ top: delta, behavior: 'smooth' });
+        } else {
+          scrollParent.scrollBy({ top: delta, behavior: 'smooth' });
+        }
+        setTimeout(nudgeIntoContinueZoneIfNeeded, 520);
+      } else {
+        lastTopic.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        setTimeout(nudgeIntoContinueZoneIfNeeded, 520);
+      }
     }
   };
 

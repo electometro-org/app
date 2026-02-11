@@ -413,6 +413,10 @@ button {
   animation: pulseButton 1.5s ease-in-out infinite;
 }
 
+.back-and-skip-buttons.nav-attention-pulse {
+  animation: pulseButton 1.5s ease-in-out infinite;
+}
+
 @keyframes pulseButton {
   0%, 100% {
     transform: scale(1);

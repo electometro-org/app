@@ -20,6 +20,7 @@ export default function QuizView({
   onHover,
   onEndQuiz,
   canFinishQuizNow,
+  hasReachedLastQuestion,
   minAnswersGate,
   onCloseMinAnswersGate,
   onGoToNextUnanswered,
@@ -27,9 +28,15 @@ export default function QuizView({
   const { t } = useTranslate();
   const [buttonsBlocked, setButtonsBlocked] = useState(!hasSeenQuestion);
   const [clickedOption, setClickedOption] = useState(null);
+  const [showChangeAnswerModal, setShowChangeAnswerModal] = useState(false);
+  const [pendingChangedOption, setPendingChangedOption] = useState(null);
+  const [navPulseAfterChange, setNavPulseAfterChange] = useState(false);
   const minAnswersTitle = t("quiz.minAnswersRequiredTitle");
   const minAnswersActionClose = t("quiz.minAnswersRequiredClose");
   const minAnswersActionNextUnanswered = t("quiz.minAnswersRequiredNextUnanswered");
+  const changeAnswerBodyTemplate = t("quiz.changeAnswerConfirmBody");
+  const changeAnswerCancelText = t("quiz.changeAnswerConfirmCancel");
+  const changeAnswerConfirmText = t("quiz.changeAnswerConfirmConfirm");
   const minAnswersBodyLine1Template = t("quiz.minAnswersRequiredBody1");
   const minAnswersBodyLine2Template = t("quiz.minAnswersRequiredBody2");
   const requiredText = String(minAnswersGate?.required ?? 0);
@@ -54,6 +61,9 @@ export default function QuizView({
   // Block buttons briefly when question changes, but only for unseen questions
   useEffect(() => {
     setClickedOption(null); // Reset clicked state on question change
+    setShowChangeAnswerModal(false);
+    setPendingChangedOption(null);
+    setNavPulseAfterChange(false);
     if (hasSeenQuestion) {
       setButtonsBlocked(false);
       return;
@@ -72,6 +82,30 @@ export default function QuizView({
       onSkip();
     }
   };
+
+  const openChangeAnswerModal = (newOption) => {
+    setPendingChangedOption(newOption);
+    setShowChangeAnswerModal(true);
+  };
+
+  const closeChangeAnswerModal = () => {
+    setShowChangeAnswerModal(false);
+    setPendingChangedOption(null);
+  };
+
+  const confirmChangeAnswer = () => {
+    if (!pendingChangedOption) return;
+    const shouldAutoAdvance = !hasReachedLastQuestion;
+    onAnswer(pendingChangedOption, { advance: shouldAutoAdvance });
+    if (!shouldAutoAdvance) {
+      setNavPulseAfterChange(true);
+    }
+    closeChangeAnswerModal();
+  };
+
+  const changeAnswerBody = changeAnswerBodyTemplate
+    .replace("[previous]", selectedAnswer ? t(selectedAnswer) : "")
+    .replace("[new]", pendingChangedOption ? t(pendingChangedOption) : "");
 
   return (
     <>
@@ -101,9 +135,16 @@ export default function QuizView({
             key={index}
             onClick={() => {
               if (buttonsBlocked || clickedOption) return;
+              if (hasSeenQuestion && selectedAnswer && option !== selectedAnswer) {
+                openChangeAnswerModal(option);
+                return;
+              }
+              if (hasSeenQuestion && selectedAnswer && option === selectedAnswer) {
+                return;
+              }
               setClickedOption(option);
               setTimeout(() => {
-                onAnswer(option);
+                onAnswer(option, { advance: true });
                 // On last question, reset clickedOption so user can change their answer
                 if (isLastQuestion) {
                   setClickedOption(null);
@@ -128,14 +169,14 @@ export default function QuizView({
       <div>
         {!isFirstQuestion && (
           <button
-            className="back-and-skip-buttons"
+            className={`back-and-skip-buttons ${navPulseAfterChange ? 'nav-attention-pulse' : ''}`}
             onClick={onGoBack}
           >
             {t('common.back')}
           </button>
         )}
         <button
-          className={`back-and-skip-buttons ${isLastQuestion && selectedAnswer ? 'end-survey-ready' : ''}`}
+          className={`back-and-skip-buttons ${isLastQuestion && selectedAnswer ? 'end-survey-ready' : ''} ${navPulseAfterChange ? 'nav-attention-pulse' : ''}`}
           onClick={handleSkipOrFinish}
           disabled={buttonsBlocked}
           style={{
@@ -161,6 +202,32 @@ export default function QuizView({
           </button>
         )}
       </div>
+
+      {showChangeAnswerModal && createPortal(
+        <div className="quiz-min-answers-overlay" onClick={closeChangeAnswerModal}>
+          <div className="quiz-min-answers-dialog" onClick={(e) => e.stopPropagation()}>
+            <h3>{t("quiz.changeAnswerConfirmTitle")}</h3>
+            <p>
+              <span className="quiz-min-answers-line">{changeAnswerBody}</span>
+            </p>
+            <div className="quiz-min-answers-actions">
+              <button
+                className="quiz-min-answers-btn quiz-min-answers-btn--primary"
+                onClick={confirmChangeAnswer}
+              >
+                {changeAnswerConfirmText}
+              </button>
+              <button
+                className="quiz-min-answers-btn quiz-min-answers-btn--secondary"
+                onClick={closeChangeAnswerModal}
+              >
+                {changeAnswerCancelText}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
 
       <DockingZone id="below-buttons" />
 

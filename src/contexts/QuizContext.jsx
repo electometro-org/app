@@ -172,7 +172,7 @@ export function QuizProvider({ children }) {
     if (prev !== undefined) dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: prev });
   };
 
-  const handleAnswerClick = (option) => {
+  const handleAnswerClick = (option, { advance = true } = {}) => {
     const currentIndex = state.currentQuestionIndex;
     const currentQuestion = state.questions[currentIndex] || {};
 
@@ -189,8 +189,10 @@ export function QuizProvider({ children }) {
       }
     });
 
-    const next = goToUniqueAfter(state.currentQuestionIndex);
-    if (next !== undefined) dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: next });
+    if (advance) {
+      const next = goToUniqueAfter(state.currentQuestionIndex);
+      if (next !== undefined) dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: next });
+    }
   };
 
   const handleMobileToggle = (entity, type) => {

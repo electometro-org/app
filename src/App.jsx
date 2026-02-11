@@ -40,6 +40,7 @@ export default function App() {
     setSelectedResultType,
     mobileOpen,
     canFinishQuizNow,
+    hasReachedLastQuestion,
     showTopicImportance,
     minAnswersGate,
     showDemographics,
@@ -132,6 +133,7 @@ export default function App() {
             onHover={(option) => dispatch({ type: "SET_HOVERED_OPTION", payload: option })}
             onEndQuiz={handleEndQuiz}
             canFinishQuizNow={canFinishQuizNow}
+            hasReachedLastQuestion={hasReachedLastQuestion}
             minAnswersGate={minAnswersGate}
             onCloseMinAnswersGate={closeMinAnswersGate}
             onGoToNextUnanswered={goToNextUnanswered}

@@ -3,6 +3,24 @@ import { createPortal } from "react-dom";
 import { useTranslate } from "@tolgee/react";
 import { BrandLogo } from "../components/BrandImage";
 
+const MOBILE_CONTINUE_RESERVED_PX = 140;
+
+function getScrollParent(element) {
+  if (!element) return null;
+
+  let parent = element.parentElement;
+  while (parent && parent !== document.body) {
+    const styles = window.getComputedStyle(parent);
+    const overflowY = styles.overflowY;
+    if (overflowY === "auto" || overflowY === "scroll") {
+      return parent;
+    }
+    parent = parent.parentElement;
+  }
+
+  return document.scrollingElement || document.documentElement;
+}
+
 export default function TopicImportanceView({
   topics,           // [{ label, topic_key, questions: [{ id, question, question_key }] }]
   topicImportance,  // { [topic_key]: boolean }
@@ -18,6 +36,11 @@ export default function TopicImportanceView({
   const [showContinue, setShowContinue] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const lastTopicRef = useRef(null);
+  const showContinueRef = useRef(showContinue);
+
+  useEffect(() => {
+    showContinueRef.current = showContinue;
+  }, [showContinue]);
 
   // Detect mobile viewport
   useEffect(() => {
@@ -29,7 +52,9 @@ export default function TopicImportanceView({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // On mobile, use IntersectionObserver to detect when last topic is visible
+  // On mobile, show continue when the user reaches the end. We combine:
+  // IntersectionObserver + scroll listeners on the actual scroll parent + polling
+  // while hidden, because momentum scrolling on real devices can skip callbacks.
   useEffect(() => {
     // Desktop: always show continue button
     if (!isMobile) {
@@ -43,6 +68,41 @@ export default function TopicImportanceView({
     const lastTopic = lastTopicRef.current;
     if (!lastTopic) return;
 
+    let rafId = null;
+    let pollId = null;
+    let delayedCheckTimeoutId = null;
+    const scrollParent = getScrollParent(lastTopic);
+    const observerRoot = scrollParent === document.documentElement || scrollParent === document.body
+      ? null
+      : scrollParent;
+
+    const checkShouldShow = () => {
+      if (showContinueRef.current) return;
+
+      const el = lastTopicRef.current;
+      if (!el) return;
+
+      const rect = el.getBoundingClientRect();
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+      const triggerLine = viewportHeight - MOBILE_CONTINUE_RESERVED_PX;
+
+      // Show when the last item reaches the visible zone above the fixed continue bar.
+      if (rect.top <= triggerLine) {
+        setShowContinue(true);
+        return;
+      }
+
+      // Fallback: if user is near the bottom of the active scroll container.
+      const scrollingElement =
+        scrollParent === document.documentElement || scrollParent === document.body
+          ? (document.scrollingElement || document.documentElement)
+          : scrollParent;
+      const remaining = scrollingElement.scrollHeight - (scrollingElement.scrollTop + scrollingElement.clientHeight);
+      if (remaining <= 40) {
+        setShowContinue(true);
+      }
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -52,14 +112,43 @@ export default function TopicImportanceView({
         });
       },
       {
-        threshold: 1.0, // Trigger only when 100% of the last topic is visible
-        rootMargin: '-100px 0px 0px 0px', // Require it to be 100px from top of viewport
+        root: observerRoot,
+        threshold: 0.01, // Trigger when any sliver of the last topic is visible
+        rootMargin: `0px 0px ${MOBILE_CONTINUE_RESERVED_PX}px 0px`,
       }
     );
 
     observer.observe(lastTopic);
 
-    return () => observer.disconnect();
+    const onScroll = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        checkShouldShow();
+      });
+    };
+
+    const eventTarget = (scrollParent === document.documentElement || scrollParent === document.body)
+      ? window
+      : scrollParent;
+    eventTarget.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+
+    // Run once after mount and once after layout settles (RGL can settle asynchronously).
+    onScroll();
+    delayedCheckTimeoutId = setTimeout(onScroll, 180);
+
+    // Poll while hidden as a final fallback for momentum scrolling on mobile browsers.
+    pollId = setInterval(checkShouldShow, 250);
+
+    return () => {
+      observer.disconnect();
+      eventTarget.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+      if (pollId) clearInterval(pollId);
+      if (delayedCheckTimeoutId) clearTimeout(delayedCheckTimeoutId);
+    };
   }, [isMobile, topics]);
 
   const openInfoDialog = (topic, e) => {

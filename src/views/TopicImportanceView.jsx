@@ -90,19 +90,8 @@ export default function TopicImportanceView({
       const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
       const triggerLine = viewportHeight - MOBILE_CONTINUE_RESERVED_PX;
 
-      // Show when the last item reaches the visible zone above the fixed continue bar.
-      if (rect.top <= triggerLine) {
-        setShowContinue(true);
-        return;
-      }
-
-      // Fallback: if user is near the bottom of the active scroll container.
-      const scrollingElement =
-        scrollParent === document.documentElement || scrollParent === document.body
-          ? (document.scrollingElement || document.documentElement)
-          : scrollParent;
-      const remaining = scrollingElement.scrollHeight - (scrollingElement.scrollTop + scrollingElement.clientHeight);
-      if (remaining <= 40) {
+      // Show only when the entire last topic is in the visible zone above the continue bar.
+      if (rect.bottom <= triggerLine) {
         setShowContinue(true);
       }
     };
@@ -111,7 +100,7 @@ export default function TopicImportanceView({
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setShowContinue(true);
+            checkShouldShow();
           }
         });
       },

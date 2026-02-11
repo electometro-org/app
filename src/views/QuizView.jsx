@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTranslate } from "@tolgee/react";
 import { BrandLogo } from "../components/BrandImage";
@@ -31,6 +31,7 @@ export default function QuizView({
   const [showChangeAnswerModal, setShowChangeAnswerModal] = useState(false);
   const [pendingChangedOption, setPendingChangedOption] = useState(null);
   const [navPulseAfterChange, setNavPulseAfterChange] = useState(false);
+  const questionTitleRef = useRef(null);
   const minAnswersTitle = t("quiz.minAnswersRequiredTitle");
   const minAnswersActionClose = t("quiz.minAnswersRequiredClose");
   const minAnswersActionNextUnanswered = t("quiz.minAnswersRequiredNextUnanswered");
@@ -75,6 +76,42 @@ export default function QuizView({
     return () => clearTimeout(timer);
   }, [question.id, displayIndex, hasSeenQuestion]);
 
+  useEffect(() => {
+    const fitQuestionIntoMobileBox = () => {
+      const el = questionTitleRef.current;
+      const container = el?.parentElement;
+      if (!el || !container) return;
+
+      // Keep desktop typography unchanged.
+      if (window.innerWidth >= 768) {
+        el.style.fontSize = "";
+        el.style.lineHeight = "";
+        return;
+      }
+
+      const START_FONT_REM = 1.28;
+      const MIN_FONT_REM = 0.78;
+      const STEP_REM = 0.02;
+      const LINE_HEIGHT = 1.26;
+
+      el.style.fontSize = `${START_FONT_REM}rem`;
+      el.style.lineHeight = String(LINE_HEIGHT);
+
+      let fontSize = START_FONT_REM;
+      while (fontSize > MIN_FONT_REM && el.scrollHeight > container.clientHeight) {
+        fontSize -= STEP_REM;
+        el.style.fontSize = `${fontSize}rem`;
+      }
+    };
+
+    const rafId = requestAnimationFrame(fitQuestionIntoMobileBox);
+    window.addEventListener("resize", fitQuestionIntoMobileBox);
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", fitQuestionIntoMobileBox);
+    };
+  }, [question.id, displayIndex, question.question, question.question_key, t]);
+
   const handleSkipOrFinish = () => {
     if (isLastQuestion) {
       onEndQuiz();
@@ -106,6 +143,7 @@ export default function QuizView({
   const changeAnswerBody = changeAnswerBodyTemplate
     .replace("[previous]", selectedAnswer ? t(selectedAnswer) : "")
     .replace("[new]", pendingChangedOption ? t(pendingChangedOption) : "");
+  const questionText = question.question_key ? t(question.question_key) : question.question;
 
   return (
     <>
@@ -118,11 +156,7 @@ export default function QuizView({
 
       <div className="question-content" key={question.id || displayIndex}>
         <div className="question-text-container">
-          <h2>
-            {question.question_key
-              ? t(question.question_key)
-              : question.question}
-          </h2>
+          <h2 ref={questionTitleRef}>{questionText}</h2>
         </div>
       </div>
 

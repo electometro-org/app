@@ -19,6 +19,7 @@ export default function QuizView({
   onGoBack,
   onHover,
   onEndQuiz,
+  canFinishQuizNow,
   minAnswersGate,
   onCloseMinAnswersGate,
   onGoToNextUnanswered,
@@ -146,6 +147,19 @@ export default function QuizView({
             ? (selectedAnswer ? t('quiz.finishSurvey') : t('quiz.skipAndFinish'))
             : (selectedAnswer ? t('common.next') : t('common.skip'))}
         </button>
+        {!isLastQuestion && canFinishQuizNow && (
+          <button
+            className="back-and-skip-buttons end-survey-ready"
+            onClick={onEndQuiz}
+            disabled={buttonsBlocked}
+            style={{
+              opacity: buttonsBlocked ? 0.6 : 1,
+              cursor: buttonsBlocked ? "wait" : "pointer"
+            }}
+          >
+            {t('quiz.finishSurvey')}
+          </button>
+        )}
       </div>
 
       <DockingZone id="below-buttons" />

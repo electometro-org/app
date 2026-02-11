@@ -56,6 +56,7 @@ export function QuizProvider({ children }) {
   const [selectedResultType, setSelectedResultType] = useState(resultTypes[0] || null);
   const [mobileOpen, setMobileOpen] = useState(null);
   const [showTopicImportance, setShowTopicImportance] = useState(false);
+  const [hasReachedLastQuestion, setHasReachedLastQuestion] = useState(false);
   const [minAnswersGate, setMinAnswersGate] = useState({
     open: false,
     answered: 0,
@@ -114,6 +115,19 @@ export function QuizProvider({ children }) {
 
   const totalQuestions = uniqueIndices.length;
   const displayIndex = uniqueIndices.indexOf(state.currentQuestionIndex) + 1;
+
+  const getMinAnswersStats = () => {
+    const answeredCount = Object.values(state.answers || {}).filter(answer => answer != null).length;
+    const minRatioValue = Number(config?.minAnsweredRatioForResults ?? 0.5);
+    const clampedMinRatio = Number.isFinite(minRatioValue) ? Math.min(1, Math.max(0, minRatioValue)) : 0.5;
+    const requiredCount = Math.ceil((state.questions?.length || 0) * clampedMinRatio);
+    return {
+      answeredCount,
+      requiredCount,
+      requiredRatio: clampedMinRatio,
+      meetsThreshold: answeredCount >= requiredCount,
+    };
+  };
 
   // Compute unique topics from questions for Topic Importance view
   // Each topic includes its questions for the info dialog
@@ -210,12 +224,14 @@ export function QuizProvider({ children }) {
   };
 
   const handleEndQuiz = () => {
-    const answeredCount = Object.values(state.answers || {}).filter(answer => answer != null).length;
-    const minRatio = Number(config?.minAnsweredRatioForResults ?? 0.5);
-    const clampedMinRatio = Number.isFinite(minRatio) ? Math.min(1, Math.max(0, minRatio)) : 0.5;
-    const requiredCount = Math.ceil((state.questions?.length || 0) * clampedMinRatio);
+    const {
+      answeredCount,
+      requiredCount,
+      requiredRatio,
+      meetsThreshold,
+    } = getMinAnswersStats();
 
-    if (answeredCount < requiredCount) {
+    if (!meetsThreshold) {
       setMinAnswersGate({
         open: true,
         answered: answeredCount,
@@ -225,7 +241,7 @@ export function QuizProvider({ children }) {
         total_questions: state.questions.length,
         answered_count: answeredCount,
         required_count: requiredCount,
-        required_ratio: clampedMinRatio,
+        required_ratio: requiredRatio,
       });
       return;
     }
@@ -243,6 +259,14 @@ export function QuizProvider({ children }) {
     // Scroll to top when switching views
     window.scrollTo(0, 0);
   };
+
+  // Track if the user has reached the last question at least once in this run.
+  useEffect(() => {
+    const lastIndex = (state.questions?.length || 0) - 1;
+    if (lastIndex >= 0 && state.currentQuestionIndex >= lastIndex) {
+      setHasReachedLastQuestion(true);
+    }
+  }, [state.currentQuestionIndex, state.questions]);
 
   const closeMinAnswersGate = () => {
     setMinAnswersGate(prev => ({ ...prev, open: false }));
@@ -366,6 +390,7 @@ export function QuizProvider({ children }) {
     setShowTurnstileOverlay(false);
     setShowDemographics(false);
     setShowTopicImportance(false);
+    setHasReachedLastQuestion(false);
     setMinAnswersGate({ open: false, answered: 0, required: 0 });
     dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: state.questions.length - 1 });
   };
@@ -381,6 +406,7 @@ export function QuizProvider({ children }) {
       setElectionIntroInitialized(false);
     }
     setShowTopicImportance(false);
+    setHasReachedLastQuestion(false);
     setMinAnswersGate({ open: false, answered: 0, required: 0 });
     setShowDemographics(false);
     setTurnstileVerified(false);
@@ -446,6 +472,7 @@ export function QuizProvider({ children }) {
     setMobileOpen,
     showTopicImportance,
     setShowTopicImportance,
+    hasReachedLastQuestion,
     minAnswersGate,
     showDemographics,
     setShowDemographics,
@@ -468,6 +495,7 @@ export function QuizProvider({ children }) {
     uniqueIndices,
     totalQuestions,
     displayIndex,
+    canFinishQuizNow: hasReachedLastQuestion && getMinAnswersStats().meetsThreshold,
     uniqueTopics,
     partyComplete,
     partyIncomplete,

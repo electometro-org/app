@@ -187,14 +187,6 @@ export default function App() {
     );
   };
 
-  const isQuestionPhase =
-    !showGenericIntro &&
-    !!election &&
-    !showElectionIntro &&
-    state.questions.length > 0 &&
-    state.currentQuestionIndex < state.questions.length &&
-    !showTopicImportance;
-
   return (
     <Router>
       <BackgroundLayer />
@@ -235,7 +227,7 @@ export default function App() {
           <Route path="/politica-privacidad" element={<div className="static-page-shell"><PrivacyPolicy /></div>} />
           <Route path="/configuracion-privacidad" element={<div className="static-page-shell"><CookieSettings /></div>} />
         </Routes>
-        {!isQuestionPhase && <PrivacyNotice />}
+        {showElectionIntro && <PrivacyNotice />}
       </>
     </Router>
   );

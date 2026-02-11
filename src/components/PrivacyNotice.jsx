@@ -13,7 +13,7 @@ export default function PrivacyNotice() {
     const noticeSeen = localStorage.getItem("privacyNoticeSeen");
     if (!noticeSeen) {
       // Show after a brief delay to avoid disruption
-      setTimeout(() => setShowNotice(true), 2000);
+      setTimeout(() => setShowNotice(true), 1000);
     }
   }, []);
 

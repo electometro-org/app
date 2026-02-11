@@ -1,8 +1,13 @@
 import { useState, useCallback, useEffect } from 'react';
 
 const STORAGE_PREFIX = 'electometro-layout-';
-// Only persist layouts in development mode
-const ENABLE_PERSISTENCE = import.meta.env.DEV;
+// Persistence can be explicitly controlled via VITE_ENABLE_LAYOUT_PERSISTENCE.
+// Accepted true values: "1", "true", "yes", "on" (case-insensitive).
+// Fallback remains DEV=true when variable is not set.
+const persistEnv = import.meta.env.VITE_ENABLE_LAYOUT_PERSISTENCE;
+const ENABLE_PERSISTENCE = persistEnv == null
+  ? import.meta.env.DEV
+  : /^(1|true|yes|on)$/i.test(String(persistEnv));
 
 /**
  * Hook for persisting widget layouts per-election in localStorage

@@ -24,7 +24,7 @@ button {
 }
 
 .menu-button {
-  position: absolute;
+  position: fixed;
   top: 20px;
   right: 20px;
   z-index: 1000;
@@ -36,7 +36,7 @@ button {
 
 
 .menu-panel {
-  position: absolute;
+  position: fixed;
   top: 60px;
   right: 20px;
   background-color: #000;
@@ -294,7 +294,7 @@ button {
 }
 
 .reset-button {
-  position: absolute;
+  position: fixed;
   top: 20px;
   left: 20px;
   z-index: 1000;

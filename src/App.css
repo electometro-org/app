@@ -938,6 +938,108 @@ button {
   font-size: 0.92rem;
 }
 
+.results-topic-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10020;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.results-topic-modal {
+  width: min(760px, 100%);
+  max-height: 82vh;
+  overflow: auto;
+  border-radius: 22px;
+  background: #fff;
+  color: #222;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.results-topic-modal__topbar {
+  height: 6px;
+}
+
+.results-topic-modal__topbar.is-match {
+  background: color-mix(in srgb, var(--accent) 95%, transparent);
+}
+
+.results-topic-modal__topbar.is-partial {
+  background: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.results-topic-modal__topbar.is-mismatch {
+  background: rgba(120, 120, 120, 0.6);
+}
+
+.results-topic-modal__content {
+  padding: 22px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.results-topic-modal__content h3 {
+  margin: 0;
+  font-size: 1.28rem;
+  line-height: 1.35;
+}
+
+.results-topic-modal__stances {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.results-topic-modal__stance {
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 10px 12px;
+  background: #f7f7f7;
+  display: grid;
+  gap: 4px;
+}
+
+.results-topic-modal__stance span {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+
+.results-topic-modal__stance strong {
+  font-size: 1rem;
+}
+
+.results-topic-modal__explanation,
+.results-topic-modal__source {
+  margin: 0;
+  line-height: 1.45;
+  font-size: 0.95rem;
+}
+
+.results-topic-modal__source {
+  opacity: 0.82;
+}
+
+.results-topic-modal__close {
+  align-self: stretch;
+  border-radius: 999px;
+  border: none !important;
+  background: #111;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.92rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .results-row:hover {
     transform: translateY(-1px);
@@ -1118,6 +1220,25 @@ button {
   .results-topic-chip {
     font-size: 0.72rem;
     padding: 7px 9px;
+  }
+
+  .results-topic-modal {
+    border-radius: 18px;
+    max-height: 86dvh;
+  }
+
+  .results-topic-modal__content {
+    padding: 16px 14px 14px;
+    gap: 10px;
+  }
+
+  .results-topic-modal__content h3 {
+    font-size: 1.05rem;
+  }
+
+  .results-topic-modal__stances {
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
 
   .parties-and-candidates-list {

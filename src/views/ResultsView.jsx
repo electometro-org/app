@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslate } from "@tolgee/react";
 import { BrandLogo } from "../components/BrandImage";
 import { voteToNumeric } from "../voteUtils";
+import { createPortal } from "react-dom";
 
 export default function ResultsView({
   comparisonResults,
@@ -305,6 +306,7 @@ function ResultsAnalysisPanel({
   answers,
 }) {
   const [expandedCategory, setExpandedCategory] = React.useState("match");
+  const [selectedTopic, setSelectedTopic] = React.useState(null);
 
   if (!selectedEntity || !entityDetails) {
     return (
@@ -318,6 +320,11 @@ function ResultsAnalysisPanel({
     "answers.agreeCapitalized": 1,
     "answers.neutralCapitalized": 0.5,
     "answers.disagreeCapitalized": 0,
+  };
+  const numericToVoteKey = {
+    "1": "votes.inFavor",
+    "0.5": "votes.neutral",
+    "0": "votes.against",
   };
 
   const details = (entityDetails.details || []).filter(d => d.includedInAnalysis);
@@ -341,11 +348,18 @@ function ResultsAnalysisPanel({
       const baseQuestion = questions[qIndex];
       const text = d.question_key ? t(d.question_key) : (baseQuestion?.question || d.question || "");
       const shortLabel = text.length > 42 ? `${text.slice(0, 42)}...` : text;
+      const userVoteKey = numericToVoteKey[String(userVal)] || null;
+      const candidateVoteKey = numericToVoteKey[String(candidateVal)] || null;
 
       return {
         id: d.id,
         status,
         shortLabel,
+        statement: text,
+        userStance: userVoteKey ? t(userVoteKey) : t("entityDetails.noAnswer"),
+        candidateStance: candidateVoteKey ? t(candidateVoteKey) : (d.vote || "N/A"),
+        explanation: d.comment_key ? t(d.comment_key) : (d.comment || ""),
+        source: d.source || "",
       };
     })
     .filter(Boolean);
@@ -404,6 +418,7 @@ function ResultsAnalysisPanel({
                     key={`${category.id}-${chip.id}`}
                     className={`results-topic-chip ${category.chipClass}`}
                     type="button"
+                    onClick={() => setSelectedTopic(chip)}
                   >
                     {chip.shortLabel}
                   </button>
@@ -418,6 +433,48 @@ function ResultsAnalysisPanel({
           </section>
         );
       })}
+
+      {selectedTopic && createPortal(
+        <div className="results-topic-modal-overlay" onClick={() => setSelectedTopic(null)}>
+          <div className="results-topic-modal" onClick={(e) => e.stopPropagation()}>
+            <div className={`results-topic-modal__topbar is-${selectedTopic.status}`} />
+            <div className="results-topic-modal__content">
+              <h3>{selectedTopic.statement}</h3>
+
+              <div className="results-topic-modal__stances">
+                <div className="results-topic-modal__stance">
+                  <span>{t("entityDetails.you")}</span>
+                  <strong>{selectedTopic.userStance}</strong>
+                </div>
+                <div className="results-topic-modal__stance">
+                  <span>{t("entityDetails.candidate")}</span>
+                  <strong>{selectedTopic.candidateStance}</strong>
+                </div>
+              </div>
+
+              {selectedTopic.explanation && (
+                <p className="results-topic-modal__explanation">
+                  {selectedTopic.explanation}
+                </p>
+              )}
+
+              {selectedTopic.source && (
+                <p className="results-topic-modal__source">
+                  {t("common.seeSource")}: {selectedTopic.source}
+                </p>
+              )}
+
+              <button
+                className="results-topic-modal__close"
+                onClick={() => setSelectedTopic(null)}
+              >
+                {t("common.close")}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

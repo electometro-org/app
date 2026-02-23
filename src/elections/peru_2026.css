@@ -136,6 +136,21 @@
   background: color-mix(in srgb, var(--accent) 9%, var(--buttonColor));
 }
 
+[data-election="peru_2026"] .results-topic-modal {
+  background: var(--introBoxBg);
+  color: var(--fontColor);
+}
+
+[data-election="peru_2026"] .results-topic-modal__stance {
+  background: color-mix(in srgb, var(--buttonColor) 94%, transparent);
+  border-color: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .results-topic-modal__close {
+  background: var(--buttonNext);
+  color: var(--fontColorLight);
+}
+
 [data-election="peru_2026"] .menu-panel {
   background-color: var(--background);
   border-color: var(--accent);

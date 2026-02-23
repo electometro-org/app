@@ -419,12 +419,23 @@ function ResultsAnalysisPanel({
               onClick={() => setExpandedCategory(isOpen ? null : category.id)}
             >
               <span>{category.heading}</span>
-              <span className="results-analysis-group__chevron" aria-hidden="true">
-                {isOpen ? "▲" : "▼"}
+              <span className="results-analysis-group__toggle">
+                <span className="results-analysis-group__toggle-label">
+                  {isOpen
+                    ? (t("results.collapseSectionCta") === "results.collapseSectionCta"
+                      ? "Presiona para minimizar"
+                      : t("results.collapseSectionCta"))
+                    : (t("results.expandSectionCta") === "results.expandSectionCta"
+                      ? "Presiona para ver mas"
+                      : t("results.expandSectionCta"))}
+                </span>
+                <span className="results-analysis-group__chevron" aria-hidden="true">
+                  {isOpen ? "▲" : "▼"}
+                </span>
               </span>
             </button>
 
-            {isOpen && (
+            <div className={`results-analysis-group__body ${isOpen ? "is-open" : ""}`}>
               <div className="results-analysis-group__chips">
                 {chips.map((chip) => (
                   <button
@@ -442,7 +453,7 @@ function ResultsAnalysisPanel({
                   </p>
                 )}
               </div>
-            )}
+            </div>
           </section>
         );
       })}

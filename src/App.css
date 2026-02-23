@@ -579,6 +579,10 @@ button {
   align-items: center;
 }
 
+.results-slot-mode > .results-analysis-card {
+  width: min(980px, 100%);
+}
+
 .results-slot-card {
   width: min(980px, 100%);
   border-radius: 34px;
@@ -914,6 +918,7 @@ button {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
 }
 
 .results-topic-chip.is-match {
@@ -1150,6 +1155,10 @@ button {
   .results-slot-card {
     border-radius: 22px;
     border-width: 2px;
+  }
+
+  .results-slot-mode > .results-analysis-card {
+    width: 100%;
   }
 
   .results-slot-card__header {

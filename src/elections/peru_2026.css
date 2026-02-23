@@ -54,6 +54,72 @@
   background: var(--buttonColor);
 }
 
+[data-election="peru_2026"] .results-list-card,
+[data-election="peru_2026"] .results-analysis-card {
+  background: var(--buttonColor);
+  border-color: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .results-list-card__header,
+[data-election="peru_2026"] .results-analysis-card__header {
+  border-bottom-color: var(--buttonShadow);
+  color: var(--fontColor);
+}
+
+[data-election="peru_2026"] .results-row {
+  background: color-mix(in srgb, var(--buttonColor) 90%, #fff);
+  border-color: var(--buttonShadow) !important;
+}
+
+[data-election="peru_2026"] .results-row.is-selected {
+  background: color-mix(in srgb, var(--accent) 10%, var(--buttonColor));
+  border-color: var(--accent) !important;
+}
+
+[data-election="peru_2026"] .results-row__avatar {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+[data-election="peru_2026"] .results-view-mode-toggle {
+  background: color-mix(in srgb, var(--buttonColor) 88%, transparent);
+  border-color: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .results-view-mode-toggle__btn.is-active {
+  background: var(--accent);
+  color: var(--fontColorLight);
+}
+
+[data-election="peru_2026"] .results-coincidence-card {
+  background: color-mix(in srgb, var(--buttonColor) 90%, #fff);
+  border-color: var(--buttonShadow) !important;
+}
+
+[data-election="peru_2026"] .results-coincidence-card.is-selected {
+  background: color-mix(in srgb, var(--accent) 10%, var(--buttonColor));
+  border-color: var(--accent) !important;
+}
+
+[data-election="peru_2026"] .results-slot-card {
+  border-color: var(--accent);
+  background: var(--buttonColor);
+}
+
+[data-election="peru_2026"] .results-slot-item__avatar {
+  background: var(--accent);
+  color: var(--fontColorLight);
+}
+
+[data-election="peru_2026"] .results-slot-item__score {
+  color: var(--accent);
+}
+
+[data-election="peru_2026"] .results-slot-controls__btn {
+  border-color: var(--accent) !important;
+  color: var(--fontColor);
+}
+
 [data-election="peru_2026"] .menu-panel {
   background-color: var(--background);
   border-color: var(--accent);

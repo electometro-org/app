@@ -347,14 +347,17 @@ function ResultsAnalysisPanel({
 
       const baseQuestion = questions[qIndex];
       const text = d.question_key ? t(d.question_key) : (baseQuestion?.question || d.question || "");
-      const shortLabel = text.length > 42 ? `${text.slice(0, 42)}...` : text;
+      const topicKey = baseQuestion?.topic_key || null;
+      const topicFallback = baseQuestion?.tema || d.tema || text;
+      const topicLabel = topicKey ? (t(topicKey) === topicKey ? topicFallback : t(topicKey)) : topicFallback;
       const userVoteKey = numericToVoteKey[String(userVal)] || null;
       const candidateVoteKey = numericToVoteKey[String(candidateVal)] || null;
 
       return {
         id: d.id,
         status,
-        shortLabel,
+        topicKey: topicKey || topicLabel,
+        shortLabel: topicLabel,
         statement: text,
         userStance: userVoteKey ? t(userVoteKey) : t("entityDetails.noAnswer"),
         candidateStance: candidateVoteKey ? t(candidateVoteKey) : (d.vote || "N/A"),
@@ -364,10 +367,20 @@ function ResultsAnalysisPanel({
     })
     .filter(Boolean);
 
+  const dedupeTopics = (items) => {
+    const seen = new Set();
+    return items.filter((item) => {
+      const key = item.topicKey || item.shortLabel || item.id;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  };
+
   const grouped = {
-    match: topics.filter(item => item.status === "match"),
-    partial: topics.filter(item => item.status === "partial"),
-    mismatch: topics.filter(item => item.status === "mismatch"),
+    match: dedupeTopics(topics.filter(item => item.status === "match")),
+    partial: dedupeTopics(topics.filter(item => item.status === "partial")),
+    mismatch: dedupeTopics(topics.filter(item => item.status === "mismatch")),
   };
 
   const categoryConfig = [

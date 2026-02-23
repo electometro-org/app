@@ -120,6 +120,22 @@
   color: var(--fontColor);
 }
 
+[data-election="peru_2026"] .results-analysis-group {
+  border-bottom-color: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .results-topic-chip {
+  border-color: var(--buttonShadow) !important;
+}
+
+[data-election="peru_2026"] .results-topic-chip.is-match {
+  background: color-mix(in srgb, var(--accent) 18%, var(--buttonColor));
+}
+
+[data-election="peru_2026"] .results-topic-chip.is-partial {
+  background: color-mix(in srgb, var(--accent) 9%, var(--buttonColor));
+}
+
 [data-election="peru_2026"] .menu-panel {
   background-color: var(--background);
   border-color: var(--accent);

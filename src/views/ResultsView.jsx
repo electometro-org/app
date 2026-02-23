@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslate } from "@tolgee/react";
-import EntityDetails from "../components/EntityDetails";
 import { BrandLogo } from "../components/BrandImage";
+import { voteToNumeric } from "../voteUtils";
 
 export default function ResultsView({
   comparisonResults,
@@ -226,15 +226,12 @@ export default function ResultsView({
             <div className="results-analysis-card__header">
               <span>{comparisonLabel}</span>
             </div>
-            <EntityDetails
+            <ResultsAnalysisPanel
+              t={t}
               selectedEntity={selectedEntity}
               entityDetails={entityDetails}
-              questionDetails={questionDetails}
               questions={questions}
               answers={answers}
-              config={config}
-              isMobile={isMobile}
-              inline={isMobile}
             />
           </section>
         </section>
@@ -275,15 +272,12 @@ export default function ResultsView({
             <div className="results-analysis-card__header">
               <span>{comparisonLabel}</span>
             </div>
-            <EntityDetails
+            <ResultsAnalysisPanel
+              t={t}
               selectedEntity={selectedEntity}
               entityDetails={entityDetails}
-              questionDetails={questionDetails}
               questions={questions}
               answers={answers}
-              config={config}
-              isMobile={isMobile}
-              inline={isMobile}
             />
           </section>
           )}
@@ -299,6 +293,131 @@ export default function ResultsView({
       >
         {t("nav.backToSurvey")}
       </button>
+    </div>
+  );
+}
+
+function ResultsAnalysisPanel({
+  t,
+  selectedEntity,
+  entityDetails,
+  questions,
+  answers,
+}) {
+  const [expandedCategory, setExpandedCategory] = React.useState("match");
+
+  if (!selectedEntity || !entityDetails) {
+    return (
+      <div className="results-analysis-empty">
+        {t("results.noDetails")}
+      </div>
+    );
+  }
+
+  const answerToNumeric = {
+    "answers.agreeCapitalized": 1,
+    "answers.neutralCapitalized": 0.5,
+    "answers.disagreeCapitalized": 0,
+  };
+
+  const details = (entityDetails.details || []).filter(d => d.includedInAnalysis);
+  const topics = details
+    .map((d) => {
+      const qIndex = questions.findIndex(q => q.id === d.id);
+      if (qIndex < 0) return null;
+
+      const rawAnswer = answers?.[qIndex];
+      if (rawAnswer == null) return null;
+
+      const userVal = answerToNumeric[rawAnswer];
+      if (userVal == null) return null;
+
+      const candidateVal = voteToNumeric(d.vote);
+      const diff = Math.abs(candidateVal - userVal);
+      let status = "match";
+      if (diff === 0.5) status = "partial";
+      if (diff >= 1) status = "mismatch";
+
+      const baseQuestion = questions[qIndex];
+      const text = d.question_key ? t(d.question_key) : (baseQuestion?.question || d.question || "");
+      const shortLabel = text.length > 42 ? `${text.slice(0, 42)}...` : text;
+
+      return {
+        id: d.id,
+        status,
+        shortLabel,
+      };
+    })
+    .filter(Boolean);
+
+  const grouped = {
+    match: topics.filter(item => item.status === "match"),
+    partial: topics.filter(item => item.status === "partial"),
+    mismatch: topics.filter(item => item.status === "mismatch"),
+  };
+
+  const categoryConfig = [
+    {
+      id: "match",
+      heading: t("results.fullMatchesHeading") === "results.fullMatchesHeading"
+        ? `Coincidencia total en ${grouped.match.length} temas`
+        : t("results.fullMatchesHeading").replace("[count]", String(grouped.match.length)),
+      chipClass: "is-match",
+    },
+    {
+      id: "partial",
+      heading: t("results.partialMatchesHeading") === "results.partialMatchesHeading"
+        ? `Coincidencia parcial en ${grouped.partial.length} temas`
+        : t("results.partialMatchesHeading").replace("[count]", String(grouped.partial.length)),
+      chipClass: "is-partial",
+    },
+    {
+      id: "mismatch",
+      heading: t("results.mismatchHeading") === "results.mismatchHeading"
+        ? `Diferencias en ${grouped.mismatch.length} temas`
+        : t("results.mismatchHeading").replace("[count]", String(grouped.mismatch.length)),
+      chipClass: "is-mismatch",
+    },
+  ];
+
+  return (
+    <div className="results-analysis-groups">
+      {categoryConfig.map((category) => {
+        const isOpen = expandedCategory === category.id;
+        const chips = grouped[category.id] || [];
+        return (
+          <section key={category.id} className={`results-analysis-group ${isOpen ? "is-open" : ""}`}>
+            <button
+              className="results-analysis-group__header"
+              onClick={() => setExpandedCategory(isOpen ? null : category.id)}
+            >
+              <span>{category.heading}</span>
+              <span className="results-analysis-group__chevron" aria-hidden="true">
+                {isOpen ? "▲" : "▼"}
+              </span>
+            </button>
+
+            {isOpen && (
+              <div className="results-analysis-group__chips">
+                {chips.map((chip) => (
+                  <button
+                    key={`${category.id}-${chip.id}`}
+                    className={`results-topic-chip ${category.chipClass}`}
+                    type="button"
+                  >
+                    {chip.shortLabel}
+                  </button>
+                ))}
+                {chips.length === 0 && (
+                  <p className="results-analysis-empty-inline">
+                    {t("results.noDetails")}
+                  </p>
+                )}
+              </div>
+            )}
+          </section>
+        );
+      })}
     </div>
   );
 }

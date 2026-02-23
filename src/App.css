@@ -861,6 +861,83 @@ button {
   border-top: none;
 }
 
+.results-analysis-groups {
+  padding: 8px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.results-analysis-group {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.results-analysis-group__header {
+  width: 100%;
+  border: none !important;
+  background: transparent;
+  color: var(--fontColor);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  padding: 14px 8px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.results-analysis-group__chevron {
+  font-size: 0.78rem;
+  opacity: 0.8;
+}
+
+.results-analysis-group__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 2px 8px 14px;
+}
+
+.results-topic-chip {
+  border-radius: 11px;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  padding: 8px 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.results-topic-chip.is-match {
+  background: color-mix(in srgb, var(--accent) 20%, #fff);
+  color: var(--fontColor);
+}
+
+.results-topic-chip.is-partial {
+  background: color-mix(in srgb, var(--accent) 10%, #fff);
+  color: var(--fontColor);
+}
+
+.results-topic-chip.is-mismatch {
+  background: color-mix(in srgb, #999 10%, #fff);
+  color: var(--fontColor);
+}
+
+.results-analysis-empty,
+.results-analysis-empty-inline {
+  margin: 0;
+  padding: 10px 8px;
+  color: color-mix(in srgb, var(--fontColor) 75%, #999);
+  font-size: 0.92rem;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .results-row:hover {
     transform: translateY(-1px);
@@ -1026,6 +1103,21 @@ button {
   .results-analysis-card .entity-details-inline {
     max-height: 54dvh;
     overflow-y: auto;
+  }
+
+  .results-analysis-groups {
+    padding: 6px 10px 12px;
+    gap: 6px;
+  }
+
+  .results-analysis-group__header {
+    font-size: 0.95rem;
+    padding: 12px 6px;
+  }
+
+  .results-topic-chip {
+    font-size: 0.72rem;
+    padding: 7px 9px;
   }
 
   .parties-and-candidates-list {

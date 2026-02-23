@@ -129,11 +129,12 @@
 }
 
 [data-election="peru_2026"] .results-topic-chip.is-match {
-  background: color-mix(in srgb, var(--accent) 18%, var(--buttonColor));
+  background: color-mix(in srgb, var(--accent) 95%, var(--buttonColor));
+  color: var(--fontColorLight);
 }
 
 [data-election="peru_2026"] .results-topic-chip.is-partial {
-  background: color-mix(in srgb, var(--accent) 9%, var(--buttonColor));
+  background: color-mix(in srgb, var(--accent) 18%, var(--buttonColor));
 }
 
 [data-election="peru_2026"] .results-topic-modal {

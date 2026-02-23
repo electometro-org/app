@@ -917,12 +917,12 @@ button {
 }
 
 .results-topic-chip.is-match {
-  background: color-mix(in srgb, var(--accent) 20%, #fff);
-  color: var(--fontColor);
+  background: color-mix(in srgb, var(--accent) 36%, #fff);
+  color: var(--fontColorLight);
 }
 
 .results-topic-chip.is-partial {
-  background: color-mix(in srgb, var(--accent) 10%, #fff);
+  background: color-mix(in srgb, var(--accent) 20%, #fff);
   color: var(--fontColor);
 }
 

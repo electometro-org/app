@@ -137,6 +137,10 @@
   background: color-mix(in srgb, var(--accent) 18%, var(--buttonColor));
 }
 
+[data-election="peru_2026"] .results-analysis-heading__count.is-partial {
+  color: color-mix(in srgb, var(--accent) 60%, var(--buttonColor));
+}
+
 [data-election="peru_2026"] .results-topic-modal {
   background: var(--introBoxBg);
   color: var(--fontColor);

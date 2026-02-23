@@ -386,26 +386,50 @@ function ResultsAnalysisPanel({
   const categoryConfig = [
     {
       id: "match",
-      heading: t("results.fullMatchesHeading") === "results.fullMatchesHeading"
-        ? `Coincidencia total en ${grouped.match.length} temas`
-        : t("results.fullMatchesHeading").replace("[count]", String(grouped.match.length)),
+      headingTemplate: t("results.fullMatchesHeading") === "results.fullMatchesHeading"
+        ? "Tu coincides plenamente en [[nrOfMatchedTopics]] temas"
+        : t("results.fullMatchesHeading"),
       chipClass: "is-match",
     },
     {
       id: "partial",
-      heading: t("results.partialMatchesHeading") === "results.partialMatchesHeading"
-        ? `Coincidencia parcial en ${grouped.partial.length} temas`
-        : t("results.partialMatchesHeading").replace("[count]", String(grouped.partial.length)),
+      headingTemplate: t("results.partialMatchesHeading") === "results.partialMatchesHeading"
+        ? "Tu coincides parcialmente en [[nrOfMatchedTopics]] temas"
+        : t("results.partialMatchesHeading"),
       chipClass: "is-partial",
     },
     {
       id: "mismatch",
-      heading: t("results.mismatchHeading") === "results.mismatchHeading"
-        ? `Diferencias en ${grouped.mismatch.length} temas`
-        : t("results.mismatchHeading").replace("[count]", String(grouped.mismatch.length)),
+      headingTemplate: t("results.mismatchHeading") === "results.mismatchHeading"
+        ? "Tu difieres en [[nrOfMatchedTopics]] temas"
+        : t("results.mismatchHeading"),
       chipClass: "is-mismatch",
     },
   ];
+
+  const renderHeading = (template, count, chipClass) => {
+    const token = "[[nrOfMatchedTopics]]";
+    const parts = String(template || "").split(token);
+    const before = parts[0] || "";
+    const after = parts.slice(1).join(token) || "";
+
+    const enIdx = before.toLowerCase().lastIndexOf(" en ");
+    const firstLine = enIdx >= 0 ? before.slice(0, enIdx).trim() : before.trim();
+    const secondPrefix = enIdx >= 0 ? before.slice(enIdx + 1).trim() : "";
+
+    return (
+      <span className="results-analysis-heading">
+        <span className="results-analysis-heading__line">{firstLine}</span>
+        <span className="results-analysis-heading__line">
+          {secondPrefix ? `${secondPrefix} ` : ""}
+          <span className={`results-analysis-heading__count ${chipClass}`}>
+            {count}
+          </span>
+          {after ? ` ${after.trim()}` : ""}
+        </span>
+      </span>
+    );
+  };
 
   return (
     <div className="results-analysis-groups">
@@ -418,7 +442,7 @@ function ResultsAnalysisPanel({
               className="results-analysis-group__header"
               onClick={() => setExpandedCategory(isOpen ? null : category.id)}
             >
-              <span>{category.heading}</span>
+              {renderHeading(category.headingTemplate, chips.length, category.chipClass)}
               <span className="results-analysis-group__toggle">
                 <span className="results-analysis-group__toggle-label">
                   {isOpen

@@ -270,10 +270,12 @@ export default function ResultsView({
             <ul className="results-list">
               {rows.map((row) => {
                 const fillPercent = getFillPercent(row.score);
+                const selected = isSelectedRow(row);
+                const dimmed = !!selectedEntity && !selected;
                 return (
                 <li key={row.key}>
                   <button
-                    className={`results-row ${isSelectedRow(row) ? "is-selected" : ""} ${row.incomplete ? "is-incomplete" : ""}`}
+                    className={`results-row ${selected ? "is-selected" : ""} ${dimmed ? "is-dimmed" : ""} ${row.incomplete ? "is-incomplete" : ""}`}
                     onClick={() => handleSelectRow(row)}
                     style={getRowFillStyle(fillPercent)}
                   >

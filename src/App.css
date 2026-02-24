@@ -1007,6 +1007,10 @@ button {
   opacity: 0.72;
 }
 
+.results-row.is-dimmed {
+  opacity: 0.82;
+}
+
 .results-analysis-card .entity-details-container {
   width: auto;
   max-height: 62vh;
@@ -1298,7 +1302,12 @@ button {
 @media (hover: hover) and (pointer: fine) {
   .results-row:hover {
     transform: translateY(-1px);
-    border-color: color-mix(in srgb, var(--accent) 45%, transparent) !important;
+    border-color: var(--accent) !important;
+    background: color-mix(in srgb, var(--accent) 12%, var(--buttonColor));
+  }
+
+  .results-row.is-dimmed:hover {
+    opacity: 1;
   }
 
   .results-coincidence-card:hover {

@@ -157,14 +157,6 @@ export default {
       }
     },
     // { type: "countdown-timer", defaultSlot: "right", duration: 30 },
-    { type: "social-share",
-      // defaultSlot: "bottom",
-      showOnPhase: ["results"],
-      layouts: {
-        lg: { x: 43, y: 49, w: 25, h: 8 },
-        xxs: {x: 0, y: 64, w: 24, h: 7 },
-      }
-    },
     // { type: "social-share",
     //   // defaultSlot: "bottom",
     //   showOnPhase: ["results"],

@@ -63,7 +63,6 @@
 [data-election="peru_2026"] .results-list-card__header,
 [data-election="peru_2026"] .results-analysis-card__header {
   border-bottom-color: var(--buttonShadow);
-  color: var(--fontColor);
 }
 
 [data-election="peru_2026"] .results-row {

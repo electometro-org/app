@@ -593,8 +593,8 @@ button {
 }
 
 .results-slot-card__header {
-  background: #111;
-  color: #fff;
+  background: var(--accentLight);
+  color: var(--fontColorLight);
   text-align: center;
   padding: 11px 14px;
   font-size: 0.74rem;
@@ -786,6 +786,10 @@ button {
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
+.results-analysis-card__header.is-compact {
+  justify-content: center;
+}
+
 .results-list {
   margin: 0;
   padding: 10px;
@@ -867,25 +871,45 @@ button {
 }
 
 .results-analysis-groups {
-  padding: 10px 14px 16px;
+  --results-analysis-inline-pad: 14px;
+  padding-left: 10px;
+  padding-right: 10px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 0;
 }
 
 .results-analysis-group {
+  width: calc(100% + (var(--results-analysis-inline-pad) * 2));
+  min-width: 0;
+  align-self: stretch;
+  box-sizing: border-box;
+  margin-inline: calc(var(--results-analysis-inline-pad) * -1);
+  padding-inline: var(--results-analysis-inline-pad);
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  padding-bottom: 2px;
+  padding-bottom: 10px;
+  transition: background-color 180ms ease;
+  background-clip: padding-box;
+}
+
+.results-analysis-group:hover {
+  background: rgba(0, 0, 0, 0.045);
 }
 
 .results-analysis-group__header {
+  display: flex;
   width: 100%;
+  min-width: 100%;
+  align-self: stretch;
+  box-sizing: border-box;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
   border: none !important;
   background: transparent;
   box-shadow: none !important;
   -webkit-box-shadow: none !important;
   color: var(--fontColor);
-  display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 8px;
@@ -895,6 +919,10 @@ button {
   line-height: 0.95;
   font-weight: 800;
   cursor: pointer;
+}
+
+.results-analysis-group__header:focus-visible {
+  outline: none;
 }
 
 .results-analysis-heading {
@@ -963,12 +991,14 @@ button {
   display: grid;
   grid-template-rows: 0fr;
   opacity: 0;
+  pointer-events: none;
   transition: grid-template-rows 320ms ease, opacity 240ms ease;
 }
 
 .results-analysis-group__body.is-open {
   grid-template-rows: 1fr;
   opacity: 1;
+  pointer-events: auto;
 }
 
 .results-analysis-group__body > .results-analysis-group__chips {
@@ -1288,8 +1318,8 @@ button {
   }
 
   .results-analysis-groups {
-    padding: 6px 10px 12px;
-    gap: 10px;
+    --results-analysis-inline-pad: 10px;
+    gap: 0;
   }
 
   .results-analysis-group__header {

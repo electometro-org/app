@@ -39,6 +39,9 @@ export default function ResultsView({
   const compactModeLabel = t("results.compactMode") === "results.compactMode"
     ? "Nivel de coincidencia"
     : t("results.compactMode");
+  const coincidenceTitleLabel = t("results.coincidenceLevelTitle") === "results.coincidenceLevelTitle"
+    ? "Nivel de coincidencia"
+    : t("results.coincidenceLevelTitle");
   const detailedModeLabel = t("results.detailedMode") === "results.detailedMode"
     ? "Comparacion detallada"
     : t("results.detailedMode");
@@ -182,7 +185,7 @@ export default function ResultsView({
       {resultsViewMode === "coincidence" ? (
         <section className="results-slot-mode">
           <div className="results-slot-card">
-            <div className="results-slot-card__header">{compactModeLabel}</div>
+            <div className="results-slot-card__header">{coincidenceTitleLabel}</div>
             <div className="results-slot-viewport">
               <div
                 className="results-slot-track"
@@ -224,7 +227,7 @@ export default function ResultsView({
           </div>
 
           <section className="results-analysis-card">
-            <div className="results-analysis-card__header">
+            <div className="results-analysis-card__header is-compact">
               <span>{comparisonLabel}</span>
             </div>
             <ResultsAnalysisPanel
@@ -440,7 +443,12 @@ function ResultsAnalysisPanel({
           <section key={category.id} className={`results-analysis-group ${isOpen ? "is-open" : ""}`}>
             <button
               className="results-analysis-group__header"
-              onClick={() => setExpandedCategory(isOpen ? null : category.id)}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setExpandedCategory((prev) => (prev === category.id ? null : category.id));
+              }}
             >
               {renderHeading(category.headingTemplate, chips.length, category.chipClass)}
               <span className="results-analysis-group__toggle">

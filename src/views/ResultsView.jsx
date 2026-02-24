@@ -153,20 +153,20 @@ export default function ResultsView({
         {!isMobile && (
           <div className="results-view-mode-toggle">
             <button
+                className={`results-view-mode-toggle__btn ${(resultsViewMode === "coincidence" || hoveredViewMode === "coincidence") ? "is-active" : ""}`}
+                onClick={() => setResultsViewMode("coincidence")}
+                onMouseEnter={() => setHoveredViewMode("coincidence")}
+                onMouseLeave={() => setHoveredViewMode(null)}
+            >
+              {compactModeLabel}
+            </button>
+            <button
               className={`results-view-mode-toggle__btn ${(resultsViewMode === "comparison" || hoveredViewMode === "comparison") ? "is-active" : ""}`}
               onClick={() => setResultsViewMode("comparison")}
               onMouseEnter={() => setHoveredViewMode("comparison")}
               onMouseLeave={() => setHoveredViewMode(null)}
             >
               {detailedModeLabel}
-            </button>
-            <button
-              className={`results-view-mode-toggle__btn ${(resultsViewMode === "coincidence" || hoveredViewMode === "coincidence") ? "is-active" : ""}`}
-              onClick={() => setResultsViewMode("coincidence")}
-              onMouseEnter={() => setHoveredViewMode("coincidence")}
-              onMouseLeave={() => setHoveredViewMode(null)}
-            >
-              {compactModeLabel}
             </button>
           </div>
         )}
@@ -263,9 +263,7 @@ export default function ResultsView({
                     onClick={() => handleSelectRow(row)}
                   >
                     <span className="results-row__identity">
-                      <span className="results-row__avatar" aria-hidden="true">
-                        {(row.displayName || "?").charAt(0)}
-                      </span>
+                      <RowAvatar row={row} config={config} />
                       <span className="results-row__name">{row.displayName}</span>
                     </span>
                     <span className="results-row__score">{row.score}%</span>
@@ -310,6 +308,7 @@ function SlotAvatar({ row, config }) {
   const exts = ["png", "jpg", "jpeg"];
   const [srcIndex, setSrcIndex] = React.useState(0);
   const [failed, setFailed] = React.useState(false);
+  const [logoLoaded, setLogoLoaded] = React.useState(false);
 
   const extractPartyFromCandidateName = (name) => {
     if (!name || typeof name !== "string") return null;
@@ -331,7 +330,12 @@ function SlotAvatar({ row, config }) {
   React.useEffect(() => {
     setSrcIndex(0);
     setFailed(false);
+    setLogoLoaded(false);
   }, [partyName]);
+
+  React.useEffect(() => {
+    setLogoLoaded(false);
+  }, [srcIndex]);
 
   const getAppBase = () => {
     const baseUrl = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.BASE_URL)
@@ -358,24 +362,99 @@ function SlotAvatar({ row, config }) {
     }
   };
 
-  if (logoSrc) {
-    return (
-      <div className="results-slot-item__avatar has-logo" aria-hidden="true">
+  return (
+    <div className={`results-slot-item__avatar ${logoLoaded ? "has-logo" : ""}`} aria-hidden="true">
+      <span className="results-slot-item__avatar-fallback">
+        {(row?.displayName || "?").charAt(0)}
+      </span>
+      {logoSrc && (
         <img
-          className="results-slot-item__avatar-img"
+          className={`results-slot-item__avatar-img ${logoLoaded ? "is-visible" : ""}`}
           src={logoSrc}
-          alt={`${partyName} logo`}
+          alt=""
+          onLoad={() => setLogoLoaded(true)}
           onError={handleImgError}
           draggable={false}
         />
-      </div>
-    );
-  }
+      )}
+    </div>
+  );
+}
+
+function RowAvatar({ row, config }) {
+  const exts = ["png", "jpg", "jpeg"];
+  const [srcIndex, setSrcIndex] = React.useState(0);
+  const [failed, setFailed] = React.useState(false);
+  const [logoLoaded, setLogoLoaded] = React.useState(false);
+
+  const extractPartyFromCandidateName = (name) => {
+    if (!name || typeof name !== "string") return null;
+    const m = name.match(/\(([^)]+)\)\s*$/);
+    if (m && m[1]) return m[1].trim();
+    const m2 = name.match(/\[([^\]]+)\]\s*$/);
+    if (m2 && m2[1]) return m2[1].trim();
+    return null;
+  };
+
+  const getPartyName = () => {
+    if (!row) return null;
+    if (row.type === "party") return row.name || row.id || row.payload?.party || null;
+    return row.payload?.party || extractPartyFromCandidateName(row.displayName || row.name || row.payload?.name || "");
+  };
+
+  const partyName = getPartyName();
+
+  React.useEffect(() => {
+    setSrcIndex(0);
+    setFailed(false);
+    setLogoLoaded(false);
+  }, [partyName]);
+
+  React.useEffect(() => {
+    setLogoLoaded(false);
+  }, [srcIndex]);
+
+  const getAppBase = () => {
+    const baseUrl = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.BASE_URL)
+      ? import.meta.env.BASE_URL
+      : "";
+    return String(baseUrl || "").replace(/\/$/, "");
+  };
+
+  const buildLogoUrl = (name, ext) => {
+    if (!name) return "";
+    const base = getAppBase();
+    const prefix = base ? `${base}/` : "";
+    const assetsPath = config?.assetsPath || "";
+    return `${prefix}${assetsPath}party_logos/${encodeURIComponent(name)}.${ext}`;
+  };
+
+  const logoSrc = !failed && partyName ? buildLogoUrl(partyName, exts[srcIndex]) : "";
+
+  const handleImgError = () => {
+    if (srcIndex < exts.length - 1) {
+      setSrcIndex((s) => s + 1);
+    } else {
+      setFailed(true);
+    }
+  };
 
   return (
-    <div className="results-slot-item__avatar" aria-hidden="true">
-      {(row?.displayName || "?").charAt(0)}
-    </div>
+    <span className={`results-row__avatar ${logoLoaded ? "has-logo" : ""}`} aria-hidden="true">
+      <span className="results-row__avatar-fallback">
+        {(row?.displayName || "?").charAt(0)}
+      </span>
+      {logoSrc && (
+        <img
+          className={`results-row__avatar-img ${logoLoaded ? "is-visible" : ""}`}
+          src={logoSrc}
+          alt=""
+          onLoad={() => setLogoLoaded(true)}
+          onError={handleImgError}
+          draggable={false}
+        />
+      )}
+    </span>
   );
 }
 

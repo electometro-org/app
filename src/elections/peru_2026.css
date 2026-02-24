@@ -80,6 +80,12 @@
   color: var(--accent);
 }
 
+[data-election="peru_2026"] .results-row__avatar.has-logo {
+  background: var(--buttonColor);
+  color: var(--fontColor);
+  border-color: var(--buttonShadow);
+}
+
 [data-election="peru_2026"] .results-view-mode-toggle {
   background: color-mix(in srgb, var(--buttonColor) 88%, transparent);
   border-color: var(--buttonShadow);

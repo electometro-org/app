@@ -21,7 +21,7 @@ export default function ElectionIntroView({ branding, electionId, electionLabel,
 
     const timeoutId = setTimeout(() => {
       setShowSecondDescription(true);
-    }, 2500);
+    }, 1500);
 
     return () => {
       cancelAnimationFrame(rafId);

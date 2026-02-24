@@ -750,6 +750,11 @@ function ResultsAnalysisPanel({
 }) {
   const [expandedCategory, setExpandedCategory] = React.useState(null);
   const [selectedTopic, setSelectedTopic] = React.useState(null);
+  const [headingAnimTick, setHeadingAnimTick] = React.useState(0);
+
+  React.useEffect(() => {
+    setHeadingAnimTick((prev) => prev + 1);
+  }, [selectedEntity?.id, selectedEntity?.name, selectedEntity?.party]);
 
   if (!selectedEntity || !entityDetails) {
     return (
@@ -865,7 +870,12 @@ function ResultsAnalysisPanel({
         <span className="results-analysis-heading__line">{firstLine}</span>
         <span className="results-analysis-heading__line">
           {secondPrefix ? `${secondPrefix} ` : ""}
-          <span className={`results-analysis-heading__count ${chipClass}`}>
+          <span
+            className={`results-analysis-heading__count ${chipClass}`}
+            style={{
+              animationName: headingAnimTick % 2 === 0 ? "resultsHeadingFadeA" : "resultsHeadingFadeB",
+            }}
+          >
             {count}
           </span>
           {after ? ` ${after.trim()}` : ""}

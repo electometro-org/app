@@ -648,10 +648,12 @@ button {
   height: 52px;
   border-radius: 14px;
   font-size: 1.45rem;
+  transform: none;
 }
 
 .results-analysis-active-card .results-slot-item__avatar.has-logo {
   padding: 4px;
+  transform: none;
 }
 
 .results-analysis-active-card .results-slot-item__avatar-img {

@@ -457,7 +457,7 @@ export default function ResultsView({
               <div className={`results-list-fade results-list-fade--bottom ${listHasBottomFade ? "is-visible" : ""}`} aria-hidden="true" />
               {showListScrollHint && (
                 <div className="results-list-scroll-hint">
-                  {t("results.scrollHint") === "results.scrollHint" ? "Desliza para ver mas" : t("results.scrollHint")}
+                  {t("results.scrollHint")}
                 </div>
               )}
             </div>

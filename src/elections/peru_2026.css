@@ -149,6 +149,11 @@
   border-color: var(--buttonShadow);
 }
 
+[data-election="peru_2026"] .results-analysis-active-card .results-slot-item__avatar,
+[data-election="peru_2026"] .results-analysis-active-card .results-slot-item__avatar.has-logo {
+  transform: none;
+}
+
 [data-election="peru_2026"] .results-slot-item__score {
   color: var(--accent);
 }

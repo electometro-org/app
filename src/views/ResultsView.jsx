@@ -55,6 +55,18 @@ export default function ResultsView({
   const detailedModeLabel = t("results.detailedMode") === "results.detailedMode"
     ? "Comparacion detallada"
     : t("results.detailedMode");
+  const activeSelectionPartyLabel = t("results.activeSelectionParty") === "results.activeSelectionParty"
+    ? "Partido activo"
+    : t("results.activeSelectionParty");
+  const activeSelectionCandidateLabel = t("results.activeSelectionCandidate") === "results.activeSelectionCandidate"
+    ? "Candidatura activa"
+    : t("results.activeSelectionCandidate");
+  const activeSelectionSimilarityPercentageLabel = t("results.activeSelectionSimilarityPercentage") === "results.activeSelectionSimilarityPercentage"
+    ? "Porcentaje de similitud"
+    : t("results.activeSelectionSimilarityPercentage");
+  const activeSelectionLabel = selectedResultType === "party"
+    ? activeSelectionPartyLabel
+    : activeSelectionCandidateLabel;
 
   const getRows = () => {
     if (selectedResultType === "party") {
@@ -142,6 +154,7 @@ export default function ResultsView({
     });
     return idx >= 0 ? idx : 0;
   }, [rows, selectedEntity]);
+  const activeRow = rows[Math.max(0, selectedRowIndex)] || null;
 
   const moveAnalysisSelection = (direction) => {
     if (rows.length === 0) return;
@@ -453,6 +466,27 @@ export default function ResultsView({
 
           {(!isMobile || mobileResultsTab === "analysis") && (
           <div className="results-analysis-panel">
+            {activeRow && (
+              <section className="results-analysis-active-card">
+                <div className="results-analysis-active-card__identity">
+                  <SlotAvatar row={activeRow} config={config} />
+                  <div className="results-analysis-active-card__text">
+                    <span className="results-analysis-active-card__label">
+                      {activeSelectionLabel}
+                    </span>
+                    <strong className="results-analysis-active-card__name">
+                      {activeRow.displayName}
+                    </strong>
+                  </div>
+                </div>
+                <div className="results-analysis-active-card__score">
+                  <span className="results-analysis-active-card__score-label">
+                    {activeSelectionSimilarityPercentageLabel}
+                  </span>
+                  {activeRow.score}%
+                </div>
+              </section>
+            )}
             <section className="results-analysis-card">
               <div className="results-analysis-card__header">
                 <span>{comparisonLabel}</span>

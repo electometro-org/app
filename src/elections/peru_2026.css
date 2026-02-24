@@ -60,6 +60,11 @@
   border-color: var(--buttonShadow);
 }
 
+[data-election="peru_2026"] .results-analysis-active-card {
+  background: var(--buttonColor);
+  border-color: var(--buttonShadow);
+}
+
 [data-election="peru_2026"] .results-list-card__header,
 [data-election="peru_2026"] .results-analysis-card__header {
   border-bottom-color: var(--buttonShadow);

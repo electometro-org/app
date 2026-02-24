@@ -579,6 +579,87 @@ button {
   min-width: 0;
 }
 
+.results-analysis-active-card {
+  background: color-mix(in srgb, var(--buttonColor) 92%, transparent);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.09);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  min-width: 0;
+}
+
+.results-analysis-active-card__identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.results-analysis-active-card__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.results-analysis-active-card__label {
+  font-size: 0.86rem;
+  text-transform: uppercase;
+  text-align: left;
+  letter-spacing: 0.05em;
+  opacity: 0.75;
+}
+
+.results-analysis-active-card__name {
+  font-size: 1.28rem;
+  line-height: 1.1;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.results-analysis-active-card__score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: 2rem;
+  line-height: 1;
+  font-weight: 900;
+  color: var(--accent);
+  flex: 0 0 auto;
+}
+
+.results-analysis-active-card__score-label {
+  font-size: 0.86rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.75;
+  color: var(--fontColor);
+  font-weight: 700;
+}
+
+.results-analysis-active-card .results-slot-item__avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  font-size: 1.45rem;
+}
+
+.results-analysis-active-card .results-slot-item__avatar.has-logo {
+  padding: 4px;
+}
+
+.results-analysis-active-card .results-slot-item__avatar-img {
+  inset: 4px;
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+}
+
 .results-coincidence-grid {
   width: 100%;
   display: grid;
@@ -1227,7 +1308,7 @@ button {
   gap: 8px;
   text-align: left;
   padding: 16px 8px 12px;
-  font-size: 2.5rem;
+  font-size: 2rem;
   line-height: 0.95;
   font-weight: 800;
   cursor: pointer;
@@ -1628,6 +1709,34 @@ button {
   .results-list-card,
   .results-analysis-card {
     border-radius: 19px;
+  }
+
+  .results-analysis-active-card {
+    border-radius: 19px;
+    padding: 10px 12px;
+  }
+
+  .results-analysis-active-card__name {
+    font-size: 1.08rem;
+  }
+
+  .results-analysis-active-card__label {
+    font-size: 0.78rem;
+  }
+
+  .results-analysis-active-card__score {
+    font-size: 1.5rem;
+  }
+
+  .results-analysis-active-card__score-label {
+    font-size: 0.78rem;
+  }
+
+  .results-analysis-active-card .results-slot-item__avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    font-size: 1.2rem;
   }
 
   .results-list {

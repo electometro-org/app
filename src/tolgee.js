@@ -8,6 +8,6 @@ export const tolgee = Tolgee()
     apiUrl: import.meta.env.VITE_TOLGEE_API_URL,
     apiKey: import.meta.env.VITE_TOLGEE_API_KEY,
     defaultLanguage: 'es',
-    availableLanguages: ['es', 'qu'],
+    availableLanguages: ['es', 'qu', 'ay'],
     fallbackLanguage: 'es',
   });

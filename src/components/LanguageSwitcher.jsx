@@ -29,6 +29,15 @@ export default function LanguageSwitcher() {
       >
         {t('languages.quechua')}
       </button>
+      <button
+        onClick={() => changeLanguage('ay')}
+        style={{
+          fontWeight: tolgee.getLanguage() === 'ay' ? 'bold' : 'normal',
+          padding: '5px 10px'
+        }}
+      >
+        {t('languages.aymara')}
+      </button>
     </div>
   );
 }

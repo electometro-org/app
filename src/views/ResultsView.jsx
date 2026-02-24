@@ -386,7 +386,7 @@ function ResultsAnalysisPanel({
   questions,
   answers,
 }) {
-  const [expandedCategory, setExpandedCategory] = React.useState("match");
+  const [expandedCategory, setExpandedCategory] = React.useState(null);
   const [selectedTopic, setSelectedTopic] = React.useState(null);
 
   if (!selectedEntity || !entityDetails) {

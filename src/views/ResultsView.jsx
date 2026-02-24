@@ -30,6 +30,7 @@ export default function ResultsView({
   const [mobileResultsTab, setMobileResultsTab] = React.useState("list");
   const [resultsViewMode, setResultsViewMode] = React.useState("coincidence");
   const [slotIndex, setSlotIndex] = React.useState(0);
+  const [hoveredViewMode, setHoveredViewMode] = React.useState(null);
 
   const MIN_COMPARED = 8;
   const presidentialResultsAll = comparisonResults?.presidential_results || [];
@@ -128,22 +129,7 @@ export default function ResultsView({
         <h2>{t("results.title")}</h2>
       </div>
 
-      <div className="results-toolbar">
-        <div className="results-view-mode-toggle">
-          <button
-            className={`results-view-mode-toggle__btn ${resultsViewMode === "coincidence" ? "is-active" : ""}`}
-            onClick={() => setResultsViewMode("coincidence")}
-          >
-            {compactModeLabel}
-          </button>
-          <button
-            className={`results-view-mode-toggle__btn ${resultsViewMode === "comparison" ? "is-active" : ""}`}
-            onClick={() => setResultsViewMode("comparison")}
-          >
-            {detailedModeLabel}
-          </button>
-        </div>
-
+      <div className={`results-toolbar ${resultsViewMode === "comparison" ? "is-detailed" : "is-compact"}`}>
         {resultTypes.length > 1 && (
           <div className="results-type-toggle">
             {resultTypes.map((rt) => {
@@ -161,6 +147,27 @@ export default function ResultsView({
                 </button>
               );
             })}
+          </div>
+        )}
+
+        {!isMobile && (
+          <div className="results-view-mode-toggle">
+            <button
+              className={`results-view-mode-toggle__btn ${(resultsViewMode === "comparison" || hoveredViewMode === "comparison") ? "is-active" : ""}`}
+              onClick={() => setResultsViewMode("comparison")}
+              onMouseEnter={() => setHoveredViewMode("comparison")}
+              onMouseLeave={() => setHoveredViewMode(null)}
+            >
+              {detailedModeLabel}
+            </button>
+            <button
+              className={`results-view-mode-toggle__btn ${(resultsViewMode === "coincidence" || hoveredViewMode === "coincidence") ? "is-active" : ""}`}
+              onClick={() => setResultsViewMode("coincidence")}
+              onMouseEnter={() => setHoveredViewMode("coincidence")}
+              onMouseLeave={() => setHoveredViewMode(null)}
+            >
+              {compactModeLabel}
+            </button>
           </div>
         )}
 
@@ -196,9 +203,7 @@ export default function ResultsView({
                     key={row.key}
                     className={`results-slot-item ${row.incomplete ? "is-incomplete" : ""}`}
                   >
-                    <div className="results-slot-item__avatar">
-                      {(row.displayName || "?").charAt(0)}
-                    </div>
+                    <SlotAvatar row={row} config={config} />
                     <h3 className="results-slot-item__name">{row.displayName}</h3>
                     <div className="results-slot-item__score">{row.score}%</div>
                   </div>
@@ -297,6 +302,79 @@ export default function ResultsView({
       >
         {t("nav.backToSurvey")}
       </button>
+    </div>
+  );
+}
+
+function SlotAvatar({ row, config }) {
+  const exts = ["png", "jpg", "jpeg"];
+  const [srcIndex, setSrcIndex] = React.useState(0);
+  const [failed, setFailed] = React.useState(false);
+
+  const extractPartyFromCandidateName = (name) => {
+    if (!name || typeof name !== "string") return null;
+    const m = name.match(/\(([^)]+)\)\s*$/);
+    if (m && m[1]) return m[1].trim();
+    const m2 = name.match(/\[([^\]]+)\]\s*$/);
+    if (m2 && m2[1]) return m2[1].trim();
+    return null;
+  };
+
+  const getPartyName = () => {
+    if (!row) return null;
+    if (row.type === "party") return row.name || row.id || row.payload?.party || null;
+    return row.payload?.party || extractPartyFromCandidateName(row.displayName || row.name || row.payload?.name || "");
+  };
+
+  const partyName = getPartyName();
+
+  React.useEffect(() => {
+    setSrcIndex(0);
+    setFailed(false);
+  }, [partyName]);
+
+  const getAppBase = () => {
+    const baseUrl = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.BASE_URL)
+      ? import.meta.env.BASE_URL
+      : "";
+    return String(baseUrl || "").replace(/\/$/, "");
+  };
+
+  const buildLogoUrl = (name, ext) => {
+    if (!name) return "";
+    const base = getAppBase();
+    const prefix = base ? `${base}/` : "";
+    const assetsPath = config?.assetsPath || "";
+    return `${prefix}${assetsPath}party_logos/${encodeURIComponent(name)}.${ext}`;
+  };
+
+  const logoSrc = !failed && partyName ? buildLogoUrl(partyName, exts[srcIndex]) : "";
+
+  const handleImgError = () => {
+    if (srcIndex < exts.length - 1) {
+      setSrcIndex((s) => s + 1);
+    } else {
+      setFailed(true);
+    }
+  };
+
+  if (logoSrc) {
+    return (
+      <div className="results-slot-item__avatar has-logo" aria-hidden="true">
+        <img
+          className="results-slot-item__avatar-img"
+          src={logoSrc}
+          alt={`${partyName} logo`}
+          onError={handleImgError}
+          draggable={false}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="results-slot-item__avatar" aria-hidden="true">
+      {(row?.displayName || "?").charAt(0)}
     </div>
   );
 }

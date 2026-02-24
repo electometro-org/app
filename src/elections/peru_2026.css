@@ -54,6 +54,150 @@
   background: var(--buttonColor);
 }
 
+[data-election="peru_2026"] .results-list-card,
+[data-election="peru_2026"] .results-analysis-card {
+  background: var(--buttonColor);
+  border-color: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .results-analysis-active-card {
+  background: var(--buttonColor);
+  border-color: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .results-list-card__header,
+[data-election="peru_2026"] .results-analysis-card__header {
+  border-bottom-color: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .results-analysis-nav {
+  border-top-color: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .results-analysis-nav::after {
+  background: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .results-list-fade--top {
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--buttonColor) 96%, transparent), transparent);
+}
+
+[data-election="peru_2026"] .results-list-fade--bottom {
+  background: linear-gradient(to top, color-mix(in srgb, var(--buttonColor) 96%, transparent), transparent);
+}
+
+[data-election="peru_2026"] .results-list-scroll-hint {
+  border-color: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .results-row {
+  background: color-mix(in srgb, var(--buttonColor) 90%, #fff);
+  border-color: var(--buttonShadow) !important;
+}
+
+[data-election="peru_2026"] .results-row.is-selected {
+  background: color-mix(in srgb, var(--accent) 10%, var(--buttonColor));
+  border-color: var(--accent) !important;
+}
+
+[data-election="peru_2026"] .results-row__avatar {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+[data-election="peru_2026"] .results-row__avatar.has-logo {
+  background: var(--buttonColor);
+  color: var(--fontColor);
+  border-color: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .results-view-mode-toggle {
+  background: color-mix(in srgb, var(--buttonColor) 88%, transparent);
+  border-color: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .results-view-mode-toggle__btn.is-active {
+  background: var(--buttonNext);
+  color: var(--fontColorLight);
+}
+
+[data-election="peru_2026"] .results-coincidence-card {
+  background: color-mix(in srgb, var(--buttonColor) 90%, #fff);
+  border-color: var(--buttonShadow) !important;
+}
+
+[data-election="peru_2026"] .results-coincidence-card.is-selected {
+  background: color-mix(in srgb, var(--accent) 10%, var(--buttonColor));
+  border-color: var(--accent) !important;
+}
+
+[data-election="peru_2026"] .results-slot-card {
+  --results-slot-border-color: var(--accent);
+  border-color: var(--results-slot-border-color);
+  background: var(--buttonColor);
+}
+
+[data-election="peru_2026"] .results-slot-item__avatar {
+  background: var(--accent);
+  color: var(--fontColorLight);
+}
+
+[data-election="peru_2026"] .results-slot-item__avatar.has-logo {
+  background: var(--buttonColor);
+  color: var(--fontColor);
+  transform: rotate(3deg);
+  border-color: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .results-analysis-active-card .results-slot-item__avatar,
+[data-election="peru_2026"] .results-analysis-active-card .results-slot-item__avatar.has-logo {
+  transform: none;
+}
+
+[data-election="peru_2026"] .results-slot-item__score {
+  color: var(--accent);
+}
+
+[data-election="peru_2026"] .results-slot-controls__btn {
+  color: var(--fontColor);
+}
+
+[data-election="peru_2026"] .results-analysis-group {
+  border-bottom-color: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .results-topic-chip {
+  border-color: var(--buttonShadow) !important;
+}
+
+[data-election="peru_2026"] .results-topic-chip.is-match {
+  background: color-mix(in srgb, var(--accent) 95%, var(--buttonColor));
+  color: var(--fontColorLight);
+}
+
+[data-election="peru_2026"] .results-topic-chip.is-partial {
+  background: color-mix(in srgb, var(--accent) 18%, var(--buttonColor));
+}
+
+[data-election="peru_2026"] .results-analysis-heading__count.is-partial {
+  color: color-mix(in srgb, var(--accent) 60%, var(--buttonColor));
+}
+
+[data-election="peru_2026"] .results-topic-modal {
+  background: var(--introBoxBg);
+  color: var(--fontColor);
+}
+
+[data-election="peru_2026"] .results-topic-modal__stance {
+  background: color-mix(in srgb, var(--buttonColor) 94%, transparent);
+  border-color: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .results-topic-modal__close {
+  background: var(--buttonNext);
+  color: var(--fontColorLight);
+}
+
 [data-election="peru_2026"] .menu-panel {
   background-color: var(--background);
   border-color: var(--accent);

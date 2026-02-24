@@ -36,16 +36,20 @@ export default function ResultsView({
   const [hasShownListScrollHint, setHasShownListScrollHint] = React.useState(false);
   const [listHasTopFade, setListHasTopFade] = React.useState(false);
   const [listHasBottomFade, setListHasBottomFade] = React.useState(false);
+  const [showResultsScrollDownFab, setShowResultsScrollDownFab] = React.useState(false);
   const analysisNavFlashTimerRef = React.useRef(null);
   const analysisNavFlashRafRef = React.useRef(null);
   const listScrollHintTimerRef = React.useRef(null);
   const resultsListRef = React.useRef(null);
+  const backToSurveyRef = React.useRef(null);
+  const guiScrollParentRef = React.useRef(null);
 
   const MIN_COMPARED = 8;
   const presidentialResultsAll = comparisonResults?.presidential_results || [];
   const rankingLabel = t("results.ranking") === "results.ranking" ? "Ranking" : t("results.ranking");
   const analysisLabel = t("results.analysis") === "results.analysis" ? "Analisis" : t("results.analysis");
   const comparisonLabel = t("results.comparison") === "results.comparison" ? "Comparacion" : t("results.comparison");
+  const scrollDownTopicsLabel = t("topicImportance.seeMoreTopics");
   const compactModeLabel = t("results.compactMode") === "results.compactMode"
     ? "Nivel de coincidencia"
     : t("results.compactMode");
@@ -229,6 +233,29 @@ export default function ResultsView({
     updateResultsListScrollIndicators();
   };
 
+  const handleResultsScrollDownFabClick = () => {
+    const target = backToSurveyRef.current;
+    const scrollParent = guiScrollParentRef.current;
+    const isWindowScroll = !scrollParent
+      || scrollParent === document.documentElement
+      || scrollParent === document.body;
+
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      return;
+    }
+
+    const stepBase = isWindowScroll
+      ? (window.innerHeight || document.documentElement.clientHeight || 0)
+      : scrollParent.clientHeight;
+    const step = Math.max(140, Math.floor(stepBase * 0.72));
+    if (isWindowScroll) {
+      window.scrollBy({ top: step, behavior: "smooth" });
+    } else {
+      scrollParent.scrollBy({ top: step, behavior: "smooth" });
+    }
+  };
+
   React.useEffect(() => {
     const listVisible = resultsViewMode === "comparison" && (!isMobile || mobileResultsTab === "list");
     if (!listVisible) {
@@ -281,6 +308,74 @@ export default function ResultsView({
       }
     };
   }, [resultsViewMode, isMobile, mobileResultsTab, rows.length, hasShownListScrollHint, hideListScrollHint, updateResultsListScrollIndicators]);
+
+  React.useEffect(() => {
+    const getScrollParent = (el) => {
+      if (!el) return document.documentElement;
+      let node = el.parentElement;
+      while (node) {
+        const styles = window.getComputedStyle(node);
+        const overflowY = styles.overflowY;
+        if ((overflowY === "auto" || overflowY === "scroll") && node.scrollHeight > node.clientHeight) {
+          return node;
+        }
+        node = node.parentElement;
+      }
+      return document.documentElement;
+    };
+
+    const isElementVisibleInViewport = (el, scrollParent) => {
+      if (!el) return false;
+      const rect = el.getBoundingClientRect();
+      const isWindowScroll = !scrollParent
+        || scrollParent === document.documentElement
+        || scrollParent === document.body;
+      if (isWindowScroll) {
+        const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+        return rect.bottom >= 0 && rect.top <= vh;
+      }
+      const parentRect = scrollParent.getBoundingClientRect();
+      return rect.bottom >= parentRect.top && rect.top <= parentRect.bottom;
+    };
+
+    const updateFabVisibility = () => {
+      const target = backToSurveyRef.current;
+      const parent = guiScrollParentRef.current;
+      if (!target) {
+        setShowResultsScrollDownFab(false);
+        return;
+      }
+      setShowResultsScrollDownFab(!isElementVisibleInViewport(target, parent));
+    };
+
+    const target = backToSurveyRef.current;
+    if (!target) {
+      setShowResultsScrollDownFab(false);
+      return;
+    }
+
+    const scrollParent = getScrollParent(target);
+    guiScrollParentRef.current = scrollParent;
+    const eventTarget = (scrollParent === document.documentElement || scrollParent === document.body) ? window : scrollParent;
+
+    let rafId = 0;
+    const onScroll = () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(updateFabVisibility);
+    };
+
+    updateFabVisibility();
+    const settleTimer = setTimeout(updateFabVisibility, 260);
+    eventTarget.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+
+    return () => {
+      eventTarget.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+      clearTimeout(settleTimer);
+    };
+  }, [resultsViewMode, mobileResultsTab, rows.length]);
 
   const getFillPercent = (score) => {
     const numeric = Number(score);
@@ -520,7 +615,22 @@ export default function ResultsView({
         </div>
       )}
 
+      {showResultsScrollDownFab && createPortal(
+        <button
+          className="topic-scroll-down-fab results-scroll-down-fab"
+          type="button"
+          onClick={handleResultsScrollDownFabClick}
+          aria-label={scrollDownTopicsLabel}
+          title={scrollDownTopicsLabel}
+        >
+          <span>{scrollDownTopicsLabel}</span>
+          <span aria-hidden="true">▼</span>
+        </button>,
+        document.body
+      )}
+
       <button
+        ref={backToSurveyRef}
         className="back-to-survey-button"
         onClick={onBackToSurvey}
         onMouseEnter={(e) => (e.target.style.backgroundColor = "var(--buttonNextHover)")}

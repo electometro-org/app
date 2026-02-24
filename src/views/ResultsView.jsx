@@ -31,6 +31,9 @@ export default function ResultsView({
   const [resultsViewMode, setResultsViewMode] = React.useState("coincidence");
   const [slotIndex, setSlotIndex] = React.useState(0);
   const [hoveredViewMode, setHoveredViewMode] = React.useState(null);
+  const [analysisNavFlash, setAnalysisNavFlash] = React.useState(null);
+  const analysisNavFlashTimerRef = React.useRef(null);
+  const analysisNavFlashRafRef = React.useRef(null);
 
   const MIN_COMPARED = 8;
   const presidentialResultsAll = comparisonResults?.presidential_results || [];
@@ -121,6 +124,55 @@ export default function ResultsView({
     const target = rows[next];
     if (target) onEntityClick(target.payload, target.type);
   };
+
+  const selectedRowIndex = React.useMemo(() => {
+    if (rows.length === 0) return -1;
+    if (!selectedEntity) return 0;
+    const idx = rows.findIndex((row) => {
+      if (row.type === "party") {
+        return selectedEntity.name === row.name || selectedEntity.party === row.id;
+      }
+      return selectedEntity.name === row.id;
+    });
+    return idx >= 0 ? idx : 0;
+  }, [rows, selectedEntity]);
+
+  const moveAnalysisSelection = (direction) => {
+    if (rows.length === 0) return;
+    const base = selectedRowIndex >= 0 ? selectedRowIndex : 0;
+    const next = Math.max(0, Math.min(rows.length - 1, base + direction));
+    if (next === base) return;
+    const target = rows[next];
+    if (target) onEntityClick(target.payload, target.type);
+  };
+
+  const handleAnalysisNavClick = (direction, key) => {
+    if (analysisNavFlashTimerRef.current) {
+      clearTimeout(analysisNavFlashTimerRef.current);
+    }
+    if (analysisNavFlashRafRef.current) {
+      cancelAnimationFrame(analysisNavFlashRafRef.current);
+    }
+    setAnalysisNavFlash(null);
+    analysisNavFlashRafRef.current = requestAnimationFrame(() => {
+      setAnalysisNavFlash(key);
+      analysisNavFlashTimerRef.current = setTimeout(() => {
+        setAnalysisNavFlash(null);
+        analysisNavFlashTimerRef.current = null;
+      }, 260);
+      analysisNavFlashRafRef.current = null;
+    });
+    moveAnalysisSelection(direction);
+  };
+
+  React.useEffect(() => () => {
+    if (analysisNavFlashTimerRef.current) {
+      clearTimeout(analysisNavFlashTimerRef.current);
+    }
+    if (analysisNavFlashRafRef.current) {
+      cancelAnimationFrame(analysisNavFlashRafRef.current);
+    }
+  }, []);
 
   const getFillPercent = (score) => {
     const numeric = Number(score);
@@ -296,18 +348,36 @@ export default function ResultsView({
           )}
 
           {(!isMobile || mobileResultsTab === "analysis") && (
-          <section className="results-analysis-card">
-            <div className="results-analysis-card__header">
-              <span>{comparisonLabel}</span>
+          <div className="results-analysis-panel">
+            <section className="results-analysis-card">
+              <div className="results-analysis-card__header">
+                <span>{comparisonLabel}</span>
+              </div>
+              <ResultsAnalysisPanel
+                t={t}
+                selectedEntity={selectedEntity}
+                entityDetails={entityDetails}
+                questions={questions}
+                answers={answers}
+              />
+            </section>
+            <div className="results-analysis-nav">
+              <button
+                className={`results-analysis-nav__btn ${analysisNavFlash === "prev" ? "is-flash" : ""}`}
+                onClick={() => handleAnalysisNavClick(-1, "prev")}
+                disabled={selectedRowIndex <= 0}
+              >
+                {t("common.back")}
+              </button>
+              <button
+                className={`results-analysis-nav__btn ${analysisNavFlash === "next" ? "is-flash" : ""}`}
+                onClick={() => handleAnalysisNavClick(1, "next")}
+                disabled={selectedRowIndex < 0 || selectedRowIndex >= rows.length - 1}
+              >
+                {t("common.next")}
+              </button>
             </div>
-            <ResultsAnalysisPanel
-              t={t}
-              selectedEntity={selectedEntity}
-              entityDetails={entityDetails}
-              questions={questions}
-              answers={answers}
-            />
-          </section>
+          </div>
           )}
         </div>
       )}

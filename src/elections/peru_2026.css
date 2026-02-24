@@ -65,6 +65,14 @@
   border-bottom-color: var(--buttonShadow);
 }
 
+[data-election="peru_2026"] .results-analysis-nav {
+  border-top-color: var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .results-analysis-nav::after {
+  background: var(--buttonShadow);
+}
+
 [data-election="peru_2026"] .results-row {
   background: color-mix(in srgb, var(--buttonColor) 90%, #fff);
   border-color: var(--buttonShadow) !important;

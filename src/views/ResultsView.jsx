@@ -41,6 +41,7 @@ export default function ResultsView({
   const analysisNavFlashRafRef = React.useRef(null);
   const listScrollHintTimerRef = React.useRef(null);
   const resultsListRef = React.useRef(null);
+  const pendingNavListAlignRef = React.useRef(false);
   const backToSurveyRef = React.useRef(null);
   const guiScrollParentRef = React.useRef(null);
 
@@ -185,6 +186,7 @@ export default function ResultsView({
       }, 260);
       analysisNavFlashRafRef.current = null;
     });
+    pendingNavListAlignRef.current = true;
     moveAnalysisSelection(direction);
   };
 
@@ -377,6 +379,37 @@ export default function ResultsView({
     };
   }, [resultsViewMode, mobileResultsTab, rows.length]);
 
+  React.useEffect(() => {
+    if (!pendingNavListAlignRef.current) return;
+
+    const listEl = resultsListRef.current;
+    if (!listEl || selectedRowIndex < 0) {
+      pendingNavListAlignRef.current = false;
+      return;
+    }
+
+    const rowEl = listEl.querySelector(`[data-row-index="${selectedRowIndex}"]`);
+    if (!rowEl) {
+      pendingNavListAlignRef.current = false;
+      return;
+    }
+
+    const viewportTop = listEl.scrollTop;
+    const viewportBottom = viewportTop + listEl.clientHeight;
+    const rowTop = rowEl.offsetTop;
+    const rowBottom = rowTop + rowEl.offsetHeight;
+    const fullyVisible = rowTop >= viewportTop && rowBottom <= viewportBottom;
+
+    if (!fullyVisible) {
+      const BOTTOM_PAD = 14;
+      const maxTop = Math.max(0, listEl.scrollHeight - listEl.clientHeight);
+      const desiredTop = Math.min(maxTop, Math.max(0, rowBottom - listEl.clientHeight + BOTTOM_PAD));
+      listEl.scrollTo({ top: desiredTop, behavior: "smooth" });
+    }
+
+    pendingNavListAlignRef.current = false;
+  }, [selectedRowIndex, rows.length]);
+
   const getFillPercent = (score) => {
     const numeric = Number(score);
     return Number.isFinite(numeric) ? Math.max(0, Math.min(100, numeric)) : 0;
@@ -524,12 +557,12 @@ export default function ResultsView({
 
             <div className="results-list-scroll-area">
             <ul className="results-list" ref={resultsListRef} onScroll={handleResultsListScroll}>
-              {rows.map((row) => {
+              {rows.map((row, idx) => {
                 const fillPercent = getFillPercent(row.score);
                 const selected = isSelectedRow(row);
                 const dimmed = !!selectedEntity && !selected;
                 return (
-                <li key={row.key}>
+                <li key={row.key} data-row-index={idx}>
                   <button
                     className={`results-row ${selected ? "is-selected" : ""} ${dimmed ? "is-dimmed" : ""} ${row.incomplete ? "is-incomplete" : ""}`}
                     onClick={() => handleSelectRow(row)}

@@ -907,10 +907,10 @@ function ResultsAnalysisPanel({
               </span>
             </button>
 
-            <div className={`results-analysis-group__body ${isOpen ? "is-open" : ""}`}>
-              <div className="results-analysis-group__chips">
-                {chips.map((chip) => (
-                  <button
+              <div className={`results-analysis-group__body ${isOpen ? "is-open" : ""}`}>
+                <div className="results-analysis-group__chips">
+                  {chips.map((chip) => (
+                    <button
                     key={`${category.id}-${chip.id}`}
                     className={`results-topic-chip ${category.chipClass}`}
                     type="button"
@@ -924,11 +924,16 @@ function ResultsAnalysisPanel({
                     {t("results.noDetails")}
                   </p>
                 )}
+                </div>
+                <p className="results-analysis-group__hint">
+                  {t("results.groupTopicsHint") === "results.groupTopicsHint"
+                    ? "Toca un tema para ver el detalle."
+                    : t("results.groupTopicsHint")}
+                </p>
               </div>
-            </div>
-          </section>
-        );
-      })}
+            </section>
+          );
+        })}
 
       {selectedTopic && createPortal(
         <div className="results-topic-modal-overlay" onClick={() => setSelectedTopic(null)}>

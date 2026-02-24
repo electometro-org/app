@@ -1398,6 +1398,16 @@ button {
   overflow: hidden;
 }
 
+.results-analysis-group__hint {
+  margin: 0;
+  padding: 0 8px 14px;
+  font-size: 0.9rem;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: color-mix(in srgb, var(--fontColor) 75%, #999);
+}
+
 .results-topic-chip {
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
@@ -1412,6 +1422,9 @@ button {
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+  transform: scale(1);
+  transition: transform 140ms ease, background-color 180ms ease, color 180ms ease;
+  will-change: transform;
 }
 
 .results-topic-chip.is-match {
@@ -1427,6 +1440,19 @@ button {
 .results-topic-chip.is-mismatch {
   background: color-mix(in srgb, #999 10%, #fff);
   color: var(--fontColor);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .results-topic-chip:hover {
+    transform: scale(1.04);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .results-topic-chip:active {
+    transform: scale(1.04);
+    transition-duration: 90ms;
+  }
 }
 
 .results-analysis-empty,

@@ -28,7 +28,7 @@ export default function ResultsView({
 }) {
   const { t } = useTranslate();
   const [mobileResultsTab, setMobileResultsTab] = React.useState("list");
-  const [resultsViewMode, setResultsViewMode] = React.useState(() => (isMobile ? "coincidence" : "comparison"));
+  const [resultsViewMode, setResultsViewMode] = React.useState("coincidence");
   const [slotIndex, setSlotIndex] = React.useState(0);
   const [hoveredViewMode, setHoveredViewMode] = React.useState(null);
   const [analysisNavFlash, setAnalysisNavFlash] = React.useState(null);

@@ -878,6 +878,81 @@ button {
   overflow: auto;
   display: grid;
   gap: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 45%, #888) transparent;
+}
+
+@supports (-moz-appearance: none) {
+  .results-list {
+    scrollbar-width: auto;
+  }
+}
+
+.results-list::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.results-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.results-list::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--accent) 45%, #888);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.results-list::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--accent) 62%, #666);
+}
+
+.results-list-scroll-area {
+  position: relative;
+}
+
+.results-list-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 24px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 180ms ease;
+  z-index: 2;
+}
+
+.results-list-fade.is-visible {
+  opacity: 1;
+}
+
+.results-list-fade--top {
+  top: 0;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--buttonColor) 94%, transparent), transparent);
+}
+
+.results-list-fade--bottom {
+  bottom: 0;
+  background: linear-gradient(to top, color-mix(in srgb, var(--buttonColor) 94%, transparent), transparent);
+}
+
+.results-list-scroll-hint {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  transform: translateX(-50%);
+  z-index: 3;
+  pointer-events: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--fontColor);
+  background: color-mix(in srgb, var(--buttonColor) 92%, transparent);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  padding: 5px 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .results-row {

@@ -73,6 +73,18 @@
   background: var(--buttonShadow);
 }
 
+[data-election="peru_2026"] .results-list-fade--top {
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--buttonColor) 96%, transparent), transparent);
+}
+
+[data-election="peru_2026"] .results-list-fade--bottom {
+  background: linear-gradient(to top, color-mix(in srgb, var(--buttonColor) 96%, transparent), transparent);
+}
+
+[data-election="peru_2026"] .results-list-scroll-hint {
+  border-color: var(--buttonShadow);
+}
+
 [data-election="peru_2026"] .results-row {
   background: color-mix(in srgb, var(--buttonColor) 90%, #fff);
   border-color: var(--buttonShadow) !important;

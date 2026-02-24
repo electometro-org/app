@@ -28,12 +28,18 @@ export default function ResultsView({
 }) {
   const { t } = useTranslate();
   const [mobileResultsTab, setMobileResultsTab] = React.useState("list");
-  const [resultsViewMode, setResultsViewMode] = React.useState("coincidence");
+  const [resultsViewMode, setResultsViewMode] = React.useState(() => (isMobile ? "coincidence" : "comparison"));
   const [slotIndex, setSlotIndex] = React.useState(0);
   const [hoveredViewMode, setHoveredViewMode] = React.useState(null);
   const [analysisNavFlash, setAnalysisNavFlash] = React.useState(null);
+  const [showListScrollHint, setShowListScrollHint] = React.useState(false);
+  const [hasShownListScrollHint, setHasShownListScrollHint] = React.useState(false);
+  const [listHasTopFade, setListHasTopFade] = React.useState(false);
+  const [listHasBottomFade, setListHasBottomFade] = React.useState(false);
   const analysisNavFlashTimerRef = React.useRef(null);
   const analysisNavFlashRafRef = React.useRef(null);
+  const listScrollHintTimerRef = React.useRef(null);
+  const resultsListRef = React.useRef(null);
 
   const MIN_COMPARED = 8;
   const presidentialResultsAll = comparisonResults?.presidential_results || [];
@@ -173,6 +179,95 @@ export default function ResultsView({
       cancelAnimationFrame(analysisNavFlashRafRef.current);
     }
   }, []);
+
+  const hideListScrollHint = React.useCallback(() => {
+    setShowListScrollHint(false);
+    if (listScrollHintTimerRef.current) {
+      clearTimeout(listScrollHintTimerRef.current);
+      listScrollHintTimerRef.current = null;
+    }
+  }, []);
+
+  const updateResultsListScrollIndicators = React.useCallback(() => {
+    const el = resultsListRef.current;
+    if (!el) {
+      setListHasTopFade(false);
+      setListHasBottomFade(false);
+      return false;
+    }
+    const canScroll = el.scrollHeight > el.clientHeight + 2;
+    if (!canScroll) {
+      setListHasTopFade(false);
+      setListHasBottomFade(false);
+      return false;
+    }
+    const atTop = el.scrollTop <= 2;
+    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+    setListHasTopFade(!atTop);
+    setListHasBottomFade(!atBottom);
+    return true;
+  }, []);
+
+  const handleResultsListScroll = () => {
+    const el = resultsListRef.current;
+    if (el && el.scrollTop > 3) {
+      hideListScrollHint();
+    }
+    updateResultsListScrollIndicators();
+  };
+
+  React.useEffect(() => {
+    const listVisible = resultsViewMode === "comparison" && (!isMobile || mobileResultsTab === "list");
+    if (!listVisible) {
+      hideListScrollHint();
+      return;
+    }
+
+    const maybeShowHint = () => {
+      const canScroll = updateResultsListScrollIndicators();
+      if (!canScroll) {
+        hideListScrollHint();
+        return false;
+      }
+      if (!hasShownListScrollHint) {
+        setShowListScrollHint(true);
+        setHasShownListScrollHint(true);
+        if (listScrollHintTimerRef.current) clearTimeout(listScrollHintTimerRef.current);
+        listScrollHintTimerRef.current = setTimeout(() => {
+          hideListScrollHint();
+        }, 2200);
+      }
+      return true;
+    };
+
+    const rafId = requestAnimationFrame(() => {
+      maybeShowHint();
+    });
+    const settleTimerId = setTimeout(() => {
+      maybeShowHint();
+    }, 260);
+
+    let resizeObserver = null;
+    const listEl = resultsListRef.current;
+    if (listEl && typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(() => {
+        maybeShowHint();
+      });
+      resizeObserver.observe(listEl);
+    }
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(settleTimerId);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+      if (listScrollHintTimerRef.current) {
+        clearTimeout(listScrollHintTimerRef.current);
+        listScrollHintTimerRef.current = null;
+      }
+    };
+  }, [resultsViewMode, isMobile, mobileResultsTab, rows.length, hasShownListScrollHint, hideListScrollHint, updateResultsListScrollIndicators]);
 
   const getFillPercent = (score) => {
     const numeric = Number(score);
@@ -319,7 +414,8 @@ export default function ResultsView({
               <span>{t("results.similarity")}</span>
             </div>
 
-            <ul className="results-list">
+            <div className="results-list-scroll-area">
+            <ul className="results-list" ref={resultsListRef} onScroll={handleResultsListScroll}>
               {rows.map((row) => {
                 const fillPercent = getFillPercent(row.score);
                 const selected = isSelectedRow(row);
@@ -344,6 +440,14 @@ export default function ResultsView({
                 </li>
               )})}
             </ul>
+              <div className={`results-list-fade results-list-fade--top ${listHasTopFade ? "is-visible" : ""}`} aria-hidden="true" />
+              <div className={`results-list-fade results-list-fade--bottom ${listHasBottomFade ? "is-visible" : ""}`} aria-hidden="true" />
+              {showListScrollHint && (
+                <div className="results-list-scroll-hint">
+                  {t("results.scrollHint") === "results.scrollHint" ? "Desliza para ver mas" : t("results.scrollHint")}
+                </div>
+              )}
+            </div>
           </section>
           )}
 

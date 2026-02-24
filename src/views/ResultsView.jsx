@@ -122,6 +122,18 @@ export default function ResultsView({
     if (target) onEntityClick(target.payload, target.type);
   };
 
+  const getFillPercent = (score) => {
+    const numeric = Number(score);
+    return Number.isFinite(numeric) ? Math.max(0, Math.min(100, numeric)) : 0;
+  };
+
+  const getRowFillStyle = (fillPercent) => {
+    const pct = fillPercent;
+    return {
+      background: `linear-gradient(to right, color-mix(in srgb, var(--accentLight) 95%, transparent) ${pct}%, color-mix(in srgb, var(--accent) 8%, var(--buttonColor)) ${pct}%)`,
+    };
+  };
+
   return (
     <div className="results-view-shell">
       <div className="results-view-header">
@@ -256,20 +268,27 @@ export default function ResultsView({
             </div>
 
             <ul className="results-list">
-              {rows.map((row) => (
+              {rows.map((row) => {
+                const fillPercent = getFillPercent(row.score);
+                return (
                 <li key={row.key}>
                   <button
                     className={`results-row ${isSelectedRow(row) ? "is-selected" : ""} ${row.incomplete ? "is-incomplete" : ""}`}
                     onClick={() => handleSelectRow(row)}
+                    style={getRowFillStyle(fillPercent)}
                   >
                     <span className="results-row__identity">
-                      <RowAvatar row={row} config={config} />
-                      <span className="results-row__name">{row.displayName}</span>
+                      <RowAvatar row={row} config={config} fillPercent={fillPercent} />
+                      <span className="results-row__name">
+                        <RowFillAwareText text={row.displayName} fillPercent={fillPercent} />
+                      </span>
                     </span>
-                    <span className="results-row__score">{row.score}%</span>
+                    <span className="results-row__score">
+                      <RowFillAwareText text={`${row.score}%`} fillPercent={fillPercent} />
+                    </span>
                   </button>
                 </li>
-              ))}
+              )})}
             </ul>
           </section>
           )}
@@ -301,6 +320,60 @@ export default function ResultsView({
         {t("nav.backToSurvey")}
       </button>
     </div>
+  );
+}
+
+function RowFillAwareText({ text, fillPercent }) {
+  const rootRef = React.useRef(null);
+  const [splitPx, setSplitPx] = React.useState(null);
+
+  const recomputeSplit = React.useCallback(() => {
+    const textEl = rootRef.current;
+    if (!textEl) return;
+    const rowEl = textEl.closest(".results-row");
+    if (!rowEl) return;
+
+    const rowRect = rowEl.getBoundingClientRect();
+    const textRect = textEl.getBoundingClientRect();
+    const rowFillPx = rowRect.width * (fillPercent / 100);
+    const localSplit = rowFillPx - (textRect.left - rowRect.left);
+    const clamped = Math.max(0, Math.min(textRect.width, localSplit));
+    const rounded = Math.round(clamped * 100) / 100;
+    setSplitPx((prev) => (prev === rounded ? prev : rounded));
+  }, [fillPercent]);
+
+  React.useEffect(() => {
+    recomputeSplit();
+    const textEl = rootRef.current;
+    if (!textEl) return undefined;
+    const rowEl = textEl.closest(".results-row");
+
+    let ro = null;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(recomputeSplit);
+      ro.observe(textEl);
+      if (rowEl) ro.observe(rowEl);
+    }
+
+    window.addEventListener("resize", recomputeSplit);
+    return () => {
+      window.removeEventListener("resize", recomputeSplit);
+      if (ro) ro.disconnect();
+    };
+  }, [recomputeSplit, text]);
+
+  return (
+    <span className="results-row__split-text" ref={rootRef} style={{ "--split-local": `${splitPx ?? 0}px` }}>
+      <span className="results-row__split-text-measure">
+        {text}
+      </span>
+      <span className="results-row__split-text-layer is-fill" aria-hidden="true">
+        {text}
+      </span>
+      <span className="results-row__split-text-layer is-base" aria-hidden="true">
+        {text}
+      </span>
+    </span>
   );
 }
 
@@ -381,7 +454,7 @@ function SlotAvatar({ row, config }) {
   );
 }
 
-function RowAvatar({ row, config }) {
+function RowAvatar({ row, config, fillPercent }) {
   const exts = ["png", "jpg", "jpeg"];
   const [srcIndex, setSrcIndex] = React.useState(0);
   const [failed, setFailed] = React.useState(false);
@@ -442,7 +515,7 @@ function RowAvatar({ row, config }) {
   return (
     <span className={`results-row__avatar ${logoLoaded ? "has-logo" : ""}`} aria-hidden="true">
       <span className="results-row__avatar-fallback">
-        {(row?.displayName || "?").charAt(0)}
+        <RowFillAwareText text={(row?.displayName || "?").charAt(0)} fillPercent={fillPercent} />
       </span>
       {logoSrc && (
         <img

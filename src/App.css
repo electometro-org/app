@@ -912,6 +912,8 @@ button {
 
 .results-row__avatar-fallback {
   line-height: 1;
+  --row-text-fill-color: var(--fontColorLight);
+  --row-text-base-color: var(--accent);
 }
 
 .results-row__avatar.has-logo .results-row__avatar-fallback {
@@ -942,6 +944,8 @@ button {
 }
 
 .results-row__name {
+  --row-text-fill-color: var(--fontColorLight);
+  --row-text-base-color: var(--fontColor);
   font-weight: 800;
   text-align: left;
   overflow: hidden;
@@ -950,9 +954,48 @@ button {
 }
 
 .results-row__score {
+  --row-text-fill-color: var(--fontColorLight);
+  --row-text-base-color: var(--accent);
   font-weight: 900;
-  color: var(--accent);
   flex: 0 0 auto;
+}
+
+.results-row__split-text {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  line-height: inherit;
+  white-space: inherit;
+}
+
+.results-row__split-text-measure {
+  visibility: hidden;
+}
+
+.results-row__split-text-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.results-row__split-text-layer.is-fill {
+  color: var(--row-text-fill-color, var(--fontColorLight));
+  clip-path: inset(0 calc(100% - var(--split-local, 0px)) 0 0);
+}
+
+.results-row__split-text-layer.is-base {
+  color: var(--row-text-base-color, var(--fontColor));
+  clip-path: inset(0 0 0 var(--split-local, 0px));
+}
+
+.results-row__name .results-row__split-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .results-row.is-selected {

@@ -86,7 +86,7 @@
 }
 
 [data-election="peru_2026"] .results-view-mode-toggle__btn.is-active {
-  background: var(--accent);
+  background: var(--accentLight);
   color: var(--fontColorLight);
 }
 
@@ -101,7 +101,8 @@
 }
 
 [data-election="peru_2026"] .results-slot-card {
-  border-color: var(--accent);
+  --results-slot-border-color: var(--accent);
+  border-color: var(--results-slot-border-color);
   background: var(--buttonColor);
 }
 
@@ -115,7 +116,6 @@
 }
 
 [data-election="peru_2026"] .results-slot-controls__btn {
-  border-color: var(--accent) !important;
   color: var(--fontColor);
 }
 

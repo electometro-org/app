@@ -207,23 +207,23 @@ export default function ResultsView({
               <div className="results-slot-fade results-slot-fade--left" aria-hidden="true" />
               <div className="results-slot-fade results-slot-fade--right" aria-hidden="true" />
             </div>
-          </div>
 
-          <div className="results-slot-controls">
-            <button
-              className="results-slot-controls__btn"
-              onClick={() => moveSlot(-1)}
-              disabled={slotIndex <= 0}
-            >
-              {t("common.back")}
-            </button>
-            <button
-              className="results-slot-controls__btn"
-              onClick={() => moveSlot(1)}
-              disabled={slotIndex >= rows.length - 1}
-            >
-              {t("common.next")}
-            </button>
+            <div className="results-slot-controls">
+              <button
+                className="results-slot-controls__btn"
+                onClick={() => moveSlot(-1)}
+                disabled={slotIndex <= 0}
+              >
+                {t("common.back")}
+              </button>
+              <button
+                className="results-slot-controls__btn"
+                onClick={() => moveSlot(1)}
+                disabled={slotIndex >= rows.length - 1}
+              >
+                {t("common.next")}
+              </button>
+            </div>
           </div>
 
           <section className="results-analysis-card">

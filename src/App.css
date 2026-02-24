@@ -584,9 +584,10 @@ button {
 }
 
 .results-slot-card {
+  --results-slot-border-color: rgba(0, 0, 0, 0.8);
   width: min(980px, 100%);
   border-radius: 34px;
-  border: 3px solid rgba(0, 0, 0, 0.8);
+  border: 3px solid var(--results-slot-border-color);
   background: color-mix(in srgb, var(--buttonColor) 92%, transparent);
   overflow: hidden;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
@@ -684,16 +685,21 @@ button {
 }
 
 .results-slot-controls {
-  width: min(980px, 100%);
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  background: #fff;
+  border-top: 1px solid var(--results-slot-border-color);
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 0;
+  position: relative;
 }
 
 .results-slot-controls__btn {
-  border-radius: 18px;
-  border: 2px solid #111 !important;
-  background: #fff;
+  border: none !important;
+  border-radius: 0;
+  background: transparent;
   color: #111;
   font-size: 0.94rem;
   font-weight: 800;
@@ -701,7 +707,32 @@ button {
   letter-spacing: 0.05em;
   padding: 13px 12px;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+  transition: background-color 90ms ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .results-slot-controls__btn:hover {
+    background: rgba(0, 0, 0, 0.045);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .results-slot-controls__btn:active {
+    background: rgba(0, 0, 0, 0.045);
+    transition-duration: 45ms;
+  }
+}
+
+.results-slot-controls::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: var(--results-slot-border-color);
+  pointer-events: none;
 }
 
 .results-slot-controls__btn:disabled {
@@ -1262,7 +1293,7 @@ button {
   }
 
   .results-slot-card__header {
-    font-size: 0.6rem;
+    font-size: 0.85rem;
     letter-spacing: 0.1em;
     padding: 8px 10px;
   }
@@ -1285,11 +1316,10 @@ button {
   }
 
   .results-slot-controls {
-    gap: 8px;
+    padding: 0;
   }
 
   .results-slot-controls__btn {
-    border-radius: 12px;
     font-size: 0.76rem;
     padding: 10px 6px;
   }

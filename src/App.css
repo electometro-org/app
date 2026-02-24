@@ -1539,6 +1539,7 @@ button {
   margin: 0;
   font-size: 1.28rem;
   line-height: 1.35;
+  text-align: center;
 }
 
 .results-topic-modal__stances {
@@ -1554,6 +1555,8 @@ button {
   background: #f7f7f7;
   display: grid;
   gap: 4px;
+  text-align: center;
+  justify-items: center;
 }
 
 .results-topic-modal__stance span {
@@ -1576,6 +1579,28 @@ button {
 
 .results-topic-modal__source {
   opacity: 0.82;
+}
+
+.results-topic-modal__source-title {
+  margin: 0 0 6px;
+  font-weight: 800;
+}
+
+.results-topic-modal__source-list {
+  margin: 0;
+  padding: 0 0 0 16px;
+  display: grid;
+  gap: 6px;
+}
+
+.results-topic-modal__source-item {
+  line-height: 1.35;
+}
+
+.results-topic-modal__source-link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
 }
 
 .results-topic-modal__close {

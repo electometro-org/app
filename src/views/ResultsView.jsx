@@ -825,6 +825,91 @@ function ResultsAnalysisPanel({
     });
   };
 
+  const normalizeTopicSources = (rawSource) => {
+    if (rawSource == null || rawSource === "") return [];
+    if (Array.isArray(rawSource)) {
+      return rawSource.flatMap((item) => normalizeTopicSources(item));
+    }
+    if (typeof rawSource === "object") {
+      const text = rawSource.text || rawSource.title || rawSource.name || rawSource.label || "";
+      const url = rawSource.url || rawSource.link || rawSource.href || "";
+      if (text || url) return [{ text: String(text), url: String(url) }];
+      if (rawSource.source) return normalizeTopicSources(rawSource.source);
+      return [JSON.stringify(rawSource)];
+    }
+    const textValue = String(rawSource);
+    const splitEntries = textValue
+      .split(";")
+      .map((part) => part.trim())
+      .filter(Boolean);
+    return splitEntries.length > 0 ? splitEntries : [textValue];
+  };
+
+  const renderSourcePart = (value, keyPrefix) => {
+    const urlRegex = /(https?:\/\/[^\s)]+|www\.[^\s)]+)/gi;
+    const text = String(value || "");
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+    let matchIndex = 0;
+    while ((match = urlRegex.exec(text)) !== null) {
+      const matched = match[0];
+      const start = match.index;
+      const end = start + matched.length;
+      if (start > lastIndex) {
+        parts.push(
+          <span key={`${keyPrefix}-t-${matchIndex}`}>{text.slice(lastIndex, start)}</span>
+        );
+      }
+      const href = matched.startsWith("http") ? matched : `https://${matched}`;
+      parts.push(
+        <a
+          key={`${keyPrefix}-u-${matchIndex}`}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="results-topic-modal__source-link"
+        >
+          {matched}
+        </a>
+      );
+      lastIndex = end;
+      matchIndex += 1;
+    }
+    if (lastIndex < text.length) {
+      parts.push(<span key={`${keyPrefix}-tail`}>{text.slice(lastIndex)}</span>);
+    }
+    return parts.length > 0 ? parts : [<span key={`${keyPrefix}-plain`}>{text}</span>];
+  };
+
+  const renderSourceEntry = (entry, idx) => {
+    if (entry && typeof entry === "object" && !Array.isArray(entry)) {
+      const text = (entry.text || "").trim();
+      const url = (entry.url || "").trim();
+      const safeHref = url ? (url.startsWith("http") ? url : `https://${url}`) : "";
+      return (
+        <li key={`src-${idx}`} className="results-topic-modal__source-item">
+          {text ? <span>{text}{safeHref ? ": " : ""}</span> : null}
+          {safeHref ? (
+            <a
+              href={safeHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="results-topic-modal__source-link"
+            >
+              {url}
+            </a>
+          ) : null}
+        </li>
+      );
+    }
+    return (
+      <li key={`src-${idx}`} className="results-topic-modal__source-item">
+        {renderSourcePart(entry, `src-${idx}`)}
+      </li>
+    );
+  };
+
   const grouped = {
     match: dedupeTopics(topics.filter(item => item.status === "match")),
     partial: dedupeTopics(topics.filter(item => item.status === "partial")),
@@ -969,11 +1054,20 @@ function ResultsAnalysisPanel({
                 </p>
               )}
 
-              {selectedTopic.source && (
-                <p className="results-topic-modal__source">
-                  {t("common.seeSource")}: {selectedTopic.source}
-                </p>
-              )}
+              {(() => {
+                const sources = normalizeTopicSources(selectedTopic.source);
+                if (sources.length === 0) return null;
+                return (
+                  <div className="results-topic-modal__source">
+                    <p className="results-topic-modal__source-title">
+                      {t("common.seeSource")}
+                    </p>
+                    <ul className="results-topic-modal__source-list">
+                      {sources.map((entry, idx) => renderSourceEntry(entry, idx))}
+                    </ul>
+                  </div>
+                );
+              })()}
 
               <button
                 className="results-topic-modal__close"

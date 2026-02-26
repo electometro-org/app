@@ -1676,10 +1676,6 @@ button {
     gap: 8px;
   }
 
-  .results-view-mode-toggle {
-    display: none;
-  }
-
   .results-view-mode-toggle__btn {
     flex: 1 1 0;
     padding: 10px 7px;

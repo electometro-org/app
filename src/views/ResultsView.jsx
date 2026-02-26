@@ -450,26 +450,24 @@ export default function ResultsView({
           </div>
         )}
 
-        {!isMobile && (
-          <div className="results-view-mode-toggle">
-            <button
-                className={`results-view-mode-toggle__btn ${(resultsViewMode === "coincidence" || hoveredViewMode === "coincidence") ? "is-active" : ""}`}
-                onClick={() => setResultsViewMode("coincidence")}
-                onMouseEnter={() => setHoveredViewMode("coincidence")}
-                onMouseLeave={() => setHoveredViewMode(null)}
-            >
-              {compactModeLabel}
-            </button>
-            <button
-              className={`results-view-mode-toggle__btn ${(resultsViewMode === "comparison" || hoveredViewMode === "comparison") ? "is-active" : ""}`}
-              onClick={() => setResultsViewMode("comparison")}
-              onMouseEnter={() => setHoveredViewMode("comparison")}
+        <div className="results-view-mode-toggle">
+          <button
+              className={`results-view-mode-toggle__btn ${(resultsViewMode === "coincidence" || hoveredViewMode === "coincidence") ? "is-active" : ""}`}
+              onClick={() => setResultsViewMode("coincidence")}
+              onMouseEnter={() => setHoveredViewMode("coincidence")}
               onMouseLeave={() => setHoveredViewMode(null)}
-            >
-              {detailedModeLabel}
-            </button>
-          </div>
-        )}
+          >
+            {compactModeLabel}
+          </button>
+          <button
+            className={`results-view-mode-toggle__btn ${(resultsViewMode === "comparison" || hoveredViewMode === "comparison") ? "is-active" : ""}`}
+            onClick={() => setResultsViewMode("comparison")}
+            onMouseEnter={() => setHoveredViewMode("comparison")}
+            onMouseLeave={() => setHoveredViewMode(null)}
+          >
+            {detailedModeLabel}
+          </button>
+        </div>
 
         {isMobile && resultsViewMode === "comparison" && (
           <div className="results-mobile-tabs">

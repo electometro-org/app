@@ -139,7 +139,7 @@ export default {
       showOnPhase: ["quiz"],
       layouts: {
         lg:  { x: 34, y: 10, w: 28, h: 4 },
-        md:  { x: 0, y: 0, w: 18, h: 6 },
+        md:  { x: 20, y: 10, w: 32, h: 6 },
         xxs: { x: 3, y: 12, w: 18, h: 5 },
         // sm, xs fall back to DEFAULT_LAYOUTS
       },

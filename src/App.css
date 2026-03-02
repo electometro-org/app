@@ -1173,12 +1173,12 @@ button {
   background: color-mix(in srgb, var(--accent) 12%, var(--buttonColor));
 }
 
-.results-row.is-incomplete {
-  opacity: 0.72;
+.results-row.is-incomplete:not(.is-selected) {
+  opacity: 0.65;
 }
 
 .results-row.is-dimmed {
-  opacity: 0.30;
+  opacity: 0.65;
 }
 
 .results-analysis-card .entity-details-container {

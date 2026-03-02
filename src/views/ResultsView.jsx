@@ -72,6 +72,12 @@ export default function ResultsView({
   const activeSelectionSimilarityPercentageLabel = t("results.activeSelectionSimilarityPercentage") === "results.activeSelectionSimilarityPercentage"
     ? "Porcentaje de similitud"
     : t("results.activeSelectionSimilarityPercentage");
+  const completeComparisonsTemplate = t("results.completeComparisons") === "results.completeComparisons"
+    ? "[nrOfComplete] resultados con muestra suficiente"
+    : t("results.completeComparisons");
+  const incompleteComparisonsTemplate = t("results.incompleteComparisons") === "results.incompleteComparisons"
+    ? "[nrOfIncomplete] resultados con muestra insuficiente"
+    : t("results.incompleteComparisons");
   const activeSelectionLabel = selectedResultType === "party"
     ? activeSelectionPartyLabel
     : activeSelectionCandidateLabel;
@@ -86,7 +92,7 @@ export default function ResultsView({
         name: row.name,
         displayName: row.name,
         score: row.similarity_score,
-        incomplete: idx >= topCount,
+        incomplete: Number(row.compared_questions || 0) < MIN_COMPARED,
         type: "party",
         payload: row,
       }));
@@ -105,6 +111,11 @@ export default function ResultsView({
   };
 
   const rows = getRows();
+  const rowsWithIndex = rows.map((row, idx) => ({ row, idx }));
+  const completeRows = rowsWithIndex.filter(({ row }) => !row.incomplete);
+  const incompleteRows = rowsWithIndex.filter(({ row }) => row.incomplete);
+  const completeComparisonsLabel = completeComparisonsTemplate.replace("[nrOfComplete]", String(completeRows.length));
+  const incompleteComparisonsLabel = incompleteComparisonsTemplate.replace("[nrOfIncomplete]", String(incompleteRows.length));
 
   const isSelectedRow = (row) => {
     if (!selectedEntity) return false;
@@ -587,31 +598,68 @@ export default function ResultsView({
 
             <div className="results-list-scroll-area">
             <ul className="results-list" ref={resultsListRef} onScroll={handleResultsListScroll}>
-              {rows.map((row, idx) => {
+              {completeRows.length > 0 && (
+                <li className="results-list-section-header" aria-hidden="true">
+                  <span>{completeComparisonsLabel}</span>
+                </li>
+              )}
+              {completeRows.map(({ row, idx }) => {
                 const fillPercent = getFillPercent(row.score);
                 const selected = isSelectedRow(row);
                 const dimmed = !!selectedEntity && !selected;
                 const hasResolvedSelection = selectedRowIndex >= 0 && selectedRowIndex < rows.length;
                 const showIncompleteState = row.incomplete && !hasResolvedSelection;
                 return (
-                <li key={row.key} data-row-index={idx}>
-                  <button
-                    className={`results-row ${selected ? "is-selected" : ""} ${dimmed ? "is-dimmed" : ""} ${showIncompleteState ? "is-incomplete" : ""}`}
-                    onClick={() => handleSelectRow(row)}
-                    style={getRowFillStyle(fillPercent)}
-                  >
-                    <span className="results-row__identity">
-                      <RowAvatar row={row} config={config} fillPercent={fillPercent} />
-                      <span className="results-row__name">
-                        <RowFillAwareText text={row.displayName} fillPercent={fillPercent} />
+                  <li key={row.key} data-row-index={idx}>
+                    <button
+                      className={`results-row ${selected ? "is-selected" : ""} ${dimmed ? "is-dimmed" : ""} ${showIncompleteState ? "is-incomplete" : ""}`}
+                      onClick={() => handleSelectRow(row)}
+                      style={getRowFillStyle(fillPercent)}
+                    >
+                      <span className="results-row__identity">
+                        <RowAvatar row={row} config={config} fillPercent={fillPercent} />
+                        <span className="results-row__name">
+                          <RowFillAwareText text={row.displayName} fillPercent={fillPercent} />
+                        </span>
                       </span>
-                    </span>
-                    <span className="results-row__score">
-                      <RowFillAwareText text={`${row.score}%`} fillPercent={fillPercent} />
-                    </span>
-                  </button>
+                      <span className="results-row__score">
+                        <RowFillAwareText text={`${row.score}%`} fillPercent={fillPercent} />
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+              {incompleteRows.length > 0 && (
+                <li className="results-list-section-header" aria-hidden="true">
+                  <span>{incompleteComparisonsLabel}</span>
                 </li>
-              )})}
+              )}
+              {incompleteRows.map(({ row, idx }) => {
+                const fillPercent = getFillPercent(row.score);
+                const selected = isSelectedRow(row);
+                const dimmed = !!selectedEntity && !selected;
+                const hasResolvedSelection = selectedRowIndex >= 0 && selectedRowIndex < rows.length;
+                const showIncompleteState = row.incomplete && !hasResolvedSelection;
+                return (
+                  <li key={row.key} data-row-index={idx}>
+                    <button
+                      className={`results-row ${selected ? "is-selected" : ""} ${dimmed ? "is-dimmed" : ""} ${showIncompleteState ? "is-incomplete" : ""}`}
+                      onClick={() => handleSelectRow(row)}
+                      style={getRowFillStyle(fillPercent)}
+                    >
+                      <span className="results-row__identity">
+                        <RowAvatar row={row} config={config} fillPercent={fillPercent} />
+                        <span className="results-row__name">
+                          <RowFillAwareText text={row.displayName} fillPercent={fillPercent} />
+                        </span>
+                      </span>
+                      <span className="results-row__score">
+                        <RowFillAwareText text={`${row.score}%`} fillPercent={fillPercent} />
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
               <div className={`results-list-fade results-list-fade--top ${listHasTopFade ? "is-visible" : ""}`} aria-hidden="true" />
               <div className={`results-list-fade results-list-fade--bottom ${listHasBottomFade ? "is-visible" : ""}`} aria-hidden="true" />

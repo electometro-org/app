@@ -1058,6 +1058,22 @@ button {
   min-width: 0;
 }
 
+.results-list-section-header {
+  list-style: none;
+  margin: 8px 0 2px;
+  padding: 0 2px;
+}
+
+.results-list-section-header > span {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--fontColor) 70%, #999);
+}
+
 .results-row__identity {
   display: flex;
   align-items: center;

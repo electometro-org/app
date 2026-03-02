@@ -602,10 +602,13 @@ button {
 .results-analysis-active-card__text {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   min-width: 0;
 }
 
 .results-analysis-active-card__label {
+  display: block;
+  width: 100%;
   font-size: 0.86rem;
   text-transform: uppercase;
   text-align: left;
@@ -614,9 +617,27 @@ button {
 }
 
 .results-analysis-active-card__name {
+  display: block;
+  width: 100%;
+  text-align: left;
   font-size: 1.28rem;
   line-height: 1.1;
   font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.results-analysis-active-card__party {
+  display: block;
+  width: 100%;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  opacity: 0.82;
+  text-align: left;
+  align-self: flex-start;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -646,6 +667,9 @@ button {
 .results-analysis-active-card .results-slot-item__avatar {
   width: 52px;
   height: 52px;
+  min-width: 52px;
+  min-height: 52px;
+  flex: 0 0 52px;
   border-radius: 14px;
   font-size: 1.45rem;
   transform: none;
@@ -1908,6 +1932,10 @@ button {
 
   .results-analysis-active-card__name {
     font-size: 1.08rem;
+  }
+
+  .results-analysis-active-card__party {
+    font-size: 0.66rem;
   }
 
   .results-analysis-active-card__label {

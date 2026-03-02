@@ -770,6 +770,11 @@ export default function ResultsView({
                     <strong className="results-analysis-active-card__name">
                       {activeRow.displayName}
                     </strong>
+                    {selectedResultType === "presidentialCandidates" && activeRow?.payload?.party ? (
+                      <span className="results-analysis-active-card__party">
+                        {activeRow.payload.party}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
                 <div className="results-analysis-active-card__score">

@@ -375,15 +375,14 @@ export function QuizProvider({ children }) {
     if (!state.comparisonResults || !selectedResultType) return;
 
     if (selectedResultType === "party") {
-      const list = state.comparisonResults.party_results || [];
-      const firstTop = list.find(item => Number(item.compared_questions || 0) >= 1) || list[0];
+      const firstTop = partyComplete[0] || partyIncomplete[0];
       if (firstTop) handleEntityClick(firstTop, "party");
       return;
     }
 
     if (selectedResultType === "presidentialCandidates") {
-      const list = state.comparisonResults.presidential_results || [];
-      if (list.length > 0) handleEntityClick(list[0], "presidential");
+      const firstTop = presComplete[0] || presIncomplete[0];
+      if (firstTop) handleEntityClick(firstTop, "presidential");
     }
   }, [state.comparisonResults, selectedResultType]);
 

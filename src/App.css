@@ -1768,7 +1768,7 @@ button {
 
   .results-slot-viewport,
   .results-slot-item {
-    min-height: 220px;
+    min-height: 1px;
   }
 
   .results-slot-item {

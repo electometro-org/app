@@ -1238,6 +1238,11 @@ button {
   transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
 }
 
+.results-analysis-nav__btn--back-to-ranking {
+  background-color: var(--accent);
+  color: var(--fontColorLight);
+}
+
 .results-analysis-nav__btn:disabled {
   opacity: 0.45;
   cursor: default;

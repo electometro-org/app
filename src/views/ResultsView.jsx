@@ -657,30 +657,29 @@ export default function ResultsView({
                 answers={answers}
               />
             </section>
-            {isMobile ? (
+            <div className="results-analysis-nav">
+              <button
+                className={`results-analysis-nav__btn ${analysisNavFlash === "prev" ? "is-flash" : ""}`}
+                onClick={() => handleAnalysisNavClick(-1, "prev")}
+                disabled={selectedRowIndex <= 0}
+              >
+                {t("common.back")}
+              </button>
+              <button
+                className={`results-analysis-nav__btn ${analysisNavFlash === "next" ? "is-flash" : ""}`}
+                onClick={() => handleAnalysisNavClick(1, "next")}
+                disabled={selectedRowIndex < 0 || selectedRowIndex >= rows.length - 1}
+              >
+                {t("common.next")}
+              </button>
+            </div>
+            {isMobile && (
               <div className="results-analysis-nav is-single">
                 <button
-                  className="results-analysis-nav__btn"
+                  className="results-analysis-nav__btn results-analysis-nav__btn--back-to-ranking"
                   onClick={() => setMobileResultsTab("list")}
                 >
                   {goBackToListLabel}
-                </button>
-              </div>
-            ) : (
-              <div className="results-analysis-nav">
-                <button
-                  className={`results-analysis-nav__btn ${analysisNavFlash === "prev" ? "is-flash" : ""}`}
-                  onClick={() => handleAnalysisNavClick(-1, "prev")}
-                  disabled={selectedRowIndex <= 0}
-                >
-                  {t("common.back")}
-                </button>
-                <button
-                  className={`results-analysis-nav__btn ${analysisNavFlash === "next" ? "is-flash" : ""}`}
-                  onClick={() => handleAnalysisNavClick(1, "next")}
-                  disabled={selectedRowIndex < 0 || selectedRowIndex >= rows.length - 1}
-                >
-                  {t("common.next")}
                 </button>
               </div>
             )}

@@ -237,7 +237,21 @@ export default function ResultsView({
 
   const handleResultsScrollDownFabClick = () => {
     const target = backToSurveyRef.current;
-    const scrollParent = guiScrollParentRef.current;
+    const getScrollParent = (el) => {
+      if (!el) return document.documentElement;
+      let node = el.parentElement;
+      while (node) {
+        const styles = window.getComputedStyle(node);
+        const overflowY = styles.overflowY;
+        if ((overflowY === "auto" || overflowY === "scroll") && node.scrollHeight > node.clientHeight) {
+          return node;
+        }
+        node = node.parentElement;
+      }
+      return document.documentElement;
+    };
+    const scrollParent = getScrollParent(target);
+    guiScrollParentRef.current = scrollParent;
     const isWindowScroll = !scrollParent
       || scrollParent === document.documentElement
       || scrollParent === document.body;
@@ -326,28 +340,24 @@ export default function ResultsView({
       return document.documentElement;
     };
 
-    const isElementVisibleInViewport = (el, scrollParent) => {
+    const isElementVisibleInViewport = (el) => {
       if (!el) return false;
       const rect = el.getBoundingClientRect();
-      const isWindowScroll = !scrollParent
-        || scrollParent === document.documentElement
-        || scrollParent === document.body;
-      if (isWindowScroll) {
-        const vh = window.innerHeight || document.documentElement.clientHeight || 0;
-        return rect.bottom >= 0 && rect.top <= vh;
-      }
-      const parentRect = scrollParent.getBoundingClientRect();
-      return rect.bottom >= parentRect.top && rect.top <= parentRect.bottom;
+      const viewportHeight = window.visualViewport?.height
+        || window.innerHeight
+        || document.documentElement.clientHeight
+        || 0;
+      return rect.bottom >= 0 && rect.top <= viewportHeight;
     };
 
     const updateFabVisibility = () => {
       const target = backToSurveyRef.current;
-      const parent = guiScrollParentRef.current;
       if (!target) {
         setShowResultsScrollDownFab(false);
         return;
       }
-      setShowResultsScrollDownFab(!isElementVisibleInViewport(target, parent));
+      guiScrollParentRef.current = getScrollParent(target);
+      setShowResultsScrollDownFab(!isElementVisibleInViewport(target));
     };
 
     const target = backToSurveyRef.current;
@@ -356,24 +366,44 @@ export default function ResultsView({
       return;
     }
 
-    const scrollParent = getScrollParent(target);
-    guiScrollParentRef.current = scrollParent;
-    const eventTarget = (scrollParent === document.documentElement || scrollParent === document.body) ? window : scrollParent;
-
     let rafId = 0;
     const onScroll = () => {
       if (rafId) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(updateFabVisibility);
     };
 
+    let observer = null;
+    if (typeof IntersectionObserver !== "undefined") {
+      observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          setShowResultsScrollDownFab(!(entry?.isIntersecting ?? false));
+        },
+        {
+          root: null,
+          threshold: 0.01,
+        }
+      );
+      observer.observe(target);
+    }
+
     updateFabVisibility();
     const settleTimer = setTimeout(updateFabVisibility, 260);
-    eventTarget.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", onScroll);
+      window.visualViewport.addEventListener("scroll", onScroll);
+    }
 
     return () => {
-      eventTarget.removeEventListener("scroll", onScroll);
+      if (observer) observer.disconnect();
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", onScroll);
+        window.visualViewport.removeEventListener("scroll", onScroll);
+      }
       if (rafId) cancelAnimationFrame(rafId);
       clearTimeout(settleTimer);
     };

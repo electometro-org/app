@@ -37,6 +37,7 @@ export default function ResultsView({
   const [listHasTopFade, setListHasTopFade] = React.useState(false);
   const [listHasBottomFade, setListHasBottomFade] = React.useState(false);
   const [showResultsScrollDownFab, setShowResultsScrollDownFab] = React.useState(false);
+  const [showComparisonInfoModal, setShowComparisonInfoModal] = React.useState(false);
   const analysisNavFlashTimerRef = React.useRef(null);
   const analysisNavFlashRafRef = React.useRef(null);
   const listScrollHintTimerRef = React.useRef(null);
@@ -49,7 +50,6 @@ export default function ResultsView({
   const presidentialResultsAll = comparisonResults?.presidential_results || [];
   const rankingLabel = t("results.ranking") === "results.ranking" ? "Ranking" : t("results.ranking");
   const analysisLabel = t("results.analysis") === "results.analysis" ? "Analisis" : t("results.analysis");
-  const comparisonLabel = t("results.comparison") === "results.comparison" ? "Comparacion" : t("results.comparison");
   const scrollDownTopicsLabel = t("topicImportance.seeMoreTopics");
   const compactModeLabel = t("results.compactMode") === "results.compactMode"
     ? "Nivel de coincidencia"
@@ -81,12 +81,60 @@ export default function ResultsView({
   const activeSelectionLabel = selectedResultType === "party"
     ? activeSelectionPartyLabel
     : activeSelectionCandidateLabel;
+  const comparedTopicsCount = Array.isArray(entityDetails?.details)
+    ? entityDetails.details.filter((detail) => detail?.compared).length
+    : 0;
+  const comparisonToken = "[nrOfComparedTopics]";
+  const comparisonTemplate = t("results.comparison");
+  const comparisonParts = String(comparisonTemplate || "").split(comparisonToken);
+  const comparisonBefore = comparisonParts[0] || "";
+  const comparisonAfter = comparisonParts.slice(1).join(comparisonToken) || "";
+  const importantTopicsCount = React.useMemo(() => {
+    if (!Array.isArray(entityDetails?.details)) return 0;
+    const uniqueImportantTopics = new Set();
+    entityDetails.details.forEach((detail) => {
+      const weight = Number(detail?.userWeight);
+      if (!Number.isFinite(weight) || weight < 3) return;
+      const key = detail?.topic_key || detail?.question_key || detail?.id;
+      if (key != null) uniqueImportantTopics.add(String(key));
+    });
+    return uniqueImportantTopics.size;
+  }, [entityDetails?.details]);
+  const comparisonInfoBodyTemplate = t("results.comparisonInfoBody") === "results.comparisonInfoBody"
+    ? "Elegiste [NrOfImportantTopics] temas de mayor importancia. Esto influye la posicion del resultado en el ranking."
+    : t("results.comparisonInfoBody");
+  const comparisonInfoBody = comparisonInfoBodyTemplate.replace("[NrOfImportantTopics]", String(importantTopicsCount));
+  const comparisonInfoLabel = t("results.comparisonInfoLabel") === "results.comparisonInfoLabel"
+    ? "Mas informacion"
+    : t("results.comparisonInfoLabel");
+  const comparisonInfoCloseLabel = t("results.comparisonInfoClose") === "results.comparisonInfoClose"
+    ? "Cerrar"
+    : t("results.comparisonInfoClose");
+
+  const toSortableScore = (score) => {
+    const numeric = Number(score);
+    return Number.isFinite(numeric) ? numeric : -1;
+  };
+
+  const sortRowsByScoreDesc = (a, b) => {
+    const scoreDiff = toSortableScore(b.score) - toSortableScore(a.score);
+    if (scoreDiff !== 0) return scoreDiff;
+    const comparedDiff = Number(b.payload?.compared_questions || 0) - Number(a.payload?.compared_questions || 0);
+    if (comparedDiff !== 0) return comparedDiff;
+    return String(a.displayName || a.name || "").localeCompare(String(b.displayName || b.name || ""));
+  };
+
+  const orderRowsForNavigation = (mappedRows) => {
+    const sorted = [...mappedRows].sort(sortRowsByScoreDesc);
+    const complete = sorted.filter((row) => !row.incomplete);
+    const incomplete = sorted.filter((row) => row.incomplete);
+    return [...complete, ...incomplete];
+  };
 
   const getRows = () => {
     if (selectedResultType === "party") {
-      const combined = [...partyComplete, ...partyIncomplete];
-      const topCount = partyComplete.length;
-      return combined.map((row, idx) => ({
+      const mappedRows = [...partyComplete, ...partyIncomplete]
+        .map((row, idx) => ({
         key: row.party ?? row.name ?? `party-${idx}`,
         id: row.party ?? row.name,
         name: row.name,
@@ -96,9 +144,11 @@ export default function ResultsView({
         type: "party",
         payload: row,
       }));
+      return orderRowsForNavigation(mappedRows);
     }
 
-    return presidentialResultsAll.map((row, idx) => ({
+    const mappedRows = presidentialResultsAll
+      .map((row, idx) => ({
       key: row.name ?? `pres-${idx}`,
       id: row.name,
       name: row.name,
@@ -108,6 +158,7 @@ export default function ResultsView({
       type: "presidential",
       payload: row,
     }));
+    return orderRowsForNavigation(mappedRows);
   };
 
   const rows = getRows();
@@ -574,8 +625,21 @@ export default function ResultsView({
           </div>
 
           <section className="results-analysis-card">
-            <div className="results-analysis-card__header is-compact">
-              <span>{comparisonLabel}</span>
+            <div className="results-analysis-card__header is-compact has-info">
+              <span>
+                {comparisonBefore}
+                {comparedTopicsCount}
+                {comparisonAfter}
+              </span>
+              <button
+                type="button"
+                className="topic-info-btn results-analysis-info-btn"
+                onClick={() => setShowComparisonInfoModal(true)}
+                aria-label={comparisonInfoLabel}
+                title={comparisonInfoLabel}
+              >
+                <span className="info-icon">i</span>
+              </button>
             </div>
             <ResultsAnalysisPanel
               t={t}
@@ -694,8 +758,21 @@ export default function ResultsView({
               </section>
             )}
             <section className="results-analysis-card">
-              <div className="results-analysis-card__header">
-                <span>{comparisonLabel}</span>
+              <div className="results-analysis-card__header has-info">
+                <span>
+                  {comparisonBefore}
+                  {comparedTopicsCount}
+                  {comparisonAfter}
+                </span>
+                <button
+                  type="button"
+                  className="topic-info-btn results-analysis-info-btn"
+                  onClick={() => setShowComparisonInfoModal(true)}
+                  aria-label={comparisonInfoLabel}
+                  title={comparisonInfoLabel}
+                >
+                  <span className="info-icon">i</span>
+                </button>
               </div>
               <ResultsAnalysisPanel
                 t={t}
@@ -746,6 +823,22 @@ export default function ResultsView({
           <span>{scrollDownTopicsLabel}</span>
           <span aria-hidden="true">▼</span>
         </button>,
+        document.body
+      )}
+
+      {showComparisonInfoModal && createPortal(
+        <div className="results-comparison-info-overlay" onClick={() => setShowComparisonInfoModal(false)}>
+          <div className="results-comparison-info-dialog" onClick={(e) => e.stopPropagation()}>
+            <p>{comparisonInfoBody}</p>
+            <button
+              type="button"
+              className="results-comparison-info-close"
+              onClick={() => setShowComparisonInfoModal(false)}
+            >
+              {comparisonInfoCloseLabel}
+            </button>
+          </div>
+        </div>,
         document.body
       )}
 

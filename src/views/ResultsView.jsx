@@ -592,10 +592,12 @@ export default function ResultsView({
                 const fillPercent = getFillPercent(row.score);
                 const selected = isSelectedRow(row);
                 const dimmed = !!selectedEntity && !selected;
+                const hasResolvedSelection = selectedRowIndex >= 0 && selectedRowIndex < rows.length;
+                const showIncompleteState = row.incomplete && !hasResolvedSelection;
                 return (
                 <li key={row.key} data-row-index={idx}>
                   <button
-                    className={`results-row ${selected ? "is-selected" : ""} ${dimmed ? "is-dimmed" : ""} ${row.incomplete ? "is-incomplete" : ""}`}
+                    className={`results-row ${selected ? "is-selected" : ""} ${dimmed ? "is-dimmed" : ""} ${showIncompleteState ? "is-incomplete" : ""}`}
                     onClick={() => handleSelectRow(row)}
                     style={getRowFillStyle(fillPercent)}
                   >

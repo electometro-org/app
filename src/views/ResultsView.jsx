@@ -577,8 +577,7 @@ export default function ResultsView({
         </section>
       ) : (
         <div className={`results-layout ${isMobile ? "is-mobile" : "is-desktop"}`}>
-          {(!isMobile || mobileResultsTab === "list") && (
-          <section className="results-list-card">
+          <section className={`results-list-card ${isMobile && mobileResultsTab !== "list" ? "results-mobile-tab-hidden" : ""}`}>
             <div className="results-list-card__header">
               <span>
                 {selectedResultType === "party" ? t("results.parties") : t("results.candidates")}
@@ -623,10 +622,8 @@ export default function ResultsView({
               )}
             </div>
           </section>
-          )}
 
-          {(!isMobile || mobileResultsTab === "analysis") && (
-          <div className="results-analysis-panel">
+          <div className={`results-analysis-panel ${isMobile && mobileResultsTab !== "analysis" ? "results-mobile-tab-hidden" : ""}`}>
             {activeRow && (
               <section className="results-analysis-active-card">
                 <div className="results-analysis-active-card__identity">
@@ -688,7 +685,6 @@ export default function ResultsView({
               </div>
             )}
           </div>
-          )}
         </div>
       )}
 

@@ -1762,6 +1762,10 @@ button {
     display: block;
   }
 
+  .results-mobile-tab-hidden {
+    display: none;
+  }
+
   .results-coincidence-grid {
     grid-template-columns: 1fr;
     gap: 10px;

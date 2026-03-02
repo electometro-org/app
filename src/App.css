@@ -1283,13 +1283,12 @@ button {
   padding-inline: var(--results-analysis-inline-pad);
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   padding-bottom: 0;
-  transition: background-color 180ms ease, padding-bottom 220ms ease 220ms;
+  transition: background-color 180ms ease, padding-bottom 320ms ease;
   background-clip: padding-box;
 }
 
 .results-analysis-group.is-open {
   padding-bottom: 10px;
-  transition-delay: 0ms, 0ms;
 }
 
 .results-analysis-group:hover {
@@ -1319,12 +1318,11 @@ button {
   line-height: 0.95;
   font-weight: 800;
   cursor: pointer;
-  transition: padding-bottom 220ms ease 220ms;
+  transition: padding-bottom 320ms ease;
 }
 
 .results-analysis-group.is-open .results-analysis-group__header {
   padding-bottom: 12px;
-  transition-delay: 0ms;
 }
 
 .results-analysis-group__header:focus-visible {
@@ -1447,7 +1445,7 @@ button {
   max-height: 0;
   opacity: 0;
   overflow: hidden;
-  transition: max-height 220ms ease, opacity 180ms ease, padding-bottom 220ms ease;
+  transition: max-height 320ms ease, opacity 240ms ease, padding-bottom 320ms ease;
 }
 
 .results-analysis-group__body.is-open .results-analysis-group__hint {

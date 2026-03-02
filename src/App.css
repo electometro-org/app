@@ -1216,6 +1216,14 @@ button {
   pointer-events: none;
 }
 
+.results-analysis-nav.is-single {
+  grid-template-columns: 1fr;
+}
+
+.results-analysis-nav.is-single::after {
+  display: none;
+}
+
 .results-analysis-nav__btn {
   border: none !important;
   border-radius: 0;

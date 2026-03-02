@@ -60,6 +60,9 @@ export default function ResultsView({
   const detailedModeLabel = t("results.detailedMode") === "results.detailedMode"
     ? "Comparacion detallada"
     : t("results.detailedMode");
+  const goBackToListLabel = t("results.goBackToList") === "results.goBackToList"
+    ? "Go back to list"
+    : t("results.goBackToList");
   const activeSelectionPartyLabel = t("results.activeSelectionParty") === "results.activeSelectionParty"
     ? "Partido activo"
     : t("results.activeSelectionParty");
@@ -655,22 +658,33 @@ export default function ResultsView({
                 answers={answers}
               />
             </section>
-            <div className="results-analysis-nav">
-              <button
-                className={`results-analysis-nav__btn ${analysisNavFlash === "prev" ? "is-flash" : ""}`}
-                onClick={() => handleAnalysisNavClick(-1, "prev")}
-                disabled={selectedRowIndex <= 0}
-              >
-                {t("common.back")}
-              </button>
-              <button
-                className={`results-analysis-nav__btn ${analysisNavFlash === "next" ? "is-flash" : ""}`}
-                onClick={() => handleAnalysisNavClick(1, "next")}
-                disabled={selectedRowIndex < 0 || selectedRowIndex >= rows.length - 1}
-              >
-                {t("common.next")}
-              </button>
-            </div>
+            {isMobile ? (
+              <div className="results-analysis-nav is-single">
+                <button
+                  className="results-analysis-nav__btn"
+                  onClick={() => setMobileResultsTab("list")}
+                >
+                  {goBackToListLabel}
+                </button>
+              </div>
+            ) : (
+              <div className="results-analysis-nav">
+                <button
+                  className={`results-analysis-nav__btn ${analysisNavFlash === "prev" ? "is-flash" : ""}`}
+                  onClick={() => handleAnalysisNavClick(-1, "prev")}
+                  disabled={selectedRowIndex <= 0}
+                >
+                  {t("common.back")}
+                </button>
+                <button
+                  className={`results-analysis-nav__btn ${analysisNavFlash === "next" ? "is-flash" : ""}`}
+                  onClick={() => handleAnalysisNavClick(1, "next")}
+                  disabled={selectedRowIndex < 0 || selectedRowIndex >= rows.length - 1}
+                >
+                  {t("common.next")}
+                </button>
+              </div>
+            )}
           </div>
           )}
         </div>

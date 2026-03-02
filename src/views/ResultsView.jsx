@@ -300,6 +300,29 @@ export default function ResultsView({
     updateResultsListScrollIndicators();
   };
 
+  React.useEffect(() => {
+    if (!isMobile || resultsViewMode !== "comparison" || mobileResultsTab !== "list") return;
+    if (selectedRowIndex < 0) return;
+
+    const rafId = requestAnimationFrame(() => {
+      const listEl = resultsListRef.current;
+      if (!listEl) return;
+      const rowEl = listEl.querySelector(`[data-row-index="${selectedRowIndex}"]`);
+      if (!rowEl) return;
+
+      const rowTop = rowEl.offsetTop;
+      const rowHeight = rowEl.offsetHeight;
+      const centeredTop = rowTop - (listEl.clientHeight / 2) + (rowHeight / 2);
+      const maxTop = Math.max(0, listEl.scrollHeight - listEl.clientHeight);
+      const targetTop = Math.max(0, Math.min(maxTop, centeredTop));
+
+      listEl.scrollTo({ top: targetTop, behavior: "smooth" });
+      updateResultsListScrollIndicators();
+    });
+
+    return () => cancelAnimationFrame(rafId);
+  }, [isMobile, resultsViewMode, mobileResultsTab, selectedRowIndex, updateResultsListScrollIndicators]);
+
   const handleResultsScrollDownFabClick = () => {
     const target = backToSurveyRef.current;
     const getScrollParent = (el) => {

@@ -1851,7 +1851,7 @@ button {
   .results-analysis-group__header {
     font-size: 1.45rem;
     line-height: 1;
-    padding: 13px 6px 1em;
+    padding: 13px 6px 0;
   }
 
   .results-analysis-group.is-open .results-analysis-group__header {

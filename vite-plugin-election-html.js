@@ -46,17 +46,27 @@ function loadElectionConfig(electionId) {
 }
 
 export default function electionHtmlPlugin() {
+  let resolvedBase = '/';
+
   return {
     name: 'vite-plugin-election-html',
+
+    configResolved(config) {
+      resolvedBase = config.base || '/';
+    },
 
     transformIndexHtml(html, ctx) {
       const electionId = process.env.VITE_ELECTION_ID || process.env.ELECTION_ID;
       const electionMeta = loadElectionConfig(electionId);
       const meta = { ...defaultMeta, ...electionMeta };
-      const faviconPath = meta.favicon.startsWith('/') ? meta.favicon : `/${meta.favicon}`;
+
+      // Prepend base URL to favicon path
+      const faviconRelative = meta.favicon.startsWith('/') ? meta.favicon.slice(1) : meta.favicon;
+      const faviconPath = `${resolvedBase}${faviconRelative}`;
 
       console.log(`[election-html] Applying meta for: ${electionId || 'default'}`);
       console.log(`[election-html] Title: ${meta.title}`);
+      console.log(`[election-html] Base: ${resolvedBase}`);
       console.log(`[election-html] Favicon: ${faviconPath}`);
 
       return html

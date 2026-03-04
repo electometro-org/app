@@ -32,7 +32,7 @@ export function buildSubmissionPayload(questions, answers, weights, demographics
 }
 
 export async function submitQuizAnswers(payload) {
-  const response = await fetch('/api/form', {
+  const response = await fetch(`${import.meta.env.BASE_URL}api/form`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',

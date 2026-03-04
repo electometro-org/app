@@ -163,7 +163,11 @@ export default defineConfig(({ mode }) => {
       electionDataMiddleware(useLocalData),
       electionHtmlPlugin(),
       react(),
-      cloudflare({configPath: 'wrangler/wrangler.toml'}),
+      cloudflare({
+        configPath: 'wrangler/wrangler.toml',
+        experimental: {
+          headersAndRedirectsDevModeSupport: true,
+        },}),
       nestAssetsPlugin(ASSETS_SUBDIR),
     ],
     base: ASSETS_SUBDIR ? `/${ASSETS_SUBDIR}/` : '/',

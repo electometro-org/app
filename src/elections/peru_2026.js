@@ -134,7 +134,7 @@ export default {
     },
     { type: "progress-indicator",
       defaultSlot: "top",
-      resizable: true,
+      resizable: false,
       style: "dots",
       showOnPhase: ["quiz"],
       layouts: {
@@ -160,7 +160,6 @@ export default {
     // { type: "social-share",
     //   // defaultSlot: "bottom",
     //   showOnPhase: ["results"],
-    //   resizable: true,
     //   layouts: {
     //     lg: { x: 43, y: 49, w: 25, h: 8 },
     //     xxs: {x: 0, y: 64, w: 24, h: 7 },
@@ -183,224 +182,24 @@ export default {
     // Multiple placeholder widgets with unique IDs
     // {
     //   type: "placeholder",
-    //   id: "1",
-    //   label: "1",
+    //   id: "test-header",
+    //   label: "Header Area",
     //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
+    //   layouts: { lg: { x: 0, y: 0, w: 96, h: 8 } }
     // },
     // {
     //   type: "placeholder",
-    //   id: "2",
-    //   label: "2",
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } },
+    //   id: "test-sidebar",
+    //   label: "",
+    //   layouts: { lg: { x: 0, y: 10, w: 20, h: 40 } },
     //   invisible: false,
-    //   resizable: true,
     // },
     // {
     //   type: "placeholder",
-    //   id: "3",
-    //   label: "3",
-    //   // color: "rgba(255, 0, 0, 0.2)",  // Custom color
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } },
-    //   resizable: true,
+    //   id: "button-overlay",
+    //   color: "rgba(255, 0, 0, 0.2)",  // Custom color
+    //   layouts: { lg: { x: 30, y: 45, w: 30, h: 10 } }
     // },
-    // {
-    //   type: "placeholder",
-    //   id: "4",
-    //   label: "4",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },
-    // {
-    //   type: "placeholder",
-    //   id: "5",
-    //   label: "5",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },
-    // {
-    //   type: "placeholder",
-    //   id: "6",
-    //   label: "6",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },
-    // {
-    //   type: "placeholder",
-    //   id: "7",
-    //   label: "7",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },
-    // {
-    //   type: "placeholder",
-    //   id: "8",
-    //   label: "8",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },    {
-    //   type: "placeholder",
-    //   id: "9",
-    //   label: "9",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },
-    // {
-    //   type: "placeholder",
-    //   id: "10",
-    //   label: "10",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },
-    // {
-    //   type: "placeholder",
-    //   id: "11",
-    //   label: "11",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },
-    // {
-    //   type: "placeholder",
-    //   id: "12",
-    //   label: "12",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },
-    // {
-    //   type: "placeholder",
-    //   id: "13",
-    //   label: "13",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },
-    // {
-    //   type: "placeholder",
-    //   id: "14",
-    //   label: "14",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },
-    // {
-    //   type: "placeholder",
-    //   id: "15",
-    //   label: "15",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },
-    // {
-    //   type: "placeholder",
-    //   id: "16",
-    //   label: "16",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },
-    // {
-    //   type: "placeholder",
-    //   id: "17",
-    //   label: "17",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },
-    // {
-    //   type: "placeholder",
-    //   id: "18",
-    //   label: "18",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },{
-    //   type: "placeholder",
-    //   id: "19",
-    //   label: "19",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },{
-    //   type: "placeholder",
-    //   id: "20",
-    //   label: "20",
-    //   resizable: true,
-    //   layouts: { lg: { x: 0, y: 0, w: 9, h: 8 } }
-    // },
-
-
-    /* ───────────────────────────────────────────── */
-    /* ALWAYS-VISIBLE PLACEHOLDERS (20)              */
-    /* STACKED AT x=0, y=21                          */
-    /* ───────────────────────────────────────────── */
-    //
-    // ...Array.from({ length: 20 }, (_, i) => ({
-    //   type: "placeholder",
-    //   id: `always-${String(i + 1).padStart(2, "0")}`,
-    //   label: `Always ${i + 1}`,
-    //   resizable: true,
-    //   layouts: {
-    //     lg: { x: 0, y: 21, w: 9, h: 8 }
-    //   }
-    // })),
-    //
-    // /* ───────────────────────────────────────────── */
-    // /* ELECTION-INTRO (20 · STACKED)                 */
-    // /* x=0, y=0                                     */
-    // /* ───────────────────────────────────────────── */
-    //
-    // ...Array.from({ length: 20 }, (_, i) => ({
-    //   type: "placeholder",
-    //   id: `election-intro-${String(i + 1).padStart(2, "0")}`,
-    //   label: `election-intro ${i + 1}`,
-    //   showOnPhase: ["election-intro"],
-    //   resizable: true,
-    //   layouts: {
-    //     lg: { x: 0, y: 0, w: 9, h: 8 }
-    //   }
-    // })),
-    //
-    // /* ───────────────────────────────────────────── */
-    // /* QUIZ (20 · STACKED)                           */
-    // /* x=84, y=45                                   */
-    // /* ───────────────────────────────────────────── */
-    //
-    // ...Array.from({ length: 20 }, (_, i) => ({
-    //   type: "placeholder",
-    //   id: `quiz-${String(i + 1).padStart(2, "0")}`,
-    //   label: `quiz ${i + 1}`,
-    //   showOnPhase: ["quiz"],
-    //   resizable: true,
-    //   layouts: {
-    //     lg: { x: 87, y: 3, w: 9, h: 8 }
-    //   }
-    // })),
-    //
-    // /* ───────────────────────────────────────────── */
-    // /* DEMOGRAPHICS (20 · STACKED)                   */
-    // /* x=87, y=3                                    */
-    // /* ───────────────────────────────────────────── */
-    //
-    // ...Array.from({ length: 20 }, (_, i) => ({
-    //   type: "placeholder",
-    //   id: `demographics-${String(i + 1).padStart(2, "0")}`,
-    //   label: `demographics ${i + 1}`,
-    //   showOnPhase: ["demographics"],
-    //   resizable: true,
-    //   layouts: {
-    //     lg: { x: 84, y: 45, w: 9, h: 8 }
-    //   }
-    // })),
-    //
-    // /* ───────────────────────────────────────────── */
-    // /* RESULTS (20 · STACKED)                        */
-    // /* x=0, y=45                                    */
-    // /* ───────────────────────────────────────────── */
-    //
-    // ...Array.from({ length: 20 }, (_, i) => ({
-    //   type: "placeholder",
-    //   id: `results-${String(i + 1).padStart(2, "0")}`,
-    //   label: `results ${i + 1}`,
-    //   showOnPhase: ["results"],
-    //   resizable: true,
-    //   layouts: {
-    //     lg: { x: 0, y: 45, w: 9, h: 8 }
-    //   }
-    // })),
-
     // Gauge widget - shows opinion (color) and importance (arc position)
     // DISABLED: Per-question importance replaced by Topic Importance view
     // {

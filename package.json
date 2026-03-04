@@ -12,6 +12,7 @@
     "lint": "eslint .",
     "preview": "npm run build-dev && wrangler dev",
     "preview-prod": "npm run build && wrangler dev",
+    "deploy-qa": "CLOUDFLARE_ENV=qa npm run build && wrangler deploy",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {

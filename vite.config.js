@@ -64,7 +64,7 @@ function nestAssetsPlugin(subdir) {
           if (!relPath && entry.name === subdir) continue;
 
           // Skip files that must stay at root
-          const keepAtRoot = ['index.html', 'wrangler.json', '.assetsignore'];
+          const keepAtRoot = ['index.html', 'wrangler.json', '.assetsignore', '_headers'];
           if (!relPath && keepAtRoot.includes(entry.name)) {
             if (entry.name === 'index.html') foundIndexHtml = srcPath;
             continue;

@@ -980,8 +980,8 @@ function SlotAvatar({ row, config }) {
 
   const buildLogoUrl = (name, ext) => {
     if (!name) return "";
-    const base = getAppBase();
-    const prefix = base ? `${base}/` : "";
+    const baseUrl = config?.assetsBaseUrl || getAppBase();
+    const prefix = baseUrl ? `${baseUrl}/` : "";
     const assetsPath = config?.assetsPath || "";
     return `${prefix}${assetsPath}party_logos/${encodeURIComponent(name)}.${ext}`;
   };
@@ -1057,8 +1057,8 @@ function RowAvatar({ row, config, fillPercent }) {
 
   const buildLogoUrl = (name, ext) => {
     if (!name) return "";
-    const base = getAppBase();
-    const prefix = base ? `${base}/` : "";
+    const baseUrl = config?.assetsBaseUrl || getAppBase();
+    const prefix = baseUrl ? `${baseUrl}/` : "";
     const assetsPath = config?.assetsPath || "";
     return `${prefix}${assetsPath}party_logos/${encodeURIComponent(name)}.${ext}`;
   };

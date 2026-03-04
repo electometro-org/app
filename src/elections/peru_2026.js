@@ -48,6 +48,8 @@ export default {
 
   // Path to election-specific assets (party logos, etc.)
   assetsPath: "peru_2026/",
+  // Base URL for assets (bucket) - party logos, candidate photos, etc.
+  assetsBaseUrl: import.meta.env.VITE_ELECTIONS_DATA_URL,
 
   // Election-specific branding (logos used in components)
   branding: {

@@ -125,9 +125,9 @@ export default function EntityDetails({
 
   const buildLogoUrl = (partyName, ext) => {
     if (!partyName) return "";
-    const base = getAppBase();
+    const baseUrl = config.assetsBaseUrl || getAppBase();
     const encoded = encodeURIComponent(partyName);
-    const prefix = base ? `${base}/` : "";
+    const prefix = baseUrl ? `${baseUrl}/` : "";
     const assetsPath = config.assetsPath || "";
     return `${prefix}${assetsPath}party_logos/${encoded}.${ext}`;
   };

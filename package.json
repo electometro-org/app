@@ -10,8 +10,8 @@
     "build": "vite build",
     "prepare": "lefthook install",
     "lint": "eslint .",
-    "preview": "npm run build-dev && wrangler dev",
-    "preview-qa": "CLOUDFLARE_ENV=qa npm run build-dev && wrangler dev",
+    "preview": "npm run build-dev && wrangler dev --local-protocol https",
+    "preview-qa": "CLOUDFLARE_ENV=qa npm run build-dev && wrangler dev --local-protocol https",
     "deploy": "npm run build && wrangler deploy",
     "deploy-qa": "CLOUDFLARE_ENV=qa npm run build && wrangler deploy"
   },

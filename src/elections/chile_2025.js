@@ -25,8 +25,8 @@ export default {
   assetsPath: "chile_2025/",
 
   // API endpoints
-  partyVotesUrl: "/api/elections/chile_2025/combined_votes_chile_partidos_2025.json",
-  presVotesUrl: "/api/elections/chile_2025/combined_votes_chile_pres_2025.json",
+  partyVotesUrl: `${import.meta.env.VITE_ELECTIONS_DATA_URL}/chile_2025/combined_votes_chile_partidos_2025.json`,
+  presVotesUrl: `${import.meta.env.VITE_ELECTIONS_DATA_URL}/chile_2025/combined_votes_chile_pres_2025.json`,
   isPresidentialElection: true,
   processCandidateVote: v => v,
   showLawInfo: true,

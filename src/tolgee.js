@@ -11,7 +11,7 @@ export const tolgee = Tolgee()
   .use(DevTools())
   .use(FormatSimple())
   .use(BackendFetch({
-      prefix: '/ab1c998a78a47994cdf7e70f93bc5e9c',
+      prefix: `${import.meta.env.VITE_I18N_URL}`,
       fallbackOnFail: true,
       timeout: 5000,
       getData: async response => {

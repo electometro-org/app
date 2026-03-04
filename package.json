@@ -11,9 +11,9 @@
     "prepare": "lefthook install",
     "lint": "eslint .",
     "preview": "npm run build-dev && wrangler dev",
-    "preview-prod": "npm run build && wrangler dev",
-    "deploy-qa": "CLOUDFLARE_ENV=qa npm run build && wrangler deploy",
-    "deploy": "npm run build && wrangler deploy"
+    "preview-qa": "CLOUDFLARE_ENV=qa npm run build-dev && wrangler dev",
+    "deploy": "npm run build && wrangler deploy",
+    "deploy-qa": "CLOUDFLARE_ENV=qa npm run build && wrangler deploy"
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^5.0.1",

@@ -4,6 +4,7 @@ import { useWidgetContext } from './WidgetContext';
 import { getWidget } from './registry';
 import 'react-grid-layout/css/styles.css';
 import './WidgetLayout.css';
+import debug from '../debug';
 
 // Import built-in types (registers them)
 import './types';
@@ -328,7 +329,7 @@ export function WidgetLayout({ children }) {
 
   // Handle drag start - notify docking system
   const handleDragStart = useCallback((layout, oldItem, newItem) => {
-    console.log('[WidgetLayout] handleDragStart called:', newItem.i);
+    debug.log('[WidgetLayout] handleDragStart called:', newItem.i);
     if (newItem.i === 'quiz') return;
     onWidgetDragStart(newItem.i);
   }, [onWidgetDragStart]);
@@ -348,12 +349,12 @@ export function WidgetLayout({ children }) {
         const gridItem = widgetEl.closest('.react-grid-item');
         if (gridItem) {
           rect = gridItem.getBoundingClientRect();
-          console.log('[WidgetLayout] Got rect from DOM query');
+          debug.log('[WidgetLayout] Got rect from DOM query');
         }
       }
     }
 
-    console.log('[WidgetLayout] handleDrag called:', newItem.i, rect ? 'got rect' : 'NO RECT');
+    debug.log('[WidgetLayout] handleDrag called:', newItem.i, rect ? 'got rect' : 'NO RECT');
     if (rect) {
       onWidgetDrag(newItem.i, rect);
     }
@@ -404,12 +405,12 @@ export function WidgetLayout({ children }) {
     // Then retry after a short delay to handle zones registering after widgets
     const registerWidgets = () => {
       const widgetElements = container.querySelectorAll('[data-widget-key]');
-      console.log('[WidgetLayout] Found widget elements in DOM:', widgetElements.length);
+      debug.log('[WidgetLayout] Found widget elements in DOM:', widgetElements.length);
 
       widgetElements.forEach(element => {
         const widgetKey = element.getAttribute('data-widget-key');
         if (widgetKey) {
-          console.log('[WidgetLayout] Registering widget from DOM:', widgetKey);
+          debug.log('[WidgetLayout] Registering widget from DOM:', widgetKey);
           registerWidgetElement(widgetKey, element);
         }
       });

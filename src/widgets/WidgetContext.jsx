@@ -2,6 +2,7 @@ import React, { createContext, useContext, useMemo, useCallback, useState, useRe
 import { useQuizContext } from '../contexts/useQuizContext';
 import { useLayoutPersistence } from './useLayoutPersistence';
 import { getWidget } from './registry';
+import debug from '../debug';
 
 const WidgetContext = createContext(null);
 
@@ -127,7 +128,7 @@ export function WidgetProvider({ children }) {
     if (element && DOCKING_ZONES.includes(zoneId)) {
       dockingZonesRef.current.set(zoneId, element);
       const bounds = element.getBoundingClientRect();
-      console.log('[Docking] Zone registered:', zoneId, bounds);
+      debug.log('[Docking] Zone registered:', zoneId, bounds);
       setZoneBounds(prev => ({ ...prev, [zoneId]: bounds }));
 
       // Check if any pending docks are waiting for this zone
@@ -139,7 +140,7 @@ export function WidgetProvider({ children }) {
           const widgetElement = widgetElementsRef.current.get(widgetKey);
           if (widgetElement) {
             const widgetBounds = widgetElement.getBoundingClientRect();
-            console.log('[Docking] Activating pending dock:', widgetKey, '->', zoneId);
+            debug.log('[Docking] Activating pending dock:', widgetKey, '->', zoneId);
             const transition = pendingDock?.transition || { duration: 300, easing: 'ease-out' };
             setActiveDocks(prev => ({
               ...prev,
@@ -162,7 +163,7 @@ export function WidgetProvider({ children }) {
 
   // Unregister a docking zone
   const unregisterDockingZone = useCallback((zoneId) => {
-    console.log('[Docking] Zone UNregistered:', zoneId);
+    debug.log('[Docking] Zone UNregistered:', zoneId);
     dockingZonesRef.current.delete(zoneId);
     setZoneBounds(prev => {
       const next = { ...prev };
@@ -176,21 +177,21 @@ export function WidgetProvider({ children }) {
     if (element) {
       widgetElementsRef.current.set(widgetKey, element);
       const bounds = element.getBoundingClientRect();
-      console.log('[Docking] Widget registered:', widgetKey, bounds);
+      debug.log('[Docking] Widget registered:', widgetKey, bounds);
       setWidgetBounds(prev => ({ ...prev, [widgetKey]: bounds }));
 
       // Check if this widget has a pending dock
       const pendingDock = pendingDocksRef.current[widgetKey];
       const pendingZoneId = pendingDock?.zoneId || pendingDock; // Support both old string and new object format
-      console.log('[Docking] Checking pending dock for', widgetKey, ':', pendingZoneId);
-      console.log('[Docking] Available zones:', Array.from(dockingZonesRef.current.keys()));
+      debug.log('[Docking] Checking pending dock for', widgetKey, ':', pendingZoneId);
+      debug.log('[Docking] Available zones:', Array.from(dockingZonesRef.current.keys()));
 
       if (pendingZoneId) {
         // Check if zone is registered
         const zoneElement = dockingZonesRef.current.get(pendingZoneId);
-        console.log('[Docking] Zone element for', pendingZoneId, ':', !!zoneElement);
+        debug.log('[Docking] Zone element for', pendingZoneId, ':', !!zoneElement);
         if (zoneElement) {
-          console.log('[Docking] Activating pending dock:', widgetKey, '->', pendingZoneId);
+          debug.log('[Docking] Activating pending dock:', widgetKey, '->', pendingZoneId);
           const transition = pendingDock?.transition || { duration: 300, easing: 'ease-out' };
           setActiveDocks(prev => ({
             ...prev,
@@ -206,7 +207,7 @@ export function WidgetProvider({ children }) {
           }));
           delete pendingDocksRef.current[widgetKey];
         } else {
-          console.log('[Docking] Zone not ready yet, keeping pending dock');
+          debug.log('[Docking] Zone not ready yet, keeping pending dock');
         }
       }
 
@@ -283,8 +284,8 @@ export function WidgetProvider({ children }) {
   // Get current bounds for a widget from the ref (for use during drag)
   const getWidgetBoundsFromRef = useCallback((widgetKey) => {
     const element = widgetElementsRef.current.get(widgetKey);
-    console.log('[Docking] getWidgetBoundsFromRef:', widgetKey, 'element:', element ? 'FOUND' : 'NOT FOUND');
-    console.log('[Docking] widgetElementsRef has:', Array.from(widgetElementsRef.current.keys()));
+    debug.log('[Docking] getWidgetBoundsFromRef:', widgetKey, 'element:', element ? 'FOUND' : 'NOT FOUND');
+    debug.log('[Docking] widgetElementsRef has:', Array.from(widgetElementsRef.current.keys()));
     if (element) {
       return element.getBoundingClientRect();
     }
@@ -294,7 +295,7 @@ export function WidgetProvider({ children }) {
   // Check docking for a specific widget (uses refs directly to avoid stale state)
   const checkDocking = useCallback((widgetKey, widgetRect) => {
     if (!widgetRect) {
-      console.log('[Docking] checkDocking: no widgetRect');
+      debug.log('[Docking] checkDocking: no widgetRect');
       return null;
     }
 
@@ -306,9 +307,9 @@ export function WidgetProvider({ children }) {
       }
     });
 
-    console.log('[Docking] checkDocking for', widgetKey);
-    console.log('[Docking] Widget rect:', { top: widgetRect.top, left: widgetRect.left, width: widgetRect.width, height: widgetRect.height });
-    console.log('[Docking] Available zones (from ref):', Object.keys(freshZoneBounds));
+    debug.log('[Docking] checkDocking for', widgetKey);
+    debug.log('[Docking] Widget rect:', { top: widgetRect.top, left: widgetRect.left, width: widgetRect.width, height: widgetRect.height });
+    debug.log('[Docking] Available zones (from ref):', Object.keys(freshZoneBounds));
 
     // Find the first zone where widget's center is within the zone
     let bestMatch = null;
@@ -321,7 +322,7 @@ export function WidgetProvider({ children }) {
       const zoneCenterY = zoneRect.top + zoneRect.height / 2;
       const distance = Math.abs(widgetCenterY - zoneCenterY);
 
-      console.log('[Docking] Zone', zoneId, 'inZone:', isInZone, 'distance:', distance.toFixed(0) + 'px');
+      debug.log('[Docking] Zone', zoneId, 'inZone:', isInZone, 'distance:', distance.toFixed(0) + 'px');
 
       if (isInZone && distance < bestDistance) {
         bestDistance = distance;
@@ -362,7 +363,7 @@ export function WidgetProvider({ children }) {
 
   // Handle drag start
   const onWidgetDragStart = useCallback((widgetKey) => {
-    console.log('[Docking] Drag START:', widgetKey);
+    debug.log('[Docking] Drag START:', widgetKey);
     // Get fresh zone bounds from ref instead of state (avoids stale closure)
     const freshZoneBounds = {};
     dockingZonesRef.current.forEach((element, zoneId) => {
@@ -370,14 +371,14 @@ export function WidgetProvider({ children }) {
         freshZoneBounds[zoneId] = element.getBoundingClientRect();
       }
     });
-    console.log('[Docking] Fresh zone bounds:', Object.keys(freshZoneBounds));
+    debug.log('[Docking] Fresh zone bounds:', Object.keys(freshZoneBounds));
     setZoneBounds(freshZoneBounds);
     setDraggingWidget(widgetKey);
   }, []);
 
   // Handle drag (called continuously during drag)
   const onWidgetDrag = useCallback((widgetKey, widgetRect) => {
-    console.log('[Docking] Drag MOVE:', widgetKey, widgetRect ? 'has rect' : 'NO RECT');
+    debug.log('[Docking] Drag MOVE:', widgetKey, widgetRect ? 'has rect' : 'NO RECT');
     // Update widget bounds for zone highlighting
     if (widgetRect) {
       setWidgetBounds(prev => ({ ...prev, [widgetKey]: widgetRect }));
@@ -385,16 +386,16 @@ export function WidgetProvider({ children }) {
     // Check docking
     const dockResult = updateWidgetDocking(widgetKey, widgetRect);
     if (dockResult) {
-      console.log('[Docking] DOCK DETECTED:', dockResult.zoneId);
+      debug.log('[Docking] DOCK DETECTED:', dockResult.zoneId);
     }
   }, [updateWidgetDocking]);
 
   // Handle drag end - returns dock info if snapped
   const onWidgetDragEnd = useCallback((widgetKey) => {
-    console.log('[Docking] Drag END:', widgetKey);
+    debug.log('[Docking] Drag END:', widgetKey);
     setDraggingWidget(null);
     const dockInfo = activeDocks[widgetKey];
-    console.log('[Docking] Final dock info:', dockInfo);
+    debug.log('[Docking] Final dock info:', dockInfo);
     return dockInfo;
   }, [activeDocks]);
 
@@ -574,11 +575,11 @@ export function WidgetProvider({ children }) {
 
   // Initialize pending docks from widget configs OR saved layouts
   useEffect(() => {
-    console.log('[Docking] useEffect running, widgets:', widgets.map(w => ({ key: w.id || w.type, dockedTo: w.dockedTo })));
-    console.log('[Docking] Saved layout:', layout);
-    console.log('[Docking] Current zones:', Array.from(dockingZonesRef.current.keys()));
-    console.log('[Docking] Current widget elements:', Array.from(widgetElementsRef.current.keys()));
-    console.log('[Docking] Current activeDocks:', Object.keys(activeDocks));
+    debug.log('[Docking] useEffect running, widgets:', widgets.map(w => ({ key: w.id || w.type, dockedTo: w.dockedTo })));
+    debug.log('[Docking] Saved layout:', layout);
+    debug.log('[Docking] Current zones:', Array.from(dockingZonesRef.current.keys()));
+    debug.log('[Docking] Current widget elements:', Array.from(widgetElementsRef.current.keys()));
+    debug.log('[Docking] Current activeDocks:', Object.keys(activeDocks));
 
     widgets.forEach(widget => {
       const widgetKey = widget.id || widget.type;
@@ -603,14 +604,14 @@ export function WidgetProvider({ children }) {
       if (zoneId && DOCKING_ZONES.includes(zoneId)) {
         // Skip if already docked
         if (activeDocks[widgetKey]) {
-          console.log('[Docking] Skipping', widgetKey, '- already docked');
+          debug.log('[Docking] Skipping', widgetKey, '- already docked');
           return;
         }
 
         const zoneElement = dockingZonesRef.current.get(zoneId);
         const widgetElement = widgetElementsRef.current.get(widgetKey);
 
-        console.log('[Docking] Checking', widgetKey, '-> zone:', zoneId, 'zoneEl:', !!zoneElement, 'widgetEl:', !!widgetElement);
+        debug.log('[Docking] Checking', widgetKey, '-> zone:', zoneId, 'zoneEl:', !!zoneElement, 'widgetEl:', !!widgetElement);
 
         // Get transition config from widget
         const dockTransition = widget.dockTransition || {};
@@ -618,7 +619,7 @@ export function WidgetProvider({ children }) {
         // If both zone and widget are already registered, activate immediately
         if (zoneElement && widgetElement) {
           const widgetBounds = widgetElement.getBoundingClientRect();
-          console.log('[Docking] Activating dock (both ready):', widgetKey, '->', zoneId, widgetBounds);
+          debug.log('[Docking] Activating dock (both ready):', widgetKey, '->', zoneId, widgetBounds);
           setActiveDocks(prev => ({
             ...prev,
             [widgetKey]: {
@@ -645,7 +646,7 @@ export function WidgetProvider({ children }) {
               widget: dockTransition.widget || null,
             },
           };
-          console.log('[Docking] Stored as pending:', widgetKey, '->', zoneId);
+          debug.log('[Docking] Stored as pending:', widgetKey, '->', zoneId);
         }
       }
     });

@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDockingZone } from './useDocking';
 import './DockingZone.css';
-
-// Debug: log when component mounts
-const DEBUG = true;
+import debug from '../debug';
 
 /**
  * DockingZone
@@ -38,13 +36,9 @@ export function DockingZone({ id, children, className = '' }) {
   } = useDockingZone(id);
 
   useEffect(() => {
-    if (DEBUG) {
-      console.log('[DockingZone] Component mounted:', id);
-    }
+    debug.log('[DockingZone] Component mounted:', id);
     return () => {
-      if (DEBUG) {
-        console.log('[DockingZone] Component unmounted:', id);
-      }
+      debug.log('[DockingZone] Component unmounted:', id);
     };
   }, [id]);
 

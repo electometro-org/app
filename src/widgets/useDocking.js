@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useWidgetContext } from './WidgetContext';
+import debug from '../debug';
 
 /**
  * useDockingZone
@@ -43,18 +44,18 @@ export function useDockingZone(zoneId) {
   useEffect(() => {
     const element = elementRef.current;
     if (element) {
-      console.log('[useDockingZone] useEffect registering', zoneId);
+      debug.log('[useDockingZone] useEffect registering', zoneId);
       registerDockingZone(zoneId, element);
     }
     return () => {
-      console.log('[useDockingZone] useEffect cleanup for', zoneId);
+      debug.log('[useDockingZone] useEffect cleanup for', zoneId);
       // Don't unregister here - let the ref callback handle it
     };
   }, [zoneId, registerDockingZone]);
 
   // Ref callback to capture the element
   const zoneRef = useCallback((element) => {
-    console.log('[useDockingZone] Ref callback for', zoneId, element ? 'ELEMENT' : 'null');
+    debug.log('[useDockingZone] Ref callback for', zoneId, element ? 'ELEMENT' : 'null');
     elementRef.current = element;
     if (element) {
       registerDockingZone(zoneId, element);

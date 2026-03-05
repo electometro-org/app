@@ -939,7 +939,7 @@ function RowFillAwareText({ text, fillPercent }) {
 }
 
 function SlotAvatar({ row, config }) {
-  const exts = ["png", "jpg", "jpeg"];
+  const exts = ["png", "jpg", "jpeg", "svg"];
   const [srcIndex, setSrcIndex] = React.useState(0);
   const [failed, setFailed] = React.useState(false);
   const [logoLoaded, setLogoLoaded] = React.useState(false);
@@ -1016,7 +1016,7 @@ function SlotAvatar({ row, config }) {
 }
 
 function RowAvatar({ row, config, fillPercent }) {
-  const exts = ["png", "jpg", "jpeg"];
+  const exts = ["png", "jpg", "jpeg", "svg"];
   const [srcIndex, setSrcIndex] = React.useState(0);
   const [failed, setFailed] = React.useState(false);
   const [logoLoaded, setLogoLoaded] = React.useState(false);

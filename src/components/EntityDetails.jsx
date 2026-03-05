@@ -137,7 +137,7 @@ export default function EntityDetails({
 
     if (!partyName || failed) return null;
 
-    const exts = ["png", "jpg", "jpeg"];
+    const exts = ["png", "jpg", "jpeg", "svg"];
     const src = buildLogoUrl(partyName, exts[srcIndex]);
 
     const handleImgError = () => {

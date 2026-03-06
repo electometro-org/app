@@ -437,6 +437,11 @@ export function QuizProvider({ children }) {
 
   const handleTurnstileSuccess = async (token) => {
     console.log('Turnstile verified, submitting form with token');
+    try {
+      if (typeof window !== "undefined" && token) {
+        window.sessionStorage.setItem("turnstile_token", token);
+      }
+    } catch (_) {}
 
     try {
       await submitAnswersToAPI(demographics, token);

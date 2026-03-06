@@ -1102,10 +1102,26 @@ function ResultsAnalysisPanel({
   const [expandedCategory, setExpandedCategory] = React.useState(null);
   const [selectedTopic, setSelectedTopic] = React.useState(null);
   const [headingAnimTick, setHeadingAnimTick] = React.useState(0);
+  const [showSuggestionModal, setShowSuggestionModal] = React.useState(false);
+  const [suggestionText, setSuggestionText] = React.useState("");
+  const [suggestionName, setSuggestionName] = React.useState("");
+  const [suggestionEmail, setSuggestionEmail] = React.useState("");
+  const [suggestionSubmitting, setSuggestionSubmitting] = React.useState(false);
+  const [suggestionSent, setSuggestionSent] = React.useState(false);
+  const [suggestedTopics, setSuggestedTopics] = React.useState(() => new Set());
 
   React.useEffect(() => {
     setHeadingAnimTick((prev) => prev + 1);
   }, [selectedEntity?.id, selectedEntity?.name, selectedEntity?.party]);
+
+  React.useEffect(() => {
+    setShowSuggestionModal(false);
+    setSuggestionText("");
+    setSuggestionName("");
+    setSuggestionEmail("");
+    setSuggestionSubmitting(false);
+    setSuggestionSent(false);
+  }, [selectedTopic?.id]);
 
   if (!selectedEntity || !entityDetails) {
     return (
@@ -1291,6 +1307,148 @@ function ResultsAnalysisPanel({
     },
   ];
 
+  const suggestionCtaLabel = t("results.topicSuggestionCta") === "results.topicSuggestionCta"
+    ? "Sugerencias"
+    : t("results.topicSuggestionCta");
+  const suggestionTitle = t("results.topicSuggestionTitle") === "results.topicSuggestionTitle"
+    ? "Enviar sugerencia"
+    : t("results.topicSuggestionTitle");
+  const suggestionBody = t("results.topicSuggestionBody") === "results.topicSuggestionBody"
+    ? "Ayudanos a mejorar este tema. Tu sugerencia sera revisada por el equipo."
+    : t("results.topicSuggestionBody");
+  const suggestionTopicLabel = t("results.topicSuggestionTopicLabel") === "results.topicSuggestionTopicLabel"
+    ? "Tema"
+    : t("results.topicSuggestionTopicLabel");
+  const suggestionInputLabel = t("results.topicSuggestionInputLabel") === "results.topicSuggestionInputLabel"
+    ? "Sugerencia"
+    : t("results.topicSuggestionInputLabel");
+  const suggestionInputPlaceholder = t("results.topicSuggestionInputPlaceholder") === "results.topicSuggestionInputPlaceholder"
+    ? "Escribe aqui tu sugerencia..."
+    : t("results.topicSuggestionInputPlaceholder");
+  const suggestionNameLabel = t("results.topicSuggestionNameLabel") === "results.topicSuggestionNameLabel"
+    ? "Nombre"
+    : t("results.topicSuggestionNameLabel");
+  const suggestionNamePlaceholder = t("results.topicSuggestionNamePlaceholder") === "results.topicSuggestionNamePlaceholder"
+    ? "Tu nombre completo"
+    : t("results.topicSuggestionNamePlaceholder");
+  const suggestionEmailLabel = t("results.topicSuggestionEmailLabel") === "results.topicSuggestionEmailLabel"
+    ? "Email (opcional)"
+    : t("results.topicSuggestionEmailLabel");
+  const suggestionEmailPlaceholder = t("results.topicSuggestionEmailPlaceholder") === "results.topicSuggestionEmailPlaceholder"
+    ? "correo@ejemplo.com"
+    : t("results.topicSuggestionEmailPlaceholder");
+  const suggestionNameError = t("results.topicSuggestionNameError") === "results.topicSuggestionNameError"
+    ? "El nombre debe tener al menos 5 letras."
+    : t("results.topicSuggestionNameError");
+  const suggestionEmailError = t("results.topicSuggestionEmailError") === "results.topicSuggestionEmailError"
+    ? "Ingresa un email valido."
+    : t("results.topicSuggestionEmailError");
+  const suggestionCancelLabel = t("results.topicSuggestionCancel") === "results.topicSuggestionCancel"
+    ? "Cancelar"
+    : t("results.topicSuggestionCancel");
+  const suggestionSendLabel = t("results.topicSuggestionSend") === "results.topicSuggestionSend"
+    ? "Enviar"
+    : t("results.topicSuggestionSend");
+  const suggestionSendingLabel = t("results.topicSuggestionSending") === "results.topicSuggestionSending"
+    ? "Enviando..."
+    : t("results.topicSuggestionSending");
+  const suggestionSuccessLabel = t("results.topicSuggestionSuccess") === "results.topicSuggestionSuccess"
+    ? "Gracias. Tu sugerencia fue registrada."
+    : t("results.topicSuggestionSuccess");
+
+  const sanitizeFreeText = (value) => String(value || "")
+    .replace(/[\u0000-\u001F\u007F]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const sanitizeName = (value) => sanitizeFreeText(value)
+    .replace(/[^A-Za-zÀ-ÿ' -]/g, "");
+  const sanitizeEmail = (value) => String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "");
+  const countLetters = (value) => {
+    const matched = String(value || "").match(/[A-Za-zÀ-ÿ]/g);
+    return matched ? matched.length : 0;
+  };
+  const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
+
+  const cleanName = sanitizeName(suggestionName);
+  const cleanEmail = sanitizeEmail(suggestionEmail);
+  const cleanSuggestion = sanitizeFreeText(suggestionText);
+  const isValidName = countLetters(cleanName) >= 5;
+  const isValidSuggestion = cleanSuggestion.length >= 8;
+  const isValidSuggestionEmail = cleanEmail.length === 0 || isValidEmail(cleanEmail);
+  const canSubmitSuggestion = isValidName && isValidSuggestionEmail && isValidSuggestion && !suggestionSubmitting;
+  const getTopicSuggestionKey = (topic) => String(topic?.topicKey || topic?.shortLabel || topic?.id || "");
+  const selectedTopicSuggestionKey = getTopicSuggestionKey(selectedTopic);
+  const hasSuggestedForSelectedTopic = selectedTopicSuggestionKey && suggestedTopics.has(selectedTopicSuggestionKey);
+
+  const openSuggestionModal = () => {
+    setSuggestionSent(false);
+    setSuggestionSubmitting(false);
+    setSuggestionText("");
+    setSuggestionName("");
+    setSuggestionEmail("");
+    setShowSuggestionModal(true);
+  };
+  const handleSuggestionSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedTopic || !canSubmitSuggestion) return;
+
+    setSuggestionSubmitting(true);
+    setSuggestionSent(false);
+    const readCookie = (name) => {
+      if (typeof document === "undefined") return "";
+      const escaped = name.replace(/[-[\]/{}()*+?.\\^$|]/g, "\\$&");
+      const match = document.cookie.match(new RegExp(`(?:^|; )${escaped}=([^;]*)`));
+      return match ? decodeURIComponent(match[1]) : "";
+    };
+    const cfCookie = readCookie("cf_cookie") || readCookie("cf_clearance");
+    const payload = {
+      topicKey: selectedTopic.topicKey,
+      topicLabel: selectedTopic.shortLabel,
+      statement: selectedTopic.statement,
+      suggestion: cleanSuggestion,
+      name: cleanName,
+      email: cleanEmail,
+      cf_cookie: cfCookie,
+      createdAt: new Date().toISOString(),
+    };
+    const base = String(import.meta.env.BASE_URL || "/").replace(/\/+$/, "");
+    const endpoint = `${base}/api/feedback`;
+
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        // Acknowledgement-first UX: keep request fire-and-forget for the user.
+        return;
+      }
+
+      setSuggestionSent(true);
+      setSuggestionText("");
+      setSuggestionName("");
+      setSuggestionEmail("");
+    } catch (_) {
+      // Acknowledgement-first UX: do not block with errors in this flow.
+    } finally {
+      setSuggestionSubmitting(false);
+      setSuggestionSent(true);
+      if (selectedTopicSuggestionKey) {
+        setSuggestedTopics((prev) => {
+          const next = new Set(prev);
+          next.add(selectedTopicSuggestionKey);
+          return next;
+        });
+      }
+    }
+  };
+
   const renderHeading = (template, count, chipClass) => {
     const token = "[[nrOfMatchedTopics]]";
     const parts = String(template || "").split(token);
@@ -1420,13 +1578,128 @@ function ResultsAnalysisPanel({
                 );
               })()}
 
-              <button
-                className="results-topic-modal__close"
-                onClick={() => setSelectedTopic(null)}
-              >
-                {t("common.close")}
-              </button>
+              <div className="results-topic-modal__actions">
+                {!hasSuggestedForSelectedTopic ? (
+                  <button
+                    className="results-topic-modal__suggest"
+                    onClick={openSuggestionModal}
+                    type="button"
+                  >
+                    {suggestionCtaLabel}
+                  </button>
+                ) : null}
+                <button
+                  className="results-topic-modal__close"
+                  onClick={() => setSelectedTopic(null)}
+                  type="button"
+                >
+                  {t("common.close")}
+                </button>
+              </div>
             </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {showSuggestionModal && selectedTopic && createPortal(
+        <div className="results-suggestion-modal-overlay" onClick={() => setShowSuggestionModal(false)}>
+          <div className="results-suggestion-modal" onClick={(e) => e.stopPropagation()}>
+            {suggestionSent ? (
+              <div className="results-suggestion-modal__success-state">
+                <p className="results-suggestion-modal__success">{suggestionSuccessLabel}</p>
+                <button
+                  type="button"
+                  className="results-suggestion-modal__btn is-primary"
+                  onClick={() => setShowSuggestionModal(false)}
+                >
+                  {t("common.close")}
+                </button>
+              </div>
+            ) : (
+              <>
+                <h3>{suggestionTitle}</h3>
+                <p className="results-suggestion-modal__body">{suggestionBody}</p>
+                <div className="results-suggestion-modal__topic-box">
+                  <span>{suggestionTopicLabel}</span>
+                  <strong>{selectedTopic.shortLabel}</strong>
+                </div>
+
+                <form className="results-suggestion-modal__form" onSubmit={handleSuggestionSubmit}>
+                  <div className="results-suggestion-modal__row">
+                    <div className="results-suggestion-modal__field">
+                      <label className="results-suggestion-modal__label" htmlFor="results-suggestion-name">
+                        {suggestionNameLabel}
+                      </label>
+                      <input
+                        id="results-suggestion-name"
+                        className="results-suggestion-modal__input"
+                        value={suggestionName}
+                        onChange={(e) => setSuggestionName(sanitizeName(e.target.value))}
+                        placeholder={suggestionNamePlaceholder}
+                        type="text"
+                        autoComplete="name"
+                        required
+                      />
+                      {suggestionName && !isValidName ? (
+                        <p className="results-suggestion-modal__error">{suggestionNameError}</p>
+                      ) : null}
+                    </div>
+
+                    <div className="results-suggestion-modal__field">
+                      <label className="results-suggestion-modal__label" htmlFor="results-suggestion-email">
+                        {suggestionEmailLabel}
+                      </label>
+                      <input
+                        id="results-suggestion-email"
+                        className="results-suggestion-modal__input"
+                        value={suggestionEmail}
+                        onChange={(e) => setSuggestionEmail(sanitizeEmail(e.target.value))}
+                        placeholder={suggestionEmailPlaceholder}
+                        type="email"
+                        autoComplete="email"
+                      />
+                      {suggestionEmail && !isValidSuggestionEmail ? (
+                        <p className="results-suggestion-modal__error">{suggestionEmailError}</p>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  <div className="results-suggestion-modal__field">
+                    <label className="results-suggestion-modal__label" htmlFor="results-suggestion-message">
+                      {suggestionInputLabel}
+                    </label>
+                    <textarea
+                      id="results-suggestion-message"
+                      className="results-suggestion-modal__textarea"
+                      value={suggestionText}
+                      onChange={(e) => setSuggestionText(e.target.value)}
+                      placeholder={suggestionInputPlaceholder}
+                      rows={4}
+                      required
+                    />
+                  </div>
+
+                  <div className="results-suggestion-modal__actions">
+                    <button
+                      type="button"
+                      className="results-suggestion-modal__btn is-secondary"
+                      onClick={() => setShowSuggestionModal(false)}
+                      disabled={suggestionSubmitting}
+                    >
+                      {suggestionCancelLabel}
+                    </button>
+                    <button
+                      type="submit"
+                      className="results-suggestion-modal__btn is-primary"
+                      disabled={!canSubmitSuggestion}
+                    >
+                      {suggestionSubmitting ? suggestionSendingLabel : suggestionSendLabel}
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
           </div>
         </div>,
         document.body

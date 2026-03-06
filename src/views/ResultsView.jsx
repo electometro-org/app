@@ -1106,6 +1106,8 @@ function ResultsAnalysisPanel({
   const [suggestionText, setSuggestionText] = React.useState("");
   const [suggestionName, setSuggestionName] = React.useState("");
   const [suggestionEmail, setSuggestionEmail] = React.useState("");
+  const [suggestionNameTouched, setSuggestionNameTouched] = React.useState(false);
+  const [suggestionEmailTouched, setSuggestionEmailTouched] = React.useState(false);
   const [suggestionSubmitting, setSuggestionSubmitting] = React.useState(false);
   const [suggestionSent, setSuggestionSent] = React.useState(false);
   const [suggestedTopics, setSuggestedTopics] = React.useState(() => new Set());
@@ -1119,6 +1121,8 @@ function ResultsAnalysisPanel({
     setSuggestionText("");
     setSuggestionName("");
     setSuggestionEmail("");
+    setSuggestionNameTouched(false);
+    setSuggestionEmailTouched(false);
     setSuggestionSubmitting(false);
     setSuggestionSent(false);
   }, [selectedTopic?.id]);
@@ -1379,6 +1383,8 @@ function ResultsAnalysisPanel({
   const isValidSuggestion = cleanSuggestion.length >= 8;
   const isValidSuggestionEmail = cleanEmail.length === 0 || isValidEmail(cleanEmail);
   const canSubmitSuggestion = isValidName && isValidSuggestionEmail && isValidSuggestion && !suggestionSubmitting;
+  const showNameError = suggestionNameTouched && suggestionName.length > 0 && !isValidName;
+  const showEmailError = suggestionEmailTouched && suggestionEmail.length > 0 && !isValidSuggestionEmail;
   const getTopicSuggestionKey = (topic) => String(topic?.topicKey || topic?.shortLabel || topic?.id || "");
   const selectedTopicSuggestionKey = getTopicSuggestionKey(selectedTopic);
   const hasSuggestedForSelectedTopic = selectedTopicSuggestionKey && suggestedTopics.has(selectedTopicSuggestionKey);
@@ -1389,11 +1395,18 @@ function ResultsAnalysisPanel({
     setSuggestionText("");
     setSuggestionName("");
     setSuggestionEmail("");
+    setSuggestionNameTouched(false);
+    setSuggestionEmailTouched(false);
     setShowSuggestionModal(true);
   };
   const handleSuggestionSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedTopic || !canSubmitSuggestion) return;
+    if (!selectedTopic) return;
+    if (!canSubmitSuggestion) {
+      setSuggestionNameTouched(true);
+      setSuggestionEmailTouched(true);
+      return;
+    }
 
     setSuggestionSubmitting(true);
     setSuggestionSent(false);
@@ -1636,14 +1649,15 @@ function ResultsAnalysisPanel({
                         className="results-suggestion-modal__input"
                         value={suggestionName}
                         onChange={(e) => setSuggestionName(sanitizeName(e.target.value))}
+                        onBlur={() => setSuggestionNameTouched(true)}
                         placeholder={suggestionNamePlaceholder}
                         type="text"
                         autoComplete="name"
                         required
                       />
-                      {suggestionName && !isValidName ? (
-                        <p className="results-suggestion-modal__error">{suggestionNameError}</p>
-                      ) : null}
+                      <p className={`results-suggestion-modal__error ${showNameError ? "is-visible" : ""}`}>
+                        {showNameError ? suggestionNameError : " "}
+                      </p>
                     </div>
 
                     <div className="results-suggestion-modal__field">
@@ -1655,13 +1669,14 @@ function ResultsAnalysisPanel({
                         className="results-suggestion-modal__input"
                         value={suggestionEmail}
                         onChange={(e) => setSuggestionEmail(sanitizeEmail(e.target.value))}
+                        onBlur={() => setSuggestionEmailTouched(true)}
                         placeholder={suggestionEmailPlaceholder}
                         type="email"
                         autoComplete="email"
                       />
-                      {suggestionEmail && !isValidSuggestionEmail ? (
-                        <p className="results-suggestion-modal__error">{suggestionEmailError}</p>
-                      ) : null}
+                      <p className={`results-suggestion-modal__error ${showEmailError ? "is-visible" : ""}`}>
+                        {showEmailError ? suggestionEmailError : " "}
+                      </p>
                     </div>
                   </div>
 

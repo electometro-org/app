@@ -1911,6 +1911,13 @@ button {
   color: #b33333;
   font-size: 0.8rem;
   line-height: 1.25;
+  min-height: 1em;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.results-suggestion-modal__error.is-visible {
+  opacity: 1;
 }
 
 .results-suggestion-modal__actions {

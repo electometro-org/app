@@ -1953,6 +1953,53 @@ button {
   color: #222;
 }
 
+.results-turnstile-refresh-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10060;
+  background: rgba(0, 0, 0, 0.7);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.results-turnstile-refresh-card {
+  width: min(420px, 100%);
+  background: #fff;
+  color: #222;
+  border-radius: 16px;
+  padding: 18px 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.38);
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  text-align: center;
+}
+
+.results-turnstile-refresh-title {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 800;
+}
+
+.results-turnstile-refresh-body {
+  margin: 0;
+  font-size: 0.92rem;
+  opacity: 0.84;
+}
+
+.results-turnstile-refresh-cancel {
+  border: none !important;
+  border-radius: 10px;
+  background: #efefef;
+  color: #222;
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+  min-width: 140px;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .results-row:hover {
     transform: translateY(-1px);

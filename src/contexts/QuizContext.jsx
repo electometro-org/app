@@ -70,6 +70,14 @@ export function QuizProvider({ children }) {
   // Fingerprint
   const { fingerprint, loading: fingerprintLoading } = useFingerprint();
 
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined" && fingerprint) {
+        window.sessionStorage.setItem("fingerprint", fingerprint);
+      }
+    } catch (_) {}
+  }, [fingerprint]);
+
   // Apply theme CSS variables
   useEffect(() => {
     const currentConfig = election ? electionConfigs[election] : null;
@@ -440,6 +448,7 @@ export function QuizProvider({ children }) {
     try {
       if (typeof window !== "undefined" && token) {
         window.sessionStorage.setItem("turnstile_token", token);
+        window.sessionStorage.setItem("turnstile_verified_at", String(Date.now()));
       }
     } catch (_) {}
 

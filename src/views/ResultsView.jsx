@@ -1410,12 +1410,81 @@ function ResultsAnalysisPanel({
 
     setSuggestionSubmitting(true);
     setSuggestionSent(false);
+    const requestFreshTurnstileToken = async () => {
+      if (typeof window === "undefined") return "";
+      const verifiedAtRaw = window.sessionStorage.getItem("turnstile_verified_at");
+      const verifiedAt = Number(verifiedAtRaw || "0");
+      if (!Number.isFinite(verifiedAt) || verifiedAt <= 0) return "";
+      if (Date.now() - verifiedAt <= 5 * 60 * 1000) return "";
+      if (!window.turnstile || !import.meta.env.VITE_TURNSTILE_FORM_KEY) return "";
+
+      return new Promise((resolve, reject) => {
+        let widgetId = null;
+        const overlay = document.createElement("div");
+        overlay.className = "results-turnstile-refresh-overlay";
+        overlay.innerHTML = `
+          <div class="results-turnstile-refresh-card">
+            <p class="results-turnstile-refresh-title">Verificacion de seguridad</p>
+            <p class="results-turnstile-refresh-body">Confirma nuevamente para enviar tu sugerencia.</p>
+            <div id="results-turnstile-refresh-widget"></div>
+            <button type="button" class="results-turnstile-refresh-cancel">Cancelar</button>
+          </div>
+        `;
+
+        const cleanup = () => {
+          try {
+            if (widgetId != null && window.turnstile?.remove) window.turnstile.remove(widgetId);
+          } catch (_) {}
+          overlay.remove();
+        };
+
+        const cancelBtn = overlay.querySelector(".results-turnstile-refresh-cancel");
+        if (cancelBtn) {
+          cancelBtn.addEventListener("click", () => {
+            cleanup();
+            reject(new Error("turnstile_cancelled"));
+          });
+        }
+
+        document.body.appendChild(overlay);
+        try {
+          widgetId = window.turnstile.render("#results-turnstile-refresh-widget", {
+            sitekey: import.meta.env.VITE_TURNSTILE_FORM_KEY,
+            callback: (token) => {
+              cleanup();
+              resolve(token || "");
+            },
+            "error-callback": () => {
+              cleanup();
+              reject(new Error("turnstile_error"));
+            },
+            "expired-callback": () => {
+              cleanup();
+              reject(new Error("turnstile_expired"));
+            },
+          });
+        } catch (err) {
+          cleanup();
+          reject(err);
+        }
+      });
+    };
+
+    let refreshTurnstileToken = "";
+    try {
+      refreshTurnstileToken = await requestFreshTurnstileToken();
+      if (refreshTurnstileToken && typeof window !== "undefined") {
+        window.sessionStorage.setItem("turnstile_verified_at", String(Date.now()));
+      }
+    } catch (_) {}
+
     const readCookie = (name) => {
       if (typeof document === "undefined") return "";
       const escaped = name.replace(/[-[\]/{}()*+?.\\^$|]/g, "\\$&");
       const match = document.cookie.match(new RegExp(`(?:^|; )${escaped}=([^;]*)`));
       return match ? decodeURIComponent(match[1]) : "";
     };
+    const fingerprint = typeof window !== "undefined" ? (window.sessionStorage.getItem("fingerprint") || "") : "";
     const cfCookie = readCookie("cf_cookie") || readCookie("cf_clearance");
     const payload = {
       topicKey: selectedTopic.topicKey,
@@ -1425,6 +1494,8 @@ function ResultsAnalysisPanel({
       name: cleanName,
       email: cleanEmail,
       cf_cookie: cfCookie,
+      fingerprint,
+      turnstile_token: refreshTurnstileToken || undefined,
       createdAt: new Date().toISOString(),
     };
     const base = String(import.meta.env.BASE_URL || "/").replace(/\/+$/, "");

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState, useEffect, useRef } from 'react';
-import { Responsive, getCompactor } from 'react-grid-layout';
+import { Responsive, useContainerWidth, getCompactor } from 'react-grid-layout';
 import { useWidgetContext } from './WidgetContext';
 import { getWidget } from './registry';
 import 'react-grid-layout/css/styles.css';
@@ -44,61 +44,6 @@ function shouldUseLegacyLayoutMode() {
   const lacksGap = !CSS.supports('gap: 1rem');
   const lacksInset = !CSS.supports('inset: 0');
   return lacksGap || lacksInset;
-}
-
-function useSafeContainerWidth() {
-  const containerRef = useRef(null);
-  const [width, setWidth] = useState(0);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return undefined;
-
-    let rafId = 0;
-    let resizeObserver = null;
-    let pollId = null;
-
-    const measure = () => {
-      const el = containerRef.current;
-      const measured = el?.clientWidth || el?.offsetWidth || 0;
-      const fallback = typeof window !== 'undefined' ? window.innerWidth : 0;
-      const next = measured || fallback;
-      if (next > 0) {
-        setWidth((prev) => (prev !== next ? next : prev));
-      }
-    };
-
-    const scheduleMeasure = () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(measure);
-    };
-
-    scheduleMeasure();
-    window.addEventListener('resize', scheduleMeasure, { passive: true });
-    window.addEventListener('orientationchange', scheduleMeasure, { passive: true });
-
-    if (typeof ResizeObserver !== 'undefined' && containerRef.current) {
-      resizeObserver = new ResizeObserver(() => scheduleMeasure());
-      resizeObserver.observe(containerRef.current);
-    } else {
-      // Safari 12 fallback when ResizeObserver is not available.
-      pollId = setInterval(scheduleMeasure, 350);
-    }
-
-    return () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      if (pollId) clearInterval(pollId);
-      if (resizeObserver) resizeObserver.disconnect();
-      window.removeEventListener('resize', scheduleMeasure);
-      window.removeEventListener('orientationchange', scheduleMeasure);
-    };
-  }, [mounted]);
-
-  return { width, containerRef, mounted };
 }
 
 /**
@@ -253,12 +198,44 @@ export function WidgetLayout({ children }) {
     updateAllBounds,
   } = useWidgetContext();
 
-  // Safari-safe container width measurement (react-grid-layout breakpoints rely on this).
-  const { width, containerRef, mounted } = useSafeContainerWidth();
+  // Native react-grid-layout width measurement for consistent transform math.
+  const { width, containerRef, mounted } = useContainerWidth();
 
   const useLegacyLayout = useMemo(() => {
     return shouldUseLegacyLayoutMode();
   }, []);
+  const [legacyViewportEpoch, setLegacyViewportEpoch] = useState(0);
+
+  useEffect(() => {
+    if (!useLegacyLayout) return undefined;
+    const getBreakpointForWidth = (w) => {
+      if (w >= BREAKPOINTS.lg) return 'lg';
+      if (w >= BREAKPOINTS.md) return 'md';
+      if (w >= BREAKPOINTS.sm) return 'sm';
+      if (w >= BREAKPOINTS.xs) return 'xs';
+      return 'xxs';
+    };
+    const lastBpRef = { current: getBreakpointForWidth(window.innerWidth || 0) };
+    const bump = () => setLegacyViewportEpoch((v) => v + 1);
+    const onOrientationChange = () => {
+      // Orientation changes can leave stale RGL measurements on old Safari.
+      lastBpRef.current = getBreakpointForWidth(window.innerWidth || 0);
+      bump();
+    };
+    const onResize = () => {
+      const bp = getBreakpointForWidth(window.innerWidth || 0);
+      if (bp !== lastBpRef.current) {
+        lastBpRef.current = bp;
+        bump();
+      }
+    };
+    window.addEventListener('orientationchange', onOrientationChange, { passive: true });
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => {
+      window.removeEventListener('orientationchange', onOrientationChange);
+      window.removeEventListener('resize', onResize);
+    };
+  }, [useLegacyLayout]);
 
   // Track current breakpoint
   const [currentBreakpoint, setCurrentBreakpoint] = useState('lg');
@@ -564,6 +541,7 @@ export function WidgetLayout({ children }) {
       )}
       {mounted && (
         <Responsive
+          key={useLegacyLayout ? `legacy-${legacyViewportEpoch}` : 'normal'}
           className="layout"
           width={width}
           layouts={layouts}

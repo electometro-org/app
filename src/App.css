@@ -550,7 +550,12 @@ button {
   display: -webkit-inline-flex;
   display: inline-flex;
   /* gap not supported in flexbox on iOS 12 */
+  border-radius: 18px;
   padding: 7px;
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(245, 245, 245, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  overflow: hidden;
 }
 
 .results-view-mode-toggle > * + * {

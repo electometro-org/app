@@ -34,10 +34,10 @@ function getQuizPhase(state, showGenericIntro, showElectionIntro, showTopicImpor
   if (showGenericIntro) return 'intro';
   if (showElectionIntro) return 'election-intro';
   if (!state.questions || state.questions.length === 0) return 'loading';
-  if (state.currentQuestionIndex < state.questions.length) return 'quiz';
   if (showTopicImportance) return 'topic-importance';
   if (showDemographics && !turnstileVerified) return 'demographics';
   if (state.comparisonResults) return 'results';
+  if (state.currentQuestionIndex < state.questions.length) return 'quiz';
   return 'loading';
 }
 

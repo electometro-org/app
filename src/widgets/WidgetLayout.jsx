@@ -38,6 +38,14 @@ const COLS = {
 // Compactor with allowOverlap enabled, no compaction (null), no collision prevention
 const overlappingCompactor = getCompactor(null, true, false);
 
+function shouldUseLegacyLayoutMode() {
+  if (typeof CSS === 'undefined' || typeof CSS.supports !== 'function') return false;
+  // Align with existing legacy fallback strategy used in project CSS.
+  const lacksGap = !CSS.supports('gap: 1rem');
+  const lacksInset = !CSS.supports('inset: 0');
+  return lacksGap || lacksInset;
+}
+
 function useSafeContainerWidth() {
   const containerRef = useRef(null);
   const [width, setWidth] = useState(0);
@@ -139,14 +147,16 @@ const DEFAULT_LAYOUTS = {
  * Priority: savedLayouts > widget.layouts > DEFAULT_LAYOUTS > fallback
  * Always ensures x, y, w, h are present by merging with defaults.
  */
-function getWidgetLayout(widget, breakpoint, savedLayouts, useLegacyLayout = false) {
+function getWidgetLayout(widget, breakpoint, savedLayouts, useLegacyLayout = false, phase = null) {
   const widgetKey = getWidgetKey(widget);
 
   // Get base defaults (fallback chain: DEFAULT_LAYOUTS > config > absolute fallback)
   const absoluteFallback = { x: 0, y: 0, w: 8, h: 8 };
   // For DEFAULT_LAYOUTS, use widget.type (not id) since defaults are per-type
   const defaultLayout = DEFAULT_LAYOUTS[breakpoint]?.[widget.type] || absoluteFallback;
-  const configLayout = useLegacyLayout
+  const shouldUseLegacyForPhase = shouldUseLegacyForWidgetPhase(widget, useLegacyLayout, phase);
+
+  const configLayout = shouldUseLegacyForPhase
     ? (widget.legacyLayouts?.[breakpoint] || widget.layouts?.[breakpoint])
     : widget.layouts?.[breakpoint];
 
@@ -157,6 +167,18 @@ function getWidgetLayout(widget, breakpoint, savedLayouts, useLegacyLayout = fal
   // Use widgetKey for saved positions (allows multiple instances)
   const saved = savedLayouts?.[breakpoint]?.[widgetKey];
   if (saved && (saved.x !== undefined || saved.y !== undefined)) {
+    const lockLegacySize = shouldUseLegacyForPhase && widget.keepLegacySize === true;
+    const lockLegacyPosition = shouldUseLegacyForPhase && widget.keepLegacyPosition === true;
+    if (lockLegacySize || lockLegacyPosition) {
+      return {
+        ...base,
+        ...saved,
+        x: lockLegacyPosition ? base.x : (saved.x ?? base.x),
+        y: lockLegacyPosition ? base.y : (saved.y ?? base.y),
+        w: lockLegacySize ? base.w : (saved.w ?? base.w),
+        h: lockLegacySize ? base.h : (saved.h ?? base.h),
+      };
+    }
     // Merge saved with base to ensure w/h are always present
     return { ...base, ...saved };
   }
@@ -164,16 +186,23 @@ function getWidgetLayout(widget, breakpoint, savedLayouts, useLegacyLayout = fal
   return base;
 }
 
+function shouldUseLegacyForWidgetPhase(widget, useLegacyLayout, phase) {
+  const phaseLimitedLegacy = Array.isArray(widget.legacyLayoutsOnPhases)
+    ? widget.legacyLayoutsOnPhases
+    : null;
+  return useLegacyLayout && (!phaseLimitedLegacy || phaseLimitedLegacy.includes(phase));
+}
+
 /**
  * Generate layouts for all breakpoints
  */
-function generateResponsiveLayouts(widgets, savedLayouts, useLegacyLayout = false) {
+function generateResponsiveLayouts(widgets, savedLayouts, useLegacyLayout = false, phase = null) {
   const layouts = {};
 
   Object.keys(BREAKPOINTS).forEach(breakpoint => {
     layouts[breakpoint] = widgets.map(widget => {
       const widgetKey = getWidgetKey(widget);
-      const pos = getWidgetLayout(widget, breakpoint, savedLayouts, useLegacyLayout);
+      const pos = getWidgetLayout(widget, breakpoint, savedLayouts, useLegacyLayout, phase);
 
       return {
         i: widgetKey,
@@ -228,9 +257,7 @@ export function WidgetLayout({ children }) {
   const { width, containerRef, mounted } = useSafeContainerWidth();
 
   const useLegacyLayout = useMemo(() => {
-    if (typeof CSS === 'undefined' || typeof CSS.supports !== 'function') return false;
-    // iOS 12 Safari lacks flexbox gap and inset support.
-    return !CSS.supports('gap: 1rem') || !CSS.supports('inset: 0');
+    return shouldUseLegacyLayoutMode();
   }, []);
 
   // Track current breakpoint
@@ -259,7 +286,7 @@ export function WidgetLayout({ children }) {
 
   // Manage layouts state for all breakpoints
   const [layouts, setLayouts] = useState(() =>
-    generateResponsiveLayouts(visibleWidgets, savedLayouts, useLegacyLayout)
+    generateResponsiveLayouts(visibleWidgets, savedLayouts, useLegacyLayout, quizState.phase)
   );
 
   // Ref to track ALL widget positions (including hidden ones)
@@ -312,17 +339,20 @@ export function WidgetLayout({ children }) {
         const widgetKey = getWidgetKey(widget);
 
         // Always get base layout first (ensures w/h are present)
-        const basePos = getWidgetLayout(widget, breakpoint, savedLayouts, useLegacyLayout);
+        const basePos = getWidgetLayout(widget, breakpoint, savedLayouts, useLegacyLayout, quizState.phase);
 
         // If we have a cached position in ref, merge it with base
         if (breakpointPositions[widgetKey]) {
+          const shouldUseLegacyForPhase = shouldUseLegacyForWidgetPhase(widget, useLegacyLayout, quizState.phase);
+          const lockLegacySize = shouldUseLegacyForPhase && widget.keepLegacySize === true;
+          const lockLegacyPosition = shouldUseLegacyForPhase && widget.keepLegacyPosition === true;
           return {
             i: widgetKey,
             // Start with base (has guaranteed w/h), then overlay cached position
-            x: breakpointPositions[widgetKey].x ?? basePos.x,
-            y: breakpointPositions[widgetKey].y ?? basePos.y,
-            w: breakpointPositions[widgetKey].w ?? basePos.w,
-            h: breakpointPositions[widgetKey].h ?? basePos.h,
+            x: lockLegacyPosition ? basePos.x : (breakpointPositions[widgetKey].x ?? basePos.x),
+            y: lockLegacyPosition ? basePos.y : (breakpointPositions[widgetKey].y ?? basePos.y),
+            w: lockLegacySize ? basePos.w : (breakpointPositions[widgetKey].w ?? basePos.w),
+            h: lockLegacySize ? basePos.h : (breakpointPositions[widgetKey].h ?? basePos.h),
             minW: 1,
             minH: 1,
             isDraggable: widget.draggable !== false,
@@ -347,7 +377,7 @@ export function WidgetLayout({ children }) {
 
     setLayouts(newLayouts);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visibleWidgetIds, useLegacyLayout]); // Only regenerate when widget IDs actually change
+  }, [visibleWidgetIds, useLegacyLayout, quizState.phase]); // Only regenerate when widget IDs or phase change
 
   // Handle breakpoint change
   const handleBreakpointChange = useCallback((newBreakpoint) => {

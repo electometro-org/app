@@ -126,12 +126,24 @@ export default {
     { type: "quiz",
       draggable: false,
       defaultSlot: "center",
+      // Apply legacy (taller) quiz layout only during results on old Safari/iOS.
+      legacyLayoutsOnPhases: ["results"],
+      keepLegacySize: true,
+      keepLegacyPosition: true,
       layouts: {
         lg:  { x: 24, y: 0, w: 48, h: 40 },
         md:  { x: 12, y: 0, w: 48, h: 35 },
         sm:  { x: 4, y: 8, w: 40, h: 35 },
         xs:  { x: 0, y: 8, w: 32, h: 35 },
         xxs: { x: 0, y: 3, w: 24, h: 40 },
+      },
+      legacyLayouts: {
+        // iOS 12 fallback: extra height avoids compact-results clipping inside quiz widget.
+        lg:  { x: 24, y: 0, w: 48, h: 66 },
+        md:  { x: 12, y: 0, w: 48, h: 67 },
+        sm:  { x: 4, y: 8, w: 40, h: 65 },
+        xs:  { x: 0, y: 4, w: 32, h: 70 },
+        xxs: { x: 0, y: 3, w: 24, h: 80 },
       }
     },
     { type: "progress-indicator",

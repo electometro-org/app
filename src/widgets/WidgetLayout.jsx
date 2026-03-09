@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState, useEffect, useRef } from 'react';
-import { Responsive, useContainerWidth, getCompactor } from 'react-grid-layout';
+import { Responsive, getCompactor } from 'react-grid-layout';
 import { useWidgetContext } from './WidgetContext';
 import { getWidget } from './registry';
 import 'react-grid-layout/css/styles.css';
@@ -37,6 +37,61 @@ const COLS = {
 
 // Compactor with allowOverlap enabled, no compaction (null), no collision prevention
 const overlappingCompactor = getCompactor(null, true, false);
+
+function useSafeContainerWidth() {
+  const containerRef = useRef(null);
+  const [width, setWidth] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return undefined;
+
+    let rafId = 0;
+    let resizeObserver = null;
+    let pollId = null;
+
+    const measure = () => {
+      const el = containerRef.current;
+      const measured = el?.clientWidth || el?.offsetWidth || 0;
+      const fallback = typeof window !== 'undefined' ? window.innerWidth : 0;
+      const next = measured || fallback;
+      if (next > 0) {
+        setWidth((prev) => (prev !== next ? next : prev));
+      }
+    };
+
+    const scheduleMeasure = () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(measure);
+    };
+
+    scheduleMeasure();
+    window.addEventListener('resize', scheduleMeasure, { passive: true });
+    window.addEventListener('orientationchange', scheduleMeasure, { passive: true });
+
+    if (typeof ResizeObserver !== 'undefined' && containerRef.current) {
+      resizeObserver = new ResizeObserver(() => scheduleMeasure());
+      resizeObserver.observe(containerRef.current);
+    } else {
+      // Safari 12 fallback when ResizeObserver is not available.
+      pollId = setInterval(scheduleMeasure, 350);
+    }
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      if (pollId) clearInterval(pollId);
+      if (resizeObserver) resizeObserver.disconnect();
+      window.removeEventListener('resize', scheduleMeasure);
+      window.removeEventListener('orientationchange', scheduleMeasure);
+    };
+  }, [mounted]);
+
+  return { width, containerRef, mounted };
+}
 
 /**
  * Get unique key for a widget (supports multiple instances of same type)
@@ -169,8 +224,8 @@ export function WidgetLayout({ children }) {
     updateAllBounds,
   } = useWidgetContext();
 
-  // v2 hook for container width measurement
-  const { width, containerRef, mounted } = useContainerWidth();
+  // Safari-safe container width measurement (react-grid-layout breakpoints rely on this).
+  const { width, containerRef, mounted } = useSafeContainerWidth();
 
   const useLegacyLayout = useMemo(() => {
     if (typeof CSS === 'undefined' || typeof CSS.supports !== 'function') return false;

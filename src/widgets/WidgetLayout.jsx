@@ -84,14 +84,16 @@ const DEFAULT_LAYOUTS = {
  * Priority: savedLayouts > widget.layouts > DEFAULT_LAYOUTS > fallback
  * Always ensures x, y, w, h are present by merging with defaults.
  */
-function getWidgetLayout(widget, breakpoint, savedLayouts) {
+function getWidgetLayout(widget, breakpoint, savedLayouts, useLegacyLayout = false) {
   const widgetKey = getWidgetKey(widget);
 
   // Get base defaults (fallback chain: DEFAULT_LAYOUTS > config > absolute fallback)
   const absoluteFallback = { x: 0, y: 0, w: 8, h: 8 };
   // For DEFAULT_LAYOUTS, use widget.type (not id) since defaults are per-type
   const defaultLayout = DEFAULT_LAYOUTS[breakpoint]?.[widget.type] || absoluteFallback;
-  const configLayout = widget.layouts?.[breakpoint];
+  const configLayout = useLegacyLayout
+    ? (widget.legacyLayouts?.[breakpoint] || widget.layouts?.[breakpoint])
+    : widget.layouts?.[breakpoint];
 
   // Build base from defaults, then config override
   const base = { ...defaultLayout, ...configLayout };
@@ -110,13 +112,13 @@ function getWidgetLayout(widget, breakpoint, savedLayouts) {
 /**
  * Generate layouts for all breakpoints
  */
-function generateResponsiveLayouts(widgets, savedLayouts) {
+function generateResponsiveLayouts(widgets, savedLayouts, useLegacyLayout = false) {
   const layouts = {};
 
   Object.keys(BREAKPOINTS).forEach(breakpoint => {
     layouts[breakpoint] = widgets.map(widget => {
       const widgetKey = getWidgetKey(widget);
-      const pos = getWidgetLayout(widget, breakpoint, savedLayouts);
+      const pos = getWidgetLayout(widget, breakpoint, savedLayouts, useLegacyLayout);
 
       return {
         i: widgetKey,
@@ -170,6 +172,12 @@ export function WidgetLayout({ children }) {
   // v2 hook for container width measurement
   const { width, containerRef, mounted } = useContainerWidth();
 
+  const useLegacyLayout = useMemo(() => {
+    if (typeof CSS === 'undefined' || typeof CSS.supports !== 'function') return false;
+    // iOS 12 Safari lacks flexbox gap and inset support.
+    return !CSS.supports('gap: 1rem') || !CSS.supports('inset: 0');
+  }, []);
+
   // Track current breakpoint
   const [currentBreakpoint, setCurrentBreakpoint] = useState('lg');
 
@@ -196,7 +204,7 @@ export function WidgetLayout({ children }) {
 
   // Manage layouts state for all breakpoints
   const [layouts, setLayouts] = useState(() =>
-    generateResponsiveLayouts(visibleWidgets, savedLayouts)
+    generateResponsiveLayouts(visibleWidgets, savedLayouts, useLegacyLayout)
   );
 
   // Ref to track ALL widget positions (including hidden ones)
@@ -249,7 +257,7 @@ export function WidgetLayout({ children }) {
         const widgetKey = getWidgetKey(widget);
 
         // Always get base layout first (ensures w/h are present)
-        const basePos = getWidgetLayout(widget, breakpoint, savedLayouts);
+        const basePos = getWidgetLayout(widget, breakpoint, savedLayouts, useLegacyLayout);
 
         // If we have a cached position in ref, merge it with base
         if (breakpointPositions[widgetKey]) {
@@ -284,7 +292,7 @@ export function WidgetLayout({ children }) {
 
     setLayouts(newLayouts);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visibleWidgetIds]); // Only regenerate when widget IDs actually change
+  }, [visibleWidgetIds, useLegacyLayout]); // Only regenerate when widget IDs actually change
 
   // Handle breakpoint change
   const handleBreakpointChange = useCallback((newBreakpoint) => {

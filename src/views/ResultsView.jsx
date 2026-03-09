@@ -4,6 +4,17 @@ import { BrandLogo } from "../components/BrandImage";
 import { voteToNumeric } from "../voteUtils";
 import { createPortal } from "react-dom";
 
+const PARTY_LOGO_EXTS = ["png", "jpg", "jpeg", "svg"];
+
+function slugifyAssetName(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export default function ResultsView({
   comparisonResults,
   selectedResultType,
@@ -38,6 +49,10 @@ export default function ResultsView({
   const [listHasBottomFade, setListHasBottomFade] = React.useState(false);
   const [showResultsScrollDownFab, setShowResultsScrollDownFab] = React.useState(false);
   const [showComparisonInfoModal, setShowComparisonInfoModal] = React.useState(false);
+  const [resolvedLogoUrls, setResolvedLogoUrls] = React.useState({});
+  const resolvedLogoUrlsRef = React.useRef({});
+  const logoResolveInFlightRef = React.useRef(new Set());
+  const logoCacheContextRef = React.useRef("");
   const analysisNavFlashTimerRef = React.useRef(null);
   const analysisNavFlashRafRef = React.useRef(null);
   const listScrollHintTimerRef = React.useRef(null);
@@ -167,6 +182,103 @@ export default function ResultsView({
   const incompleteRows = rowsWithIndex.filter(({ row }) => row.incomplete);
   const completeComparisonsLabel = completeComparisonsTemplate.replace("[nrOfComplete]", String(completeRows.length));
   const incompleteComparisonsLabel = incompleteComparisonsTemplate.replace("[nrOfIncomplete]", String(incompleteRows.length));
+
+  React.useEffect(() => {
+    const baseUrl = config?.assetsBaseUrl || "";
+    const assetsPath = config?.assetsPath || "";
+    const prefix = baseUrl ? `${baseUrl}/` : "";
+    const cacheContext = `${baseUrl}|${assetsPath}`;
+    if (!prefix) {
+      setResolvedLogoUrls({});
+      resolvedLogoUrlsRef.current = {};
+      logoResolveInFlightRef.current.clear();
+      logoCacheContextRef.current = "";
+      return;
+    }
+    if (logoCacheContextRef.current !== cacheContext) {
+      setResolvedLogoUrls({});
+      resolvedLogoUrlsRef.current = {};
+      logoResolveInFlightRef.current.clear();
+      logoCacheContextRef.current = cacheContext;
+    }
+
+    const extractParty = (name) => {
+      if (!name || typeof name !== "string") return null;
+      const m = name.match(/\(([^)]+)\)\s*$/);
+      if (m && m[1]) return m[1].trim();
+      const m2 = name.match(/\[([^\]]+)\]\s*$/);
+      if (m2 && m2[1]) return m2[1].trim();
+      return null;
+    };
+
+    const partyNames = new Set();
+    [...partyComplete, ...partyIncomplete].forEach((row) => {
+      if (row?.name) partyNames.add(row.name);
+    });
+    presidentialResultsAll.forEach((row) => {
+      if (row?.party) partyNames.add(row.party);
+      const extracted = extractParty(row?.displayName || row?.name);
+      if (extracted) partyNames.add(extracted);
+    });
+
+    const preloadImage = (url) => new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(url);
+      img.onerror = reject;
+      img.src = url;
+    });
+
+    const resolveLogoUrl = async (partyName) => {
+      const slug = slugifyAssetName(partyName || "");
+      if (!slug) return [slug, ""];
+      if (Object.prototype.hasOwnProperty.call(resolvedLogoUrlsRef.current, slug)) {
+        return [slug, resolvedLogoUrlsRef.current[slug] || ""];
+      }
+      if (logoResolveInFlightRef.current.has(slug)) return null;
+      logoResolveInFlightRef.current.add(slug);
+      for (const ext of PARTY_LOGO_EXTS) {
+        const url = `${prefix}${assetsPath}party_logos/${slug}.${ext}`;
+        try {
+          await preloadImage(url);
+          logoResolveInFlightRef.current.delete(slug);
+          return [slug, url];
+        } catch {
+          // Try next extension
+        }
+      }
+      logoResolveInFlightRef.current.delete(slug);
+      return [slug, null];
+    };
+
+    let cancelled = false;
+    (async () => {
+      const missingPartyNames = [...partyNames].filter((name) => {
+        const slug = slugifyAssetName(name || "");
+        return (
+          !!slug
+          && !Object.prototype.hasOwnProperty.call(resolvedLogoUrlsRef.current, slug)
+          && !logoResolveInFlightRef.current.has(slug)
+        );
+      });
+      if (missingPartyNames.length === 0) return;
+      const pairs = await Promise.all(missingPartyNames.map(resolveLogoUrl));
+      if (cancelled) return;
+      const nextEntries = {};
+      pairs.forEach((pair) => {
+        if (!pair) return;
+        const [slug, url] = pair;
+        if (slug) nextEntries[slug] = url ?? null;
+      });
+      if (Object.keys(nextEntries).length === 0) return;
+      const merged = { ...resolvedLogoUrlsRef.current, ...nextEntries };
+      resolvedLogoUrlsRef.current = merged;
+      setResolvedLogoUrls(merged);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [partyComplete, partyIncomplete, presidentialResultsAll, config?.assetsBaseUrl, config?.assetsPath]);
 
   const isSelectedRow = (row) => {
     if (!selectedEntity) return false;
@@ -647,7 +759,7 @@ export default function ResultsView({
                     key={row.key}
                     className={`results-slot-item ${row.incomplete ? "is-incomplete" : ""}`}
                   >
-                    <SlotAvatar row={row} config={config} />
+                    <SlotAvatar row={row} resolvedLogoUrls={resolvedLogoUrls} />
                     <h3 className="results-slot-item__name">{row.displayName}</h3>
                     <div className="results-slot-item__score">{row.score}%</div>
                   </div>
@@ -732,7 +844,7 @@ export default function ResultsView({
                       style={getRowFillStyle(fillPercent, { selected, dimmed })}
                     >
                       <span className="results-row__identity">
-                        <RowAvatar row={row} config={config} fillPercent={fillPercent} />
+                        <RowAvatar row={row} fillPercent={fillPercent} resolvedLogoUrls={resolvedLogoUrls} />
                         <span className="results-row__name">
                           <RowFillAwareText text={row.displayName} fillPercent={fillPercent} />
                         </span>
@@ -763,7 +875,7 @@ export default function ResultsView({
                       style={getRowFillStyle(fillPercent, { selected, dimmed })}
                     >
                       <span className="results-row__identity">
-                        <RowAvatar row={row} config={config} fillPercent={fillPercent} />
+                        <RowAvatar row={row} fillPercent={fillPercent} resolvedLogoUrls={resolvedLogoUrls} />
                         <span className="results-row__name">
                           <RowFillAwareText text={row.displayName} fillPercent={fillPercent} />
                         </span>
@@ -790,7 +902,7 @@ export default function ResultsView({
             {activeRow && (
               <section className="results-analysis-active-card">
                 <div className="results-analysis-active-card__identity">
-                  <SlotAvatar row={activeRow} config={config} />
+                  <SlotAvatar row={activeRow} resolvedLogoUrls={resolvedLogoUrls} />
                   <div className="results-analysis-active-card__text">
                     <span className="results-analysis-active-card__label">
                       {activeSelectionLabel}
@@ -966,11 +1078,9 @@ function RowFillAwareText({ text, fillPercent }) {
   );
 }
 
-function SlotAvatar({ row, config }) {
-  const exts = ["png", "jpg", "jpeg", "svg"];
-  const [srcIndex, setSrcIndex] = React.useState(0);
-  const [failed, setFailed] = React.useState(false);
+function SlotAvatar({ row, resolvedLogoUrls = {} }) {
   const [logoLoaded, setLogoLoaded] = React.useState(false);
+  const imgRef = React.useRef(null);
 
   const extractPartyFromCandidateName = (name) => {
     if (!name || typeof name !== "string") return null;
@@ -988,41 +1098,36 @@ function SlotAvatar({ row, config }) {
   };
 
   const partyName = getPartyName();
-
-  React.useEffect(() => {
-    setSrcIndex(0);
-    setFailed(false);
-    setLogoLoaded(false);
-  }, [partyName]);
+  const slug = slugifyAssetName(partyName || "");
+  const logoSrc = resolvedLogoUrls[slug] || "";
 
   React.useEffect(() => {
     setLogoLoaded(false);
-  }, [srcIndex]);
+  }, [logoSrc]);
 
-  const getAppBase = () => {
-    const baseUrl = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.BASE_URL)
-      ? import.meta.env.BASE_URL
-      : "";
-    return String(baseUrl || "").replace(/\/$/, "");
-  };
-
-  const buildLogoUrl = (name, ext) => {
-    if (!name) return "";
-    const baseUrl = config?.assetsBaseUrl || getAppBase();
-    const prefix = baseUrl ? `${baseUrl}/` : "";
-    const assetsPath = config?.assetsPath || "";
-    return `${prefix}${assetsPath}party_logos/${encodeURIComponent(name)}.${ext}`;
-  };
-
-  const logoSrc = !failed && partyName ? buildLogoUrl(partyName, exts[srcIndex]) : "";
-
-  const handleImgError = () => {
-    if (srcIndex < exts.length - 1) {
-      setSrcIndex((s) => s + 1);
-    } else {
-      setFailed(true);
-    }
-  };
+  React.useEffect(() => {
+    if (!logoSrc) return undefined;
+    let cancelled = false;
+    let rafId = 0;
+    let attempts = 0;
+    const checkLoaded = () => {
+      if (cancelled) return;
+      const el = imgRef.current;
+      if (el && el.complete && el.naturalWidth > 0) {
+        setLogoLoaded(true);
+        return;
+      }
+      attempts += 1;
+      if (attempts < 30) {
+        rafId = requestAnimationFrame(checkLoaded);
+      }
+    };
+    rafId = requestAnimationFrame(checkLoaded);
+    return () => {
+      cancelled = true;
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [logoSrc]);
 
   return (
     <div className={`results-slot-item__avatar ${logoLoaded ? "has-logo" : ""}`} aria-hidden="true">
@@ -1031,11 +1136,13 @@ function SlotAvatar({ row, config }) {
       </span>
       {logoSrc && (
         <img
+          key={logoSrc}
+          ref={imgRef}
           className={`results-slot-item__avatar-img ${logoLoaded ? "is-visible" : ""}`}
           src={logoSrc}
           alt=""
           onLoad={() => setLogoLoaded(true)}
-          onError={handleImgError}
+          onError={() => setLogoLoaded(false)}
           draggable={false}
         />
       )}
@@ -1043,11 +1150,9 @@ function SlotAvatar({ row, config }) {
   );
 }
 
-function RowAvatar({ row, config, fillPercent }) {
-  const exts = ["png", "jpg", "jpeg", "svg"];
-  const [srcIndex, setSrcIndex] = React.useState(0);
-  const [failed, setFailed] = React.useState(false);
+function RowAvatar({ row, fillPercent, resolvedLogoUrls = {} }) {
   const [logoLoaded, setLogoLoaded] = React.useState(false);
+  const imgRef = React.useRef(null);
 
   const extractPartyFromCandidateName = (name) => {
     if (!name || typeof name !== "string") return null;
@@ -1065,41 +1170,36 @@ function RowAvatar({ row, config, fillPercent }) {
   };
 
   const partyName = getPartyName();
-
-  React.useEffect(() => {
-    setSrcIndex(0);
-    setFailed(false);
-    setLogoLoaded(false);
-  }, [partyName]);
+  const slug = slugifyAssetName(partyName || "");
+  const logoSrc = resolvedLogoUrls[slug] || "";
 
   React.useEffect(() => {
     setLogoLoaded(false);
-  }, [srcIndex]);
+  }, [logoSrc]);
 
-  const getAppBase = () => {
-    const baseUrl = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.BASE_URL)
-      ? import.meta.env.BASE_URL
-      : "";
-    return String(baseUrl || "").replace(/\/$/, "");
-  };
-
-  const buildLogoUrl = (name, ext) => {
-    if (!name) return "";
-    const baseUrl = config?.assetsBaseUrl || getAppBase();
-    const prefix = baseUrl ? `${baseUrl}/` : "";
-    const assetsPath = config?.assetsPath || "";
-    return `${prefix}${assetsPath}party_logos/${encodeURIComponent(name)}.${ext}`;
-  };
-
-  const logoSrc = !failed && partyName ? buildLogoUrl(partyName, exts[srcIndex]) : "";
-
-  const handleImgError = () => {
-    if (srcIndex < exts.length - 1) {
-      setSrcIndex((s) => s + 1);
-    } else {
-      setFailed(true);
-    }
-  };
+  React.useEffect(() => {
+    if (!logoSrc) return undefined;
+    let cancelled = false;
+    let rafId = 0;
+    let attempts = 0;
+    const checkLoaded = () => {
+      if (cancelled) return;
+      const el = imgRef.current;
+      if (el && el.complete && el.naturalWidth > 0) {
+        setLogoLoaded(true);
+        return;
+      }
+      attempts += 1;
+      if (attempts < 30) {
+        rafId = requestAnimationFrame(checkLoaded);
+      }
+    };
+    rafId = requestAnimationFrame(checkLoaded);
+    return () => {
+      cancelled = true;
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [logoSrc]);
 
   return (
     <span className={`results-row__avatar ${logoLoaded ? "has-logo" : ""}`} aria-hidden="true">
@@ -1108,11 +1208,13 @@ function RowAvatar({ row, config, fillPercent }) {
       </span>
       {logoSrc && (
         <img
+          key={logoSrc}
+          ref={imgRef}
           className={`results-row__avatar-img ${logoLoaded ? "is-visible" : ""}`}
           src={logoSrc}
           alt=""
           onLoad={() => setLogoLoaded(true)}
-          onError={handleImgError}
+          onError={() => setLogoLoaded(false)}
           draggable={false}
         />
       )}

@@ -2,6 +2,15 @@ import React, { useState } from "react";
 import { useTranslate } from "@tolgee/react";
 import { voteToNumeric } from "../voteUtils";
 
+function slugifyAssetName(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 function extractUrls(source) {
   if (!source) return [];
   const urlRegex = /https?:\/\/[^\s;,]+/g;
@@ -116,20 +125,14 @@ export default function EntityDetails({
     ? (selectedEntity.name || selectedEntity.party || "")
     : (extractPartyFromCandidateName(selectedEntity.name) || selectedEntity.party || "");
 
-  const getAppBase = () => {
-    const fromPublicUrl = (typeof process !== "undefined" && process.env && process.env.PUBLIC_URL) ? process.env.PUBLIC_URL : "";
-    const fromVite = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : "";
-    let base = fromPublicUrl || fromVite || "";
-    return base.replace(/\/$/, "");
-  };
-
   const buildLogoUrl = (partyName, ext) => {
     if (!partyName) return "";
-    const baseUrl = config.assetsBaseUrl || getAppBase();
-    const encoded = encodeURIComponent(partyName);
+    const baseUrl = config.assetsBaseUrl || "";
+    const slug = slugifyAssetName(partyName);
+    if (!slug || !baseUrl) return "";
     const prefix = baseUrl ? `${baseUrl}/` : "";
     const assetsPath = config.assetsPath || "";
-    return `${prefix}${assetsPath}party_logos/${encoded}.${ext}`;
+    return `${prefix}${assetsPath}party_logos/${slug}.${ext}`;
   };
   const LogoImage = ({ partyName, maxHeight = 100, altSuffix = "logo" }) => {
     const [srcIndex, setSrcIndex] = React.useState(0);

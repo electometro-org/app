@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useMemo } from "react";
+import React, { createContext, useState, useEffect, useMemo, useRef } from "react";
 import { useQuiz } from "../useQuiz";
 import { useFingerprint } from "../useFingerprint";
 import { trackEvent, setAnalyticsConsent } from "../analytics";
@@ -66,6 +66,7 @@ export function QuizProvider({ children }) {
   const [demographics, setDemographics] = useState(null);
   const [showTurnstileOverlay, setShowTurnstileOverlay] = useState(false);
   const [turnstileVerified, setTurnstileVerified] = useState(false);
+  const votesDataCacheRef = useRef({});
 
   // Fingerprint
   const { fingerprint, loading: fingerprintLoading } = useFingerprint();
@@ -109,6 +110,10 @@ export function QuizProvider({ children }) {
   useEffect(() => {
     if (resultTypes.length) setSelectedResultType(resultTypes[0]);
   }, [resultTypes]);
+
+  useEffect(() => {
+    votesDataCacheRef.current = {};
+  }, [election, config?.partyVotesUrl, config?.presVotesUrl]);
 
   // Clear hover/focus when question changes
   useEffect(() => {
@@ -350,11 +355,19 @@ export function QuizProvider({ children }) {
     setShowTurnstileOverlay(true);
   };
 
+  const getVotesData = async (url) => {
+    if (!url) return null;
+    if (votesDataCacheRef.current[url]) return votesDataCacheRef.current[url];
+    const data = await fetchJsonSafe(url);
+    votesDataCacheRef.current[url] = data;
+    return data;
+  };
+
   const handleEntityClick = (entity, type) => {
     dispatch({ type: "SET_SELECTED_ENTITY", payload: entity });
 
     const fetchAndDispatchDetails = (url, lookupFn) => {
-      fetchJsonSafe(url)
+      getVotesData(url)
         .then(data => {
           const obj = lookupFn(data);
           if (!obj) {

@@ -3,6 +3,8 @@
   position: relative;
   z-index: 1;
   width: 100%;
+  /* Fallback for older browsers */
+  min-height: 100vh;
   min-height: 100dvh; /* Dynamic viewport height for mobile */
   padding: 16px;
   box-sizing: border-box;

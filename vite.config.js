@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import legacy from '@vitejs/plugin-legacy';
 import { cloudflare } from '@cloudflare/vite-plugin';
 import electionHtmlPlugin from './vite-plugin-election-html.js';
 import path from 'path';
@@ -163,18 +164,33 @@ export default defineConfig(({ mode }) => {
       electionDataMiddleware(useLocalData),
       electionHtmlPlugin(),
       react(),
+      // Only use legacy plugin in production (it injects inline scripts that conflict with CSP in dev)
+      !isDev && legacy({
+        targets: ['Safari >= 12', 'Chrome >= 70', 'Firefox >= 68', 'Edge >= 79'],
+        additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
+        modernPolyfills: true,
+      }),
       cloudflare({
         configPath: 'wrangler/wrangler.toml',
         experimental: {
           headersAndRedirectsDevModeSupport: true,
         },}),
       nestAssetsPlugin(ASSETS_SUBDIR),
-    ],
+    ].filter(Boolean),
     base: ASSETS_SUBDIR ? `/${ASSETS_SUBDIR}/` : '/',
     publicDir: 'public/static',
     server: {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+      },
+    },
+    // Transpile modern syntax (?.  ??) in dev mode for older browsers
+    esbuild: {
+      target: 'es2018',
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        target: 'es2018',
       },
     },
     environments: {
@@ -186,6 +202,10 @@ export default defineConfig(({ mode }) => {
       }
     },
     build: {
+      // Target older browsers (Chrome 70+, Safari 12+)
+      target: ['es2018', 'chrome70', 'firefox68', 'safari12', 'edge79'],
+      // CSS target for older browsers
+      cssTarget: ['chrome70', 'firefox68', 'safari12', 'edge79'],
       // Left for future debugging. Cloudflare Vite plugin seems to be broken atm...
       // outDir: 'dist/client/electometro/',
       // assetsDir: 'electometro/assets',

@@ -275,11 +275,12 @@ button {
   height: 2px;
   margin: 12px auto 0;
   border-radius: 999px;
+  /* Fallback for older browsers - color-mix version in @supports block */
   background: linear-gradient(
     90deg,
     transparent 0%,
-    color-mix(in srgb, var(--accent) 70%, transparent) 18%,
-    color-mix(in srgb, var(--accent) 70%, transparent) 82%,
+    rgba(189, 47, 47, 0.7) 18%,
+    rgba(189, 47, 47, 0.7) 82%,
     transparent 100%
   );
 }
@@ -351,7 +352,8 @@ button {
 
 @media (hover: hover) and (pointer: fine) {
   .option-button:hover:not(.selected-answer):not(.just-clicked):not(:disabled) {
-    background-color: color-mix(in srgb, var(--accentLight) 15%, var(--buttonColor));
+    /* Fallback for older browsers - color-mix version in @supports block */
+    background-color: rgba(76, 1, 1, 0.15);
   }
 }
 
@@ -517,7 +519,8 @@ button {
   gap: 8px;
   padding: 7px;
   border-radius: 18px;
-  background: color-mix(in srgb, var(--buttonColor) 85%, transparent);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(245, 245, 245, 0.85);
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
@@ -543,7 +546,8 @@ button {
   gap: 8px;
   padding: 7px;
   border-radius: 18px;
-  background: color-mix(in srgb, var(--buttonColor) 85%, transparent);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(245, 245, 245, 0.85);
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
@@ -580,7 +584,8 @@ button {
 }
 
 .results-analysis-active-card {
-  background: color-mix(in srgb, var(--buttonColor) 92%, transparent);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(245, 245, 245, 0.92);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 24px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.09);
@@ -710,7 +715,8 @@ button {
   width: min(980px, 100%);
   border-radius: 34px;
   border: 3px solid var(--results-slot-border-color);
-  background: color-mix(in srgb, var(--buttonColor) 92%, transparent);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(245, 245, 245, 0.92);
   overflow: hidden;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
 }
@@ -899,7 +905,8 @@ button {
 .results-coincidence-card {
   border: 1px solid rgba(0, 0, 0, 0.08) !important;
   border-radius: 18px;
-  background: color-mix(in srgb, var(--buttonColor) 92%, transparent);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(245, 245, 245, 0.92);
   color: var(--fontColor);
   display: flex;
   justify-content: space-between;
@@ -937,7 +944,8 @@ button {
 
 .results-coincidence-card.is-selected {
   border-color: var(--accent) !important;
-  background: color-mix(in srgb, var(--accent) 12%, var(--buttonColor));
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(189, 47, 47, 0.12);
 }
 
 .results-coincidence-card.is-incomplete {
@@ -953,7 +961,8 @@ button {
 
 .results-list-card,
 .results-analysis-card {
-  background: color-mix(in srgb, var(--buttonColor) 92%, transparent);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(245, 245, 245, 0.92);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 24px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.09);
@@ -1040,7 +1049,8 @@ button {
   display: grid;
   gap: 8px;
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--accent) 45%, #888) transparent;
+  /* Fallback for older browsers - color-mix version in @supports block */
+  scrollbar-color: rgba(189, 47, 47, 0.45) transparent;
 }
 
 @supports (-moz-appearance: none) {
@@ -1059,14 +1069,16 @@ button {
 }
 
 .results-list::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--accent) 45%, #888);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(189, 47, 47, 0.45);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 .results-list::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--accent) 62%, #666);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(189, 47, 47, 0.62);
 }
 
 .results-list-scroll-area {
@@ -1090,12 +1102,14 @@ button {
 
 .results-list-fade--top {
   top: 0;
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--buttonColor) 94%, transparent), transparent);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: linear-gradient(to bottom, rgba(245, 245, 245, 0.94), transparent);
 }
 
 .results-list-fade--bottom {
   bottom: 0;
-  background: linear-gradient(to top, color-mix(in srgb, var(--buttonColor) 94%, transparent), transparent);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: linear-gradient(to top, rgba(245, 245, 245, 0.94), transparent);
 }
 
 .results-list-scroll-hint {
@@ -1109,7 +1123,8 @@ button {
   font-weight: 700;
   letter-spacing: 0.02em;
   color: var(--fontColor);
-  background: color-mix(in srgb, var(--buttonColor) 92%, transparent);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(245, 245, 245, 0.92);
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 999px;
   padding: 5px 10px;
@@ -1127,7 +1142,8 @@ button {
   justify-content: space-between;
   gap: 10px;
   cursor: pointer;
-  background: color-mix(in srgb, var(--buttonColor) 94%, transparent);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(245, 245, 245, 0.94);
   color: var(--fontColor);
   transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
 }
@@ -1149,7 +1165,8 @@ button {
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--fontColor) 70%, #999);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  color: rgba(51, 51, 51, 0.7);
 }
 
 .results-row__identity {
@@ -1165,7 +1182,8 @@ button {
   width: 40px;
   height: 40px;
   border-radius: 11px;
-  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(189, 47, 47, 0.18);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1264,7 +1282,8 @@ button {
 
 .results-row.is-selected {
   border-color: var(--accent) !important;
-  background: color-mix(in srgb, var(--accent) 12%, var(--buttonColor));
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(189, 47, 47, 0.12);
 }
 
 .results-row.is-incomplete:not(.is-selected) {
@@ -1272,7 +1291,7 @@ button {
 }
 
 .results-row.is-dimmed {
-  opacity: 0.65;
+  opacity: 0.82;
 }
 
 .results-analysis-card .entity-details-container {
@@ -1293,7 +1312,8 @@ button {
   grid-template-columns: 1fr 1fr;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 24px;
-  background: color-mix(in srgb, var(--buttonColor) 92%, transparent);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(245, 245, 245, 0.92);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.09);
   overflow: hidden;
 }
@@ -1359,7 +1379,8 @@ button {
 
 @media (hover: hover) and (pointer: fine) {
   .results-analysis-nav__btn:hover {
-    background: color-mix(in srgb, var(--accentLight) 15%, var(--buttonColor));
+    /* Fallback for older browsers - color-mix version in @supports block */
+    background: rgba(76, 1, 1, 0.15);
     color: var(--fontColor);
   }
 }
@@ -1481,11 +1502,13 @@ button {
 }
 
 .results-analysis-heading__count.is-match {
-  color: color-mix(in srgb, var(--accent) 85%, #000);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  color: rgba(189, 47, 47, 0.85);
 }
 
 .results-analysis-heading__count.is-partial {
-  color: color-mix(in srgb, var(--accent) 20%, #fff);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  color: rgba(189, 47, 47, 0.2);
 }
 
 .results-analysis-heading__count.is-mismatch {
@@ -1558,7 +1581,8 @@ button {
   line-height: 1.25;
   font-weight: 700;
   letter-spacing: 0.01em;
-  color: color-mix(in srgb, var(--fontColor) 75%, #999);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  color: rgba(51, 51, 51, 0.75);
   max-height: 0;
   opacity: 0;
   overflow: hidden;
@@ -1591,17 +1615,20 @@ button {
 }
 
 .results-topic-chip.is-match {
-  background: color-mix(in srgb, var(--accent) 36%, #fff);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(189, 47, 47, 0.36);
   color: var(--fontColorLight);
 }
 
 .results-topic-chip.is-partial {
-  background: color-mix(in srgb, var(--accent) 20%, #fff);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(189, 47, 47, 0.2);
   color: var(--fontColor);
 }
 
 .results-topic-chip.is-mismatch {
-  background: color-mix(in srgb, #999 10%, #fff);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(153, 153, 153, 0.1);
   color: var(--fontColor);
 }
 
@@ -1622,7 +1649,8 @@ button {
 .results-analysis-empty-inline {
   margin: 0;
   padding: 10px 8px;
-  color: color-mix(in srgb, var(--fontColor) 75%, #999);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  color: rgba(51, 51, 51, 0.75);
   font-size: 0.92rem;
 }
 
@@ -1653,11 +1681,13 @@ button {
 }
 
 .results-topic-modal__topbar.is-match {
-  background: color-mix(in srgb, var(--accent) 95%, transparent);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(189, 47, 47, 0.95);
 }
 
 .results-topic-modal__topbar.is-partial {
-  background: color-mix(in srgb, var(--accent) 55%, transparent);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  background: rgba(189, 47, 47, 0.55);
 }
 
 .results-topic-modal__topbar.is-mismatch {
@@ -1762,8 +1792,9 @@ button {
 .results-topic-modal__suggest {
   align-self: stretch;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent) !important;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--accentLight) 100%, #fff) 0%, color-mix(in srgb, var(--accent) 86%, #fff) 1%);
+  /* Fallback for older browsers - color-mix version in @supports block */
+  border: 1px solid rgba(189, 47, 47, 0.6) !important;
+  background: linear-gradient(180deg, rgba(76, 1, 1, 1) 0%, rgba(189, 47, 47, 0.86) 1%);
   color: var(--fontColorLight);
   font-weight: 800;
   font-size: 0.9rem;
@@ -1771,7 +1802,7 @@ button {
   text-transform: uppercase;
   padding: 12px 14px;
   cursor: pointer;
-  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 35%, transparent);
+  box-shadow: 0 8px 18px rgba(189, 47, 47, 0.35);
 }
 
 .results-topic-modal__actions .results-topic-modal__close:only-child {
@@ -2004,7 +2035,8 @@ button {
   .results-row:hover {
     transform: translateY(-1px);
     border-color: var(--accent) !important;
-    background: color-mix(in srgb, var(--accent) 12%, var(--buttonColor));
+    /* Fallback for older browsers - color-mix version in @supports block */
+    background: rgba(189, 47, 47, 0.12);
   }
 
   .results-row.is-dimmed:hover {
@@ -2013,7 +2045,8 @@ button {
 
   .results-coincidence-card:hover {
     transform: translateY(-1px);
-    border-color: color-mix(in srgb, var(--accent) 45%, transparent) !important;
+    /* Fallback for older browsers - color-mix version in @supports block */
+    border-color: rgba(189, 47, 47, 0.45) !important;
   }
 }
 
@@ -2084,7 +2117,8 @@ button {
     gap: 6px;
     padding: 6px;
     border-radius: 14px;
-    background: color-mix(in srgb, var(--buttonColor) 90%, transparent);
+    /* Fallback for older browsers - color-mix version in @supports block */
+    background: rgba(245, 245, 245, 0.9);
     border: 1px solid rgba(0, 0, 0, 0.08);
   }
 
@@ -2205,10 +2239,14 @@ button {
   }
 
   .results-list {
+    /* Fallback for older browsers */
+    max-height: 48vh;
     max-height: 48dvh;
   }
 
   .results-analysis-card .entity-details-inline {
+    /* Fallback for older browsers */
+    max-height: 54vh;
     max-height: 54dvh;
     overflow-y: auto;
   }
@@ -2252,6 +2290,8 @@ button {
 
   .results-topic-modal {
     border-radius: 18px;
+    /* Fallback for older browsers */
+    max-height: 86vh;
     max-height: 86dvh;
   }
 
@@ -2395,7 +2435,11 @@ button {
 
   .question-text-container {
     min-height: 0;
+    /* Fallback for older browsers */
+    height: clamp(108px, 16vh, 136px);
     height: clamp(108px, 16dvh, 136px);
+    /* Fallback for older browsers */
+    max-height: clamp(108px, 16vh, 136px);
     max-height: clamp(108px, 16dvh, 136px);
     overflow: hidden;
     align-items: center;
@@ -2768,7 +2812,8 @@ button,
   height: 44px;
   padding: 0 16px;
   border-radius: 999px;
-  border: 2px solid var(--topic-fab-border, color-mix(in srgb, var(--topic-fab-text, #fff) 35%, transparent)) !important;
+  /* Fallback for older browsers - color-mix version in @supports block */
+  border: 2px solid var(--topic-fab-border, rgba(255, 255, 255, 0.35)) !important;
   background: var(--topic-fab-bg, var(--buttonNext, #20292e));
   color: var(--topic-fab-text, var(--fontColorLight, #fff));
   font-size: 16px;
@@ -3146,5 +3191,115 @@ button,
 
   .topic-info-dialog h3 {
     font-size: 1.15em;
+  }
+}
+
+/* ============================================
+   @SUPPORTS BLOCK FOR color-mix()
+   Only browsers that support color-mix() will apply these styles
+   ============================================ */
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+  /* Navigation buttons */
+  .nav-btn {
+    background: color-mix(in srgb, var(--buttonColor) 40%, transparent);
+  }
+  .nav-btn.nav-btn--active {
+    background: color-mix(in srgb, var(--accent) 25%, var(--buttonColor));
+  }
+
+  /* Card question options */
+  .card-question-options {
+    background: color-mix(in srgb, var(--buttonColor) 60%, transparent);
+  }
+  .card-option:hover {
+    background: color-mix(in srgb, var(--fontColor) 8%, var(--buttonColor));
+  }
+  .card-option:focus {
+    outline-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  }
+
+  /* Quiz back link */
+  .quiz-back-link {
+    background: color-mix(in srgb, var(--buttonColor) 60%, transparent);
+  }
+
+  /* Topic buttons */
+  .topic-button {
+    background: color-mix(in srgb, var(--buttonColor) 85%, transparent);
+  }
+  .topic-button:hover {
+    background: color-mix(in srgb, var(--fontColor) 12%, var(--buttonColor));
+  }
+  .topic-button:not(.is-selected):hover {
+    background: color-mix(in srgb, var(--fontColor) 15%, var(--buttonColor));
+  }
+  .topic-button.is-selected {
+    background: color-mix(in srgb, var(--accent) 22%, var(--buttonColor));
+  }
+  .topic-button.is-selected:hover {
+    background: color-mix(in srgb, var(--accent) 28%, var(--buttonColor));
+  }
+
+  /* Results section */
+  .results-header {
+    background: color-mix(in srgb, var(--buttonColor) 95%, transparent);
+  }
+
+  .results-row {
+    background: color-mix(in srgb, var(--buttonColor) 94%, transparent);
+  }
+
+  .results-topic-chip {
+    background: color-mix(in srgb, var(--fontColor) 8%, var(--buttonColor));
+  }
+  .results-topic-chip.is-match {
+    background: color-mix(in srgb, var(--accent) 20%, var(--buttonColor));
+  }
+  .results-topic-chip:hover {
+    background: color-mix(in srgb, var(--fontColor) 15%, var(--buttonColor));
+  }
+  .results-topic-chip.is-match:hover {
+    background: color-mix(in srgb, var(--accent) 28%, var(--buttonColor));
+  }
+
+  .results-coincidence-card {
+    background: color-mix(in srgb, var(--buttonColor) 90%, transparent);
+  }
+
+  .results-expanded-topics-header {
+    background: color-mix(in srgb, var(--buttonColor) 95%, transparent);
+  }
+
+  .results-expand-toggle-btn {
+    background: color-mix(in srgb, var(--buttonColor) 80%, transparent);
+  }
+  .results-expand-toggle-btn:hover {
+    background: color-mix(in srgb, var(--fontColor) 12%, var(--buttonColor));
+  }
+
+  .results-percent {
+    color: color-mix(in srgb, var(--fontColor) 80%, transparent);
+  }
+
+  /* Results hover states (desktop only) */
+  @media (hover: hover) and (pointer: fine) {
+    .results-row:hover {
+      background: color-mix(in srgb, var(--accent) 12%, var(--buttonColor));
+    }
+    .results-coincidence-card:hover {
+      border-color: color-mix(in srgb, var(--accent) 45%, transparent) !important;
+    }
+  }
+
+  /* Results mobile tabs */
+  @media (max-width: 767px) {
+    .results-mobile-tabs {
+      background: color-mix(in srgb, var(--buttonColor) 90%, transparent);
+    }
+  }
+
+  /* Topic scroll down FAB border */
+  .topic-scroll-down-fab {
+    border: 2px solid var(--topic-fab-border, color-mix(in srgb, var(--topic-fab-text, #fff) 35%, transparent)) !important;
   }
 }

@@ -533,10 +533,38 @@ export default function ResultsView({
     return Number.isFinite(numeric) ? Math.max(0, Math.min(100, numeric)) : 0;
   };
 
-  const getRowFillStyle = (fillPercent) => {
+  const getRowFillStyle = (fillPercent, { selected = false, dimmed = false } = {}) => {
     const pct = fillPercent;
+    // Check if browser supports color-mix()
+    const supportsColorMix = typeof CSS !== 'undefined' && CSS.supports && CSS.supports('background', 'color-mix(in srgb, red 50%, blue)');
+    if (supportsColorMix) {
+      if (selected) {
+        return {
+          background: `linear-gradient(to right, color-mix(in srgb, var(--accentLight) 97%, transparent) ${pct}%, color-mix(in srgb, var(--accent) 16%, var(--buttonColor)) ${pct}%)`,
+        };
+      }
+      if (dimmed) {
+        return {
+          background: `linear-gradient(to right, color-mix(in srgb, var(--accentLight) 88%, transparent) ${pct}%, color-mix(in srgb, var(--accent) 10%, var(--buttonColor)) ${pct}%)`,
+        };
+      }
+      return {
+        background: `linear-gradient(to right, color-mix(in srgb, var(--accentLight) 95%, transparent) ${pct}%, color-mix(in srgb, var(--accent) 8%, var(--buttonColor)) ${pct}%)`,
+      };
+    }
+    // Fallback for older browsers
+    if (selected) {
+      return {
+        background: `linear-gradient(to right, rgba(195, 30, 30, 1) ${pct}%, rgba(245, 245, 245, 1) ${pct}%)`,
+      };
+    }
+    if (dimmed) {
+      return {
+        background: `linear-gradient(to right, rgba(195, 30, 30, 0.85) ${pct}%, rgba(245, 245, 245, 1) ${pct}%)`,
+      };
+    }
     return {
-      background: `linear-gradient(to right, color-mix(in srgb, var(--accentLight) 95%, transparent) ${pct}%, color-mix(in srgb, var(--accent) 8%, var(--buttonColor)) ${pct}%)`,
+      background: `linear-gradient(to right, rgba(195, 30, 30, 1) ${pct}%, rgba(245, 245, 245, 1) ${pct}%)`,
     };
   };
 
@@ -701,7 +729,7 @@ export default function ResultsView({
                     <button
                       className={`results-row ${selected ? "is-selected" : ""} ${dimmed ? "is-dimmed" : ""} ${showIncompleteState ? "is-incomplete" : ""}`}
                       onClick={() => handleSelectRow(row)}
-                      style={getRowFillStyle(fillPercent)}
+                      style={getRowFillStyle(fillPercent, { selected, dimmed })}
                     >
                       <span className="results-row__identity">
                         <RowAvatar row={row} config={config} fillPercent={fillPercent} />
@@ -732,7 +760,7 @@ export default function ResultsView({
                     <button
                       className={`results-row ${selected ? "is-selected" : ""} ${dimmed ? "is-dimmed" : ""} ${showIncompleteState ? "is-incomplete" : ""}`}
                       onClick={() => handleSelectRow(row)}
-                      style={getRowFillStyle(fillPercent)}
+                      style={getRowFillStyle(fillPercent, { selected, dimmed })}
                     >
                       <span className="results-row__identity">
                         <RowAvatar row={row} config={config} fillPercent={fillPercent} />

@@ -98,8 +98,9 @@
 .progress-dot.current {
   background: #fff;
   transform: scale(1.2);
+  /* Fallback for older browsers - color-mix version in @supports block */
   box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--buttonNext, #8a0000) 35%, transparent),
+    0 0 0 2px rgba(138, 0, 0, 0.35),
     0 0 0 4px rgba(255, 255, 255, 0.55);
 }
 
@@ -154,5 +155,14 @@
     width: min(100%, 320px);
     min-height: 32px;
     padding: 6px 6px;
+  }
+}
+
+/* @supports block for color-mix() */
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+  .progress-dot.current {
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--buttonNext, #8a0000) 35%, transparent),
+      0 0 0 4px rgba(255, 255, 255, 0.55);
   }
 }

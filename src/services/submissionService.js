@@ -15,7 +15,7 @@ export function buildCompactResponses(questions, answers, weights) {
   }, {});
 }
 
-export function buildSubmissionPayload(questions, answers, weights, demographics, fingerprint, turnstileToken) {
+export function buildSubmissionPayload(questions, answers, weights, demographics, fingerprint, turnstileToken, captchaType = 'turnstile') {
   const compactResponses = buildCompactResponses(questions, answers, weights);
 
   const userId = localStorage.getItem("userId") || Date.now().toString();
@@ -27,6 +27,7 @@ export function buildSubmissionPayload(questions, answers, weights, demographics
     responses: compactResponses,
     demographics: demographics || null,
     turnstile_token: turnstileToken,
+    captcha_type: captchaType,
     fingerprint: fingerprint || null,
   };
 }

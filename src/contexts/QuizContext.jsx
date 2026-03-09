@@ -212,7 +212,7 @@ export function QuizProvider({ children }) {
     });
   };
 
-  const submitAnswersToAPI = async (demographicsData = null, turnstileToken = null) => {
+  const submitAnswersToAPI = async (demographicsData = null, turnstileToken = null, captchaType = 'turnstile') => {
     // Honeypot check
     const website_url = document.getElementById('website-url')?.value;
     if (website_url) return;
@@ -224,7 +224,8 @@ export function QuizProvider({ children }) {
         state.weights,
         demographicsData,
         fingerprint,
-        turnstileToken
+        turnstileToken,
+        captchaType
       );
       const data = await submitQuizAnswers(payload);
       console.log("Form submitted successfully:", data);
@@ -443,17 +444,18 @@ export function QuizProvider({ children }) {
     setShowElectionIntro(false);
   };
 
-  const handleTurnstileSuccess = async (token) => {
-    console.log('Turnstile verified, submitting form with token');
+  const handleTurnstileSuccess = async (token, captchaType = 'turnstile') => {
+    console.log(`${captchaType} verified, submitting form with token`);
     try {
       if (typeof window !== "undefined" && token) {
         window.sessionStorage.setItem("turnstile_token", token);
         window.sessionStorage.setItem("turnstile_verified_at", String(Date.now()));
+        window.sessionStorage.setItem("captcha_type", captchaType);
       }
     } catch (_) {}
 
     try {
-      await submitAnswersToAPI(demographics, token);
+      await submitAnswersToAPI(demographics, token, captchaType);
     } catch (error) {
       console.error('Failed to submit form:', error);
     }

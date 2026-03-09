@@ -166,3 +166,22 @@
       0 0 0 4px rgba(255, 255, 255, 0.55);
   }
 }
+
+/* iOS 12 compatibility: flexbox gap fallback */
+@supports not (gap: 1rem) {
+  .progress-bar-container > * + * {
+    margin-top: 6px;
+  }
+
+  .progress-dots {
+    margin: 0 -5px;
+  }
+
+  .progress-dots > * {
+    margin: 0 5px;
+  }
+
+  .progress-fraction > * + * {
+    margin-left: 10px;
+  }
+}

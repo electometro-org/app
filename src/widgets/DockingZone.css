@@ -3,7 +3,7 @@
 .docking-zone {
   position: relative;
   width: 100%;
-  min-height: 1px; /* Minimum height so zones are always targetable */
+  min-height: 2px; /* iOS 12 flexbox-safe minimum */
   transition: min-height 0.2s ease;
 }
 
@@ -43,7 +43,10 @@
 
 [data-widget-debug="true"] .docking-zone__indicator {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   display: flex;
   align-items: center;
   justify-content: center;

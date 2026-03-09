@@ -128,3 +128,24 @@
     font-size: 45px;
   }
 }
+
+/* iOS 12 compatibility: flexbox gap fallback */
+@supports not (gap: 1rem) {
+  .social-share > * + * {
+    margin-left: 12px;
+  }
+
+  .social-share-content > * + * {
+    margin-top: 8px;
+  }
+
+  .social-share-buttons > * + * {
+    margin-left: 8px;
+  }
+
+  @media (max-width: 767px) {
+    .social-share-buttons > * + * {
+      margin-left: 6px;
+    }
+  }
+}

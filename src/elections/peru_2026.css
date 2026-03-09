@@ -252,6 +252,17 @@
   gap: 15px;
 }
 
+/* iOS 12 compatibility: flexbox gap fallback */
+@supports not (gap: 1rem) {
+  [data-election="peru_2026"] .intro-container > * + * {
+    margin-top: 10px;
+  }
+
+  [data-election="peru_2026"] .opinion-buttons > * + * {
+    margin-top: 15px;
+  }
+}
+
 /* Topic Importance View - Peru 2026 colors */
 [data-election="peru_2026"] .topic-importance-header p {
   color: var(--fontColor);

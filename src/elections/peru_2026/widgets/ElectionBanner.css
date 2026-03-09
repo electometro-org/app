@@ -47,3 +47,14 @@
   opacity: 0.6;
   white-space: nowrap;
 }
+
+/* iOS 12 compatibility: flexbox gap fallback */
+@supports not (gap: 1rem) {
+  .election-banner > * + * {
+    margin-left: 12px;
+  }
+
+  .election-banner-text > * + * {
+    margin-top: 2px;
+  }
+}

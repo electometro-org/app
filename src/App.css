@@ -87,8 +87,10 @@ button {
   flex-direction: column;
   overflow: auto;
   box-sizing: border-box;
+  /* Fallback for older browsers that don't support min() */
+  width: 80vw;
+  max-width: 900px;
   width: min(900px, 80vw);
-  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -209,14 +211,18 @@ button {
   flex-direction: column;
   gap: 10px;
   font-size: 1.3em;
+  /* Fallback for older browsers that don't support min() */
+  width: 94vw;
+  max-width: 760px;
   width: min(760px, 94vw);
-  max-width: 100%;
   box-sizing: border-box;
 }
 
 .intro-container h2 {
   width: 100%;
   margin: 0;
+  /* Fallback for older browsers that don't support clamp() */
+  font-size: 2.8rem;
   font-size: clamp(2.25rem, 6.4vw, 3.6rem);
   text-wrap: balance;
   -webkit-text-size-adjust: 100%;
@@ -232,6 +238,9 @@ button {
 }
 
 .election-intro-pitch-inline {
+  /* Fallback for older browsers that don't support min() */
+  width: 94vw;
+  max-width: 760px;
   width: min(760px, 94vw);
   margin: 0;
   padding: 0 6px 12px;
@@ -271,6 +280,9 @@ button {
 .election-intro-pitch-inline::after {
   content: "";
   display: block;
+  /* Fallback for older browsers that don't support min() */
+  width: 72vw;
+  max-width: 420px;
   width: min(420px, 72vw);
   height: 2px;
   margin: 12px auto 0;
@@ -486,10 +498,19 @@ button {
 }
 
 .results-view-shell {
+  /* Fallback for older browsers that don't support min() */
+  width: 96vw;
+  max-width: 1280px;
   width: min(1280px, 96vw);
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-direction: column;
   flex-direction: column;
-  gap: 18px;
+  /* gap not supported in flexbox on iOS 12 - use margins */
+}
+
+.results-view-shell > * + * {
+  margin-top: 18px;
 }
 
 .results-view-header {
@@ -501,13 +522,24 @@ button {
 }
 
 .results-toolbar {
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-direction: row;
   flex-direction: row;
+  /* Fallback for older browsers that don't support min() */
+  width: 100%;
+  max-width: 980px;
   width: min(980px, 100%);
   margin: 0 auto;
+  -webkit-justify-content: space-between;
   justify-content: space-between;
+  -webkit-align-items: center;
   align-items: center;
-  gap: 12px;
+  /* gap not supported in flexbox on iOS 12 - use margins */
+}
+
+.results-toolbar > * + * {
+  margin-left: 12px;
 }
 
 .results-toolbar.is-detailed {
@@ -515,9 +547,17 @@ button {
 }
 
 .results-view-mode-toggle {
+  display: -webkit-inline-flex;
   display: inline-flex;
-  gap: 8px;
+  /* gap not supported in flexbox on iOS 12 */
   padding: 7px;
+}
+
+.results-view-mode-toggle > * + * {
+  margin-left: 8px;
+}
+
+.results-view-mode-toggle__btn {
   border-radius: 18px;
   /* Fallback for older browsers - color-mix version in @supports block */
   background: rgba(245, 245, 245, 0.85);
@@ -686,7 +726,11 @@ button {
 }
 
 .results-analysis-active-card .results-slot-item__avatar-img {
-  inset: 4px;
+  /* Fallback for inset (not supported in iOS 12) */
+  top: 4px;
+  right: 4px;
+  bottom: 4px;
+  left: 4px;
   width: calc(100% - 8px);
   height: calc(100% - 8px);
 }
@@ -707,11 +751,17 @@ button {
 }
 
 .results-slot-mode > .results-analysis-card {
+  /* Fallback for older browsers that don't support min() */
+  width: 100%;
+  max-width: 980px;
   width: min(980px, 100%);
 }
 
 .results-slot-card {
   --results-slot-border-color: rgba(0, 0, 0, 0.8);
+  /* Fallback for older browsers that don't support min() */
+  width: 100%;
+  max-width: 980px;
   width: min(980px, 100%);
   border-radius: 34px;
   border: 3px solid var(--results-slot-border-color);
@@ -749,14 +799,23 @@ button {
   width: 100%;
   flex: 0 0 100%;
   min-height: 290px;
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-direction: column;
   flex-direction: column;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-justify-content: center;
   justify-content: center;
-  gap: 14px;
+  /* gap not supported in old iOS - use margins on children instead */
   text-align: center;
   padding: 24px;
   box-sizing: border-box;
+}
+
+/* Fallback for gap in flexbox (not supported until iOS 14.5) */
+.results-slot-item > * + * {
+  margin-top: 14px;
 }
 
 .results-slot-item.is-incomplete {
@@ -798,7 +857,11 @@ button {
 
 .results-slot-item__avatar-img {
   position: absolute;
-  inset: 8px;
+  /* Fallback for inset (not supported in iOS 12) */
+  top: 8px;
+  right: 8px;
+  bottom: 8px;
+  left: 8px;
   width: calc(100% - 16px);
   height: calc(100% - 16px);
   object-fit: contain;
@@ -813,15 +876,21 @@ button {
 
 .results-slot-item__name {
   margin: 0;
+  /* Fallback for older browsers that don't support clamp() */
+  font-size: 2.2rem;
   font-size: clamp(1.7rem, 3.9vw, 3.4rem);
   line-height: 0.95;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: -0.02em;
+  /* Fallback for older browsers that don't support min() */
+  max-width: 92%;
   max-width: min(92%, 740px);
 }
 
 .results-slot-item__score {
+  /* Fallback for older browsers that don't support clamp() */
+  font-size: 2.4rem;
   font-size: clamp(1.9rem, 4.4vw, 3.2rem);
   line-height: 1;
   font-weight: 900;
@@ -1003,7 +1072,11 @@ button {
 
 .results-comparison-info-overlay {
   position: fixed;
-  inset: 0;
+  /* Fallback for inset (not supported in iOS 12) */
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   background: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
@@ -1212,7 +1285,11 @@ button {
 
 .results-row__avatar-img {
   position: absolute;
-  inset: 3px;
+  /* Fallback for inset (not supported in iOS 12) */
+  top: 3px;
+  right: 3px;
+  bottom: 3px;
+  left: 3px;
   width: calc(100% - 6px);
   height: calc(100% - 6px);
   object-fit: contain;
@@ -1256,7 +1333,11 @@ button {
 
 .results-row__split-text-layer {
   position: absolute;
-  inset: 0;
+  /* Fallback for inset (not supported in iOS 12) */
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   pointer-events: none;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1557,17 +1638,37 @@ button {
 }
 
 .results-analysis-group__body {
-  display: grid;
-  grid-template-rows: 0fr;
+  /* Fallback for older browsers that don't support grid-template-rows: 0fr */
+  display: block;
+  max-height: 0;
   opacity: 0;
   pointer-events: none;
-  transition: grid-template-rows 320ms ease, opacity 240ms ease;
+  overflow: hidden;
+  -webkit-transition: max-height 320ms ease, opacity 240ms ease;
+  transition: max-height 320ms ease, opacity 240ms ease;
+}
+
+@supports (grid-template-rows: 0fr) {
+  .results-analysis-group__body {
+    display: grid;
+    grid-template-rows: 0fr;
+    max-height: none;
+    transition: grid-template-rows 320ms ease, opacity 240ms ease;
+  }
 }
 
 .results-analysis-group__body.is-open {
-  grid-template-rows: 1fr;
+  /* Fallback for older browsers */
+  max-height: 800px;
   opacity: 1;
   pointer-events: auto;
+}
+
+@supports (grid-template-rows: 0fr) {
+  .results-analysis-group__body.is-open {
+    grid-template-rows: 1fr;
+    max-height: none;
+  }
 }
 
 .results-analysis-group__body > .results-analysis-group__chips {
@@ -1656,7 +1757,11 @@ button {
 
 .results-topic-modal-overlay {
   position: fixed;
-  inset: 0;
+  /* Fallback for inset (not supported in iOS 12) */
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   background: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
@@ -1667,6 +1772,9 @@ button {
 }
 
 .results-topic-modal {
+  /* Fallback for older browsers that don't support min() */
+  width: 100%;
+  max-width: 760px;
   width: min(760px, 100%);
   max-height: 82vh;
   overflow: auto;
@@ -1811,7 +1919,11 @@ button {
 
 .results-suggestion-modal-overlay {
   position: fixed;
-  inset: 0;
+  /* Fallback for inset (not supported in iOS 12) */
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   background: rgba(0, 0, 0, 0.78);
   display: flex;
   align-items: center;
@@ -1822,6 +1934,9 @@ button {
 }
 
 .results-suggestion-modal {
+  /* Fallback for older browsers that don't support min() */
+  width: 100%;
+  max-width: 640px;
   width: min(640px, 100%);
   max-height: 84vh;
   overflow: auto;
@@ -1986,7 +2101,11 @@ button {
 
 .results-turnstile-refresh-overlay {
   position: fixed;
-  inset: 0;
+  /* Fallback for inset (not supported in iOS 12) */
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 10060;
   background: rgba(0, 0, 0, 0.7);
   display: grid;
@@ -1996,6 +2115,9 @@ button {
 }
 
 .results-turnstile-refresh-card {
+  /* Fallback for older browsers that don't support min() */
+  width: 100%;
+  max-width: 420px;
   width: min(420px, 100%);
   background: #fff;
   color: #222;
@@ -2079,6 +2201,9 @@ button {
 
 @media (max-width: 767px) {
   .results-view-shell {
+    /* Fallback for older browsers that don't support min() */
+    width: 97vw;
+    max-width: 760px;
     width: min(760px, 97vw);
     gap: 11px;
   }
@@ -2166,14 +2291,20 @@ button {
     padding: 8px 10px;
   }
 
-  .results-slot-viewport,
-  .results-slot-item {
-    min-height: 1px;
+  .results-slot-viewport {
+    /* Let content determine height on mobile */
+    min-height: auto;
   }
 
   .results-slot-item {
-    gap: 10px;
+    /* Ensure content is not clipped - use auto instead of 1px */
+    min-height: auto;
     padding: 16px 12px;
+  }
+
+  /* Override gap fallback for mobile */
+  .results-slot-item > * + * {
+    margin-top: 10px;
   }
 
   .results-slot-item__avatar {
@@ -2435,10 +2566,12 @@ button {
 
   .question-text-container {
     min-height: 0;
-    /* Fallback for older browsers */
+    /* Fallback for older browsers that don't support clamp() */
+    height: 120px;
     height: clamp(108px, 16vh, 136px);
     height: clamp(108px, 16dvh, 136px);
-    /* Fallback for older browsers */
+    /* Fallback for older browsers that don't support clamp() */
+    max-height: 136px;
     max-height: clamp(108px, 16vh, 136px);
     max-height: clamp(108px, 16dvh, 136px);
     overflow: hidden;
@@ -2453,10 +2586,16 @@ button {
   }
 
   .intro-container {
+    /* Fallback for older browsers that don't support min() */
+    width: 95vw;
+    max-width: 680px;
     width: min(680px, 95vw);
   }
 
   .election-intro-pitch-inline {
+    /* Fallback for older browsers that don't support min() */
+    width: 95vw;
+    max-width: 680px;
     width: min(680px, 95vw);
     padding: 0 2px 10px;
     font-size: 1.2rem;
@@ -2464,6 +2603,9 @@ button {
   }
 
   .election-intro-pitch-inline::after {
+    /* Fallback for older browsers that don't support min() */
+    width: 68vw;
+    max-width: 300px;
     width: min(300px, 68vw);
     margin-top: 10px;
   }
@@ -3004,7 +3146,11 @@ button,
 
 .quiz-min-answers-overlay {
   position: fixed;
-  inset: 0;
+  /* Fallback for inset (not supported in iOS 12) */
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   background: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
@@ -3131,6 +3277,69 @@ button,
   font-weight: 600;
   color: #333;
   min-width: 24px;
+}
+
+/* iOS 12 compatibility: flexbox gap fallback */
+@supports not (gap: 1rem) {
+  .election-selection-container > * + *,
+  .intro-container > * + *,
+  .results-analysis-panel > * + *,
+  .results-slot-mode > * + *,
+  .results-topic-modal__content > * + *,
+  .turnstile-overlay-content > * + *,
+  .captcha-loading > * + * {
+    margin-top: 10px;
+  }
+
+  .turnstile-overlay-content > * + * {
+    margin-top: 20px;
+  }
+
+  .captcha-loading > * + * {
+    margin-top: 12px;
+  }
+
+  .importance-slider-container > * + *,
+  .results-toggle-container > * + *,
+  .results-analysis-active-card > * + *,
+  .results-analysis-active-card__identity > * + *,
+  .results-analysis-active-card__score > * + *,
+  .results-coincidence-card > * + *,
+  .results-coincidence-card__left > * + *,
+  .results-row > * + *,
+  .results-row__identity > * + *,
+  .results-analysis-group__toggle > * + * {
+    margin-left: 10px;
+  }
+
+  .results-analysis-active-card > * + * {
+    margin-left: 12px;
+  }
+
+  .results-analysis-active-card__score > * + * {
+    margin-top: 2px;
+    margin-left: 0;
+  }
+
+  .results-analysis-group__chips {
+    margin: -4.5px;
+  }
+
+  .results-analysis-group__chips > * {
+    margin: 4.5px;
+  }
+
+  .quiz-min-answers-actions {
+    margin: 11px 0 0 -5px;
+  }
+
+  .quiz-min-answers-actions > * {
+    margin: 5px 0 0 5px;
+  }
+
+  .topic-question-item > * + * {
+    margin-top: 10px;
+  }
 }
 
 .question-text {

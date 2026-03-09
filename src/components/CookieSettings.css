@@ -169,3 +169,21 @@ input:checked + .toggle-slider:before {
     align-self: flex-end;
   }
 }
+
+/* iOS 12 compatibility: flexbox gap fallback */
+@supports not (gap: 1rem) {
+  .setting-item > * + * {
+    margin-left: 20px;
+  }
+
+  .settings-actions > * + * {
+    margin-left: 16px;
+  }
+
+  @media (max-width: 768px) {
+    .setting-item > * + * {
+      margin-left: 0;
+      margin-top: 20px;
+    }
+  }
+}

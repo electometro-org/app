@@ -408,6 +408,10 @@
     background: color-mix(in srgb, var(--buttonColor) 88%, transparent);
   }
 
+  [data-election="peru_2026"] .results-type-toggle {
+    background: color-mix(in srgb, var(--buttonColor) 85%, transparent);
+  }
+
   [data-election="peru_2026"] .results-coincidence-card {
     background: color-mix(in srgb, var(--buttonColor) 90%, #fff);
   }

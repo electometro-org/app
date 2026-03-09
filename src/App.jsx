@@ -1,6 +1,7 @@
-import React from "react";
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import React, { useEffect, useRef } from "react";
+import { HashRouter as Router, Routes, Route, useSearchParams } from "react-router-dom";
 import { useTranslate } from "@tolgee/react";
+import { isValidMnemonic } from "./utils/mnemonicCodec";
 import Methodology from "./components/methodology.jsx";
 import Contact from "./components/contact.jsx";
 import Menu from "./components/menu";
@@ -22,7 +23,8 @@ import { BackgroundLayer } from "./backgrounds";
 import { WidgetLayout } from "./widgets";
 import "./App.css";
 
-export default function App() {
+// Inner component that uses router hooks (must be inside Router)
+function AppContent() {
   const { t } = useTranslate();
   const {
     // Core state
@@ -78,7 +80,39 @@ export default function App() {
     handleGenericIntroContinue,
     handleSelectElection,
     handleStartQuiz,
+    restoreFromMnemonic,
   } = useQuizContext();
+
+  // Handle URL mnemonic restore
+  const hasAttemptedRestore = useRef(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    // Only attempt restore once and when questions are loaded
+    if (hasAttemptedRestore.current || state.questions.length === 0) return;
+
+    const mnemonicParam = searchParams.get("r");
+    if (!mnemonicParam) return;
+
+    const wordList = config?.mnemonicWordList;
+    if (!isValidMnemonic(mnemonicParam, wordList)) {
+      console.warn("Invalid mnemonic in URL:", mnemonicParam);
+      // Clear invalid param
+      searchParams.delete("r");
+      setSearchParams(searchParams, { replace: true });
+      return;
+    }
+
+    hasAttemptedRestore.current = true;
+
+    restoreFromMnemonic(mnemonicParam).then((success) => {
+      if (!success) {
+        // Clear param on failure
+        searchParams.delete("r");
+        setSearchParams(searchParams, { replace: true });
+      }
+    });
+  }, [searchParams, setSearchParams, state.questions.length, restoreFromMnemonic, config?.mnemonicWordList]);
 
   // Determine which view to show
   const renderMainContent = () => {
@@ -175,6 +209,7 @@ export default function App() {
                 questionDetails={state.questionDetails}
                 questions={state.questions}
                 answers={state.answers}
+                weights={state.weights}
                 config={config}
                 isMobile={isMobile}
                 mobileOpen={mobileOpen}
@@ -198,7 +233,7 @@ export default function App() {
   };
 
   return (
-    <Router>
+    <>
       <BackgroundLayer />
       <AnalyticsTracker />
       <TurnstileOverlay
@@ -239,6 +274,15 @@ export default function App() {
         </Routes>
         {showElectionIntro && <PrivacyNotice />}
       </>
+    </>
+  );
+}
+
+// Main App component wraps everything with Router
+export default function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }

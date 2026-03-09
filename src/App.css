@@ -2556,6 +2556,71 @@ button {
   transition: background-color 0.2s ease-in-out;
 }
 
+/* Save Results Button */
+.results-save-btn {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--fontColor);
+  background: var(--buttonColor);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  -webkit-transition: background-color 0.2s, -webkit-transform 0.1s;
+  transition: background-color 0.2s, transform 0.1s;
+  white-space: nowrap;
+}
+.results-save-btn:hover {
+  background: var(--buttonHover);
+}
+.results-save-btn:active {
+  -webkit-transform: scale(0.97);
+  transform: scale(0.97);
+}
+
+/* Saved Toast Notification */
+.results-saved-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  background: var(--buttonNext);
+  color: var(--fontColorLight);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  z-index: 10001;
+  -webkit-animation: toastFadeIn 0.25s ease-out;
+  animation: toastFadeIn 0.25s ease-out;
+}
+@-webkit-keyframes toastFadeIn {
+  from {
+    opacity: 0;
+    -webkit-transform: translateX(-50%) translateY(10px);
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateX(-50%) translateY(0);
+    transform: translateX(-50%) translateY(0);
+  }
+}
+@keyframes toastFadeIn {
+  from {
+    opacity: 0;
+    -webkit-transform: translateX(-50%) translateY(10px);
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateX(-50%) translateY(0);
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
 @media (max-width: 767px) {
   .entity-details-container {
     display: none;

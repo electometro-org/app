@@ -59,6 +59,33 @@ function reducer(state, action) {
           [action.topicKey]: !state.topicImportance[action.topicKey],
         },
       };
+    case "RESTORE_STATE":
+      // Restore answers and weights from saved state (e.g., from mnemonic)
+      // Pads or truncates to match current questions length
+      {
+        const { answers: restoredAnswers, weights: restoredWeights } = action.payload;
+        const qLen = state.questions.length;
+        const answers = Array(qLen).fill(null);
+        const weights = Array(qLen).fill(2);
+        for (let i = 0; i < qLen && i < restoredAnswers.length; i++) {
+          answers[i] = restoredAnswers[i];
+          weights[i] = restoredWeights[i] ?? 2;
+        }
+        // Derive topicImportance from weights (3 = important)
+        const topicImportance = {};
+        state.questions.forEach((q, i) => {
+          if (q.topic_key && weights[i] >= 3) {
+            topicImportance[q.topic_key] = true;
+          }
+        });
+        return {
+          ...state,
+          answers,
+          weights,
+          topicImportance,
+          currentQuestionIndex: qLen, // Past last question
+        };
+      }
     case "RESET":
       // Preserve questions but reset answers, progress, results, seen questions, and topic importance
       return {

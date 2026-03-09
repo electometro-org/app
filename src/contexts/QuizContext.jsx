@@ -20,6 +20,7 @@ import {
   showGenericIntro as showGenericIntroConfig,
   shouldShowElectionIntro
 } from "../config/appConfig";
+import { decodeFromMnemonic, isValidMnemonic } from "../utils/mnemonicCodec";
 
 const QuizContext = createContext(null);
 
@@ -457,6 +458,68 @@ export function QuizProvider({ children }) {
     setShowElectionIntro(false);
   };
 
+  // Restore quiz state from mnemonic phrase (e.g., from URL hash)
+  const restoreFromMnemonic = async (phrase) => {
+    const wordList = config?.mnemonicWordList;
+    if (!phrase || !isValidMnemonic(phrase, wordList)) {
+      console.warn("Invalid mnemonic phrase:", phrase);
+      return false;
+    }
+
+    const decoded = decodeFromMnemonic(phrase, wordList);
+    if (!decoded) {
+      console.warn("Failed to decode mnemonic:", phrase);
+      return false;
+    }
+
+    // Wait for questions to be loaded if not yet available
+    if (state.questions.length === 0) {
+      console.warn("Questions not loaded yet, cannot restore");
+      return false;
+    }
+
+    // Restore state
+    dispatch({ type: "RESTORE_STATE", payload: decoded });
+
+    // Build user answers for results computation
+    const userAnswers = buildUserAnswers(state.questions, decoded.answers, decoded.weights);
+
+    // Fetch votes data and compute results
+    const partyPromise = config.partyVotesUrl ? fetchJsonSafe(config.partyVotesUrl) : Promise.resolve(null);
+    const presPromise = (config.questionTypes?.includes("presidential") && config.presVotesUrl)
+      ? fetchJsonSafe(config.presVotesUrl)
+      : Promise.resolve(null);
+
+    try {
+      const [partyData, presData] = await Promise.all([partyPromise, presPromise]);
+      const partyResults = partyData ? computeResultsFrom(partyData, "parties", userAnswers, { isImputedNeutral }) : [];
+      const presidentialResults = presData ? computeResultsFrom(presData, "candidates", userAnswers, { isImputedNeutral }) : [];
+      dispatch({
+        type: "SET_COMPARISON_RESULTS",
+        payload: {
+          party_results: partyResults,
+          presidential_results: presidentialResults
+        }
+      });
+    } catch (err) {
+      console.error("Error computing results from restored state:", err);
+      return false;
+    }
+
+    // Set UI state to show results
+    setShowTopicImportance(false);
+    setShowDemographics(false);
+    setShowTurnstileOverlay(false);
+    setTurnstileVerified(true);
+    setShowGenericIntro(false);
+    setShowElectionIntro(false);
+
+    // Scroll to top
+    window.scrollTo(0, 0);
+
+    return true;
+  };
+
   const handleTurnstileSuccess = async (token, captchaType = 'turnstile') => {
     console.log(`${captchaType} verified, submitting form with token`);
     try {
@@ -554,6 +617,7 @@ export function QuizProvider({ children }) {
     handleGenericIntroContinue,
     handleSelectElection,
     handleStartQuiz,
+    restoreFromMnemonic,
 
     // Constants
     USER_TO_NUM,

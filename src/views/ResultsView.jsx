@@ -3,6 +3,7 @@ import { useTranslate } from "@tolgee/react";
 import { BrandLogo } from "../components/BrandImage";
 import { voteToNumeric } from "../voteUtils";
 import { createPortal } from "react-dom";
+import { encodeToMnemonic } from "../utils/mnemonicCodec";
 
 const PARTY_LOGO_EXTS = ["png", "jpg", "jpeg", "svg"];
 
@@ -24,6 +25,7 @@ export default function ResultsView({
   questionDetails,
   questions,
   answers,
+  weights,
   config,
   isMobile,
   partyComplete,
@@ -49,6 +51,7 @@ export default function ResultsView({
   const [listHasBottomFade, setListHasBottomFade] = React.useState(false);
   const [showResultsScrollDownFab, setShowResultsScrollDownFab] = React.useState(false);
   const [showComparisonInfoModal, setShowComparisonInfoModal] = React.useState(false);
+  const [showSavedToast, setShowSavedToast] = React.useState(false);
   const [resolvedLogoUrls, setResolvedLogoUrls] = React.useState({});
   const resolvedLogoUrlsRef = React.useRef({});
   const logoResolveInFlightRef = React.useRef(new Set());
@@ -125,6 +128,50 @@ export default function ResultsView({
   const comparisonInfoCloseLabel = t("results.comparisonInfoClose") === "results.comparisonInfoClose"
     ? "Cerrar"
     : t("results.comparisonInfoClose");
+  const saveResultsLabel = t("results.saveResults") === "results.saveResults"
+    ? "Guardar resultados"
+    : t("results.saveResults");
+  const resultsSavedLabel = t("results.resultsSaved") === "results.resultsSaved"
+    ? "Enlace copiado"
+    : t("results.resultsSaved");
+
+  // Handle saving results to URL and clipboard
+  const handleSaveResults = async () => {
+    const wordList = config?.mnemonicWordList;
+    const mnemonic = encodeToMnemonic(answers, weights, wordList);
+    if (!mnemonic) return;
+
+    // Update URL hash with mnemonic
+    const currentHash = window.location.hash;
+    const basePath = currentHash.split("?")[0] || "#/";
+    const newUrl = `${window.location.origin}${window.location.pathname}${basePath}?r=${mnemonic}`;
+
+    // Update browser URL without reload
+    window.history.replaceState(null, "", newUrl);
+
+    // Copy to clipboard
+    try {
+      await navigator.clipboard.writeText(newUrl);
+      setShowSavedToast(true);
+      setTimeout(() => setShowSavedToast(false), 2500);
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = newUrl;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand("copy");
+        setShowSavedToast(true);
+        setTimeout(() => setShowSavedToast(false), 2500);
+      } catch (_) {
+        console.warn("Failed to copy URL to clipboard");
+      }
+      document.body.removeChild(textArea);
+    }
+  };
 
   const toSortableScore = (score) => {
     const numeric = Number(score);
@@ -727,6 +774,14 @@ export default function ResultsView({
           </button>
         </div>
 
+        <button
+          className="results-save-btn"
+          onClick={handleSaveResults}
+          type="button"
+        >
+          {saveResultsLabel}
+        </button>
+
         {isMobile && resultsViewMode === "comparison" && (
           <div className="results-mobile-tabs">
             <button
@@ -1020,6 +1075,13 @@ export default function ResultsView({
       >
         {t("nav.backToSurvey")}
       </button>
+
+      {showSavedToast && createPortal(
+        <div className="results-saved-toast">
+          {resultsSavedLabel}
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

@@ -337,6 +337,7 @@ export default function ResultsView({
 
     let cancelled = false;
     (async () => {
+      // Find party names that need resolution (not yet in cache or in-flight)
       const missingPartyNames = [...partyNames].filter((name) => {
         const slug = slugifyAssetName(name || "");
         return (
@@ -345,7 +346,15 @@ export default function ResultsView({
           && !logoResolveInFlightRef.current.has(slug)
         );
       });
-      if (missingPartyNames.length === 0) return;
+
+      // If nothing to preload but we have cached entries, sync cache to state
+      if (missingPartyNames.length === 0) {
+        if (Object.keys(resolvedLogoUrlsRef.current).length > 0) {
+          setResolvedLogoUrls({ ...resolvedLogoUrlsRef.current });
+        }
+        return;
+      }
+
       const pairs = await Promise.all(missingPartyNames.map(resolveLogoUrl));
       if (cancelled) return;
       const nextEntries = {};

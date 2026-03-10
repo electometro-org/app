@@ -598,7 +598,7 @@ export function QuizProvider({ children }) {
     console.log(`${captchaType} verified, submitting form with token`);
     try {
       if (typeof window !== "undefined" && token) {
-        window.sessionStorage.setItem("turnstile_token", token);
+        window.sessionStorage.setItem("captcha_token", token);
         window.sessionStorage.setItem("turnstile_verified_at", String(Date.now()));
         window.sessionStorage.setItem("captcha_type", captchaType);
       }

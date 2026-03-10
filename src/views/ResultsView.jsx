@@ -7,6 +7,49 @@ import { encodeToMnemonic } from "../utils/mnemonicCodec";
 
 const PARTY_LOGO_EXTS = ["png", "jpg", "jpeg", "svg"];
 
+const TURNSTILE_SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+const HCAPTCHA_SCRIPT_URL = "https://js.hcaptcha.com/1/api.js";
+
+function loadCaptchaScript(src) {
+  return new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[src="${src}"]`);
+    if (existing) {
+      resolve();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+async function tryLoadTurnstile() {
+  try {
+    await loadCaptchaScript(TURNSTILE_SCRIPT_URL);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return typeof window.turnstile !== "undefined";
+  } catch {
+    return false;
+  }
+}
+
+async function tryLoadHCaptcha() {
+  try {
+    await loadCaptchaScript(HCAPTCHA_SCRIPT_URL);
+    let attempts = 0;
+    while (typeof window.hcaptcha === "undefined" && attempts < 50) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      attempts++;
+    }
+    return typeof window.hcaptcha !== "undefined";
+  } catch {
+    return false;
+  }
+}
+
 function slugifyAssetName(value) {
   return String(value || "")
     .normalize("NFD")
@@ -1818,9 +1861,45 @@ function ResultsAnalysisPanel({
       if (typeof window === "undefined") return "";
       const verifiedAtRaw = window.sessionStorage.getItem("turnstile_verified_at");
       const verifiedAt = Number(verifiedAtRaw || "0");
-      if (!Number.isFinite(verifiedAt) || verifiedAt <= 0) return "";
-      if (Date.now() - verifiedAt <= 5 * 60 * 1000) return "";
-      if (!window.turnstile || !import.meta.env.VITE_TURNSTILE_FORM_KEY) return "";
+      const storedCaptchaType = window.sessionStorage.getItem("captcha_type") || "turnstile";
+
+      // Check if recently verified (within 5 minutes)
+      const isRecentlyVerified = Number.isFinite(verifiedAt) &&
+                                  verifiedAt > 0 &&
+                                  Date.now() - verifiedAt <= 5 * 60 * 1000;
+
+      if (isRecentlyVerified) {
+        return ""; // No refresh needed
+      }
+
+      // Need verification: either never verified or expired
+      // Load captcha scripts if not already available
+      let captchaToUse = null;
+
+      // Try Turnstile first (unless hCaptcha was previously used)
+      if (storedCaptchaType === "turnstile" || !window.hcaptcha) {
+        if (!window.turnstile && import.meta.env.VITE_TURNSTILE_FORM_KEY) {
+          const loaded = await tryLoadTurnstile();
+          if (loaded) captchaToUse = "turnstile";
+        } else if (window.turnstile && import.meta.env.VITE_TURNSTILE_FORM_KEY) {
+          captchaToUse = "turnstile";
+        }
+      }
+
+      // Fall back to hCaptcha if Turnstile not available
+      if (!captchaToUse) {
+        if (!window.hcaptcha && import.meta.env.VITE_HCAPTCHA_SITE_KEY) {
+          const loaded = await tryLoadHCaptcha();
+          if (loaded) captchaToUse = "hcaptcha";
+        } else if (window.hcaptcha && import.meta.env.VITE_HCAPTCHA_SITE_KEY) {
+          captchaToUse = "hcaptcha";
+        }
+      }
+
+      // No captcha available
+      if (!captchaToUse) {
+        return "";
+      }
 
       return new Promise((resolve, reject) => {
         let widgetId = null;
@@ -1828,7 +1907,7 @@ function ResultsAnalysisPanel({
         overlay.className = "results-turnstile-refresh-overlay";
         overlay.innerHTML = `
           <div class="results-turnstile-refresh-card">
-            <p class="results-turnstile-refresh-title">Verificacion de seguridad</p>
+            <p class="results-turnstile-refresh-title">Verificación de seguridad</p>
             <p class="results-turnstile-refresh-body">Confirma nuevamente para enviar tu sugerencia.</p>
             <div id="results-turnstile-refresh-widget"></div>
             <button type="button" class="results-turnstile-refresh-cancel">Cancelar</button>
@@ -1837,7 +1916,10 @@ function ResultsAnalysisPanel({
 
         const cleanup = () => {
           try {
-            if (widgetId != null && window.turnstile?.remove) window.turnstile.remove(widgetId);
+            if (widgetId != null) {
+              if (window.turnstile?.remove) window.turnstile.remove(widgetId);
+              if (window.hcaptcha?.reset) window.hcaptcha.reset(widgetId);
+            }
           } catch (_) {}
           overlay.remove();
         };
@@ -1846,27 +1928,44 @@ function ResultsAnalysisPanel({
         if (cancelBtn) {
           cancelBtn.addEventListener("click", () => {
             cleanup();
-            reject(new Error("turnstile_cancelled"));
+            reject(new Error("captcha_cancelled"));
           });
         }
 
         document.body.appendChild(overlay);
+
         try {
-          widgetId = window.turnstile.render("#results-turnstile-refresh-widget", {
-            sitekey: import.meta.env.VITE_TURNSTILE_FORM_KEY,
-            callback: (token) => {
-              cleanup();
-              resolve(token || "");
-            },
-            "error-callback": () => {
-              cleanup();
-              reject(new Error("turnstile_error"));
-            },
-            "expired-callback": () => {
-              cleanup();
-              reject(new Error("turnstile_expired"));
-            },
-          });
+          if (captchaToUse === "turnstile") {
+            widgetId = window.turnstile.render("#results-turnstile-refresh-widget", {
+              sitekey: import.meta.env.VITE_TURNSTILE_FORM_KEY,
+              callback: (token) => {
+                window.sessionStorage.setItem("captcha_type", "turnstile");
+                cleanup();
+                resolve(token || "");
+              },
+              "error-callback": () => {
+                cleanup();
+                reject(new Error("turnstile_error"));
+              },
+              "expired-callback": () => {
+                cleanup();
+                reject(new Error("turnstile_expired"));
+              },
+            });
+          } else if (captchaToUse === "hcaptcha") {
+            widgetId = window.hcaptcha.render("results-turnstile-refresh-widget", {
+              sitekey: import.meta.env.VITE_HCAPTCHA_SITE_KEY,
+              callback: (token) => {
+                window.sessionStorage.setItem("captcha_type", "hcaptcha");
+                cleanup();
+                resolve(token || "");
+              },
+              "error-callback": () => {
+                cleanup();
+                reject(new Error("hcaptcha_error"));
+              },
+            });
+          }
         } catch (err) {
           cleanup();
           reject(err);
@@ -1889,6 +1988,7 @@ function ResultsAnalysisPanel({
       return match ? decodeURIComponent(match[1]) : "";
     };
     const fingerprint = typeof window !== "undefined" ? (window.sessionStorage.getItem("fingerprint") || "") : "";
+    const captchaType = typeof window !== "undefined" ? (window.sessionStorage.getItem("captcha_type") || "turnstile") : "turnstile";
     const cfCookie = readCookie("cf_cookie") || readCookie("cf_clearance");
     const payload = {
       topicKey: selectedTopic.topicKey,
@@ -1899,7 +1999,8 @@ function ResultsAnalysisPanel({
       email: cleanEmail,
       cf_cookie: cfCookie,
       fingerprint,
-      turnstile_token: refreshTurnstileToken || undefined,
+      captcha_token: refreshTurnstileToken || undefined,
+      captcha_type: refreshTurnstileToken ? captchaType : undefined,
       createdAt: new Date().toISOString(),
     };
     const base = String(import.meta.env.BASE_URL || "/").replace(/\/+$/, "");

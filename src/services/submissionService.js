@@ -35,10 +35,16 @@ export function buildSubmissionPayload(questions, answers, weights, demographics
 }
 
 export async function submitQuizAnswers(payload) {
-  const response = await fetch(`${import.meta.env.BASE_URL}api/form`, {
+  // Use fallback API for hCaptcha (old browsers that can't run Turnstile)
+  const useFallbackApi = payload.captcha_type === 'hcaptcha' && import.meta.env.VITE_HCAPTCHA_FALLBACK_API;
+  const endpoint = useFallbackApi
+    ? `${import.meta.env.VITE_HCAPTCHA_FALLBACK_API}/api/form`
+    : `${import.meta.env.BASE_URL}api/form`;
+
+  const response = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
+    credentials: useFallbackApi ? 'omit' : 'include',
     body: JSON.stringify(payload),
   });
 

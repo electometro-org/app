@@ -2003,14 +2003,17 @@ function ResultsAnalysisPanel({
       captcha_type: refreshTurnstileToken ? captchaType : undefined,
       createdAt: new Date().toISOString(),
     };
-    const base = String(import.meta.env.BASE_URL || "/").replace(/\/+$/, "");
-    const endpoint = `${base}/api/feedback`;
+    // Use fallback API for hCaptcha (old browsers that can't run Turnstile)
+    const useFallbackApi = captchaType === "hcaptcha" && import.meta.env.VITE_HCAPTCHA_FALLBACK_API;
+    const endpoint = useFallbackApi
+      ? `${import.meta.env.VITE_HCAPTCHA_FALLBACK_API}/api/feedback`
+      : `${String(import.meta.env.BASE_URL || "/").replace(/\/+$/, "")}/api/feedback`;
 
     try {
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        credentials: useFallbackApi ? "omit" : "include",
         body: JSON.stringify(payload),
       });
 

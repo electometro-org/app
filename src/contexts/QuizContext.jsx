@@ -513,6 +513,12 @@ export function QuizProvider({ children }) {
       return false;
     }
 
+    // Update URL with mnemonic
+    const currentHash = window.location.hash;
+    const basePath = currentHash.split("?")[0] || "#/";
+    const newUrl = `${window.location.origin}${window.location.pathname}${basePath}?r=${phrase}`;
+    window.history.replaceState(null, "", newUrl);
+
     // Set UI state to show results
     setShowTopicImportance(false);
     setShowDemographics(false);

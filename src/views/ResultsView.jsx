@@ -268,6 +268,13 @@ export default function ResultsView({
   const completeComparisonsLabel = completeComparisonsTemplate.replace("[nrOfComplete]", String(completeRows.length));
   const incompleteComparisonsLabel = incompleteComparisonsTemplate.replace("[nrOfIncomplete]", String(incompleteRows.length));
 
+  // Reset logo cache when comparisonResults changes (new results computed)
+  React.useEffect(() => {
+    resolvedLogoUrlsRef.current = {};
+    logoResolveInFlightRef.current.clear();
+    setResolvedLogoUrls({});
+  }, [comparisonResults]);
+
   React.useEffect(() => {
     const baseUrl = config?.assetsBaseUrl || "";
     const assetsPath = config?.assetsPath || "";
@@ -337,7 +344,6 @@ export default function ResultsView({
 
     let cancelled = false;
     (async () => {
-      // Find party names that need resolution (not yet in cache or in-flight)
       const missingPartyNames = [...partyNames].filter((name) => {
         const slug = slugifyAssetName(name || "");
         return (
@@ -346,15 +352,7 @@ export default function ResultsView({
           && !logoResolveInFlightRef.current.has(slug)
         );
       });
-
-      // If nothing to preload but we have cached entries, sync cache to state
-      if (missingPartyNames.length === 0) {
-        if (Object.keys(resolvedLogoUrlsRef.current).length > 0) {
-          setResolvedLogoUrls({ ...resolvedLogoUrlsRef.current });
-        }
-        return;
-      }
-
+      if (missingPartyNames.length === 0) return;
       const pairs = await Promise.all(missingPartyNames.map(resolveLogoUrl));
       if (cancelled) return;
       const nextEntries = {};

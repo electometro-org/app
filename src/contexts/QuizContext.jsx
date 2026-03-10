@@ -230,7 +230,7 @@ export function QuizProvider({ children }) {
     });
   };
 
-  const submitAnswersToAPI = async (demographicsData = null, turnstileToken = null, captchaType = 'turnstile') => {
+  const submitAnswersToAPI = async (demographicsData = null, turnstileToken = null, captchaType = 'turnstile', isResubmission = false) => {
     // Honeypot check
     const website_url = document.getElementById('website-url')?.value;
     if (website_url) return;
@@ -243,7 +243,8 @@ export function QuizProvider({ children }) {
         demographicsData,
         fingerprint,
         turnstileToken,
-        captchaType
+        captchaType,
+        isResubmission
       );
       const data = await submitQuizAnswers(payload);
       console.log("Form submitted successfully:", data);
@@ -561,7 +562,7 @@ export function QuizProvider({ children }) {
     } catch (_) {}
 
     try {
-      await submitAnswersToAPI(demographics, token, captchaType);
+      await submitAnswersToAPI(demographics, token, captchaType, restoredFromMnemonic);
     } catch (error) {
       console.error('Failed to submit form:', error);
     }

@@ -421,6 +421,11 @@ export function QuizProvider({ children }) {
   };
 
   const handleReset = () => {
+    // Clear mnemonic from URL
+    const currentHash = window.location.hash;
+    const basePath = currentHash.split("?")[0] || "#/";
+    window.history.replaceState(null, "", `${window.location.pathname}${basePath}`);
+
     // If pre-selected election, go back to election intro (not election selector)
     if (preSelectedElectionId) {
       setShowElectionIntro(shouldShowElectionIntro(config));
@@ -436,6 +441,7 @@ export function QuizProvider({ children }) {
     setShowDemographics(false);
     setTurnstileVerified(false);
     setShowTurnstileOverlay(false);
+    setRestoredFromMnemonic(false);
     dispatch({ type: "RESET" });
   };
 

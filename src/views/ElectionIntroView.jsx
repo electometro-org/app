@@ -36,14 +36,28 @@ export default function ElectionIntroView({ branding, electionId, electionLabel,
     ? "Código inválido. Verifica e intenta de nuevo."
     : t("electionIntro.restoreError");
 
+  const extractMnemonicFromInput = (input) => {
+    const trimmed = input.trim().toLowerCase();
+    if (!trimmed) return null;
+
+    // Check if it looks like a URL (contains ?r= or &r=)
+    const urlMatch = trimmed.match(/[?&]r=([^&\s]+)/);
+    if (urlMatch && urlMatch[1]) {
+      return urlMatch[1];
+    }
+
+    // Otherwise treat the whole input as the mnemonic
+    return trimmed;
+  };
+
   const handleRestoreSubmit = async () => {
-    const trimmed = restoreInput.trim().toLowerCase();
-    if (!trimmed || !isValidMnemonic(trimmed, mnemonicWordList)) {
+    const mnemonic = extractMnemonicFromInput(restoreInput);
+    if (!mnemonic || !isValidMnemonic(mnemonic, mnemonicWordList)) {
       setRestoreError(true);
       return;
     }
     setRestoreError(false);
-    const success = await onRestore(trimmed);
+    const success = await onRestore(mnemonic);
     if (success) {
       setShowRestoreModal(false);
       setRestoreInput("");

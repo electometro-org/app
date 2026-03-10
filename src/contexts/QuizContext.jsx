@@ -431,6 +431,7 @@ export function QuizProvider({ children }) {
     setHasReachedLastQuestion(false);
     setMinAnswersGate({ open: false, answered: 0, required: 0 });
     dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: state.questions.length - 1 });
+    window.scrollTo(0, 0);
   };
 
   const handleReset = () => {
@@ -454,11 +455,13 @@ export function QuizProvider({ children }) {
     setShowTurnstileOverlay(false);
     setRestoredFromMnemonic(false);
     dispatch({ type: "RESET" });
+    window.scrollTo(0, 0);
   };
 
   // Handle continuing past generic intro to election selector
   const handleGenericIntroContinue = () => {
     setShowGenericIntro(false);
+    window.scrollTo(0, 0);
   };
 
   // Handle selecting an election (from selector)
@@ -469,11 +472,13 @@ export function QuizProvider({ children }) {
     if (shouldShowElectionIntro(electionConfig)) {
       setShowElectionIntro(true);
     }
+    window.scrollTo(0, 0);
   };
 
   // Handle starting the quiz (from election intro)
   const handleStartQuiz = () => {
     setShowElectionIntro(false);
+    window.scrollTo(0, 0);
   };
 
   // Restore quiz state from mnemonic phrase (e.g., from URL hash)

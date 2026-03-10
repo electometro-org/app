@@ -15,7 +15,7 @@ export function buildCompactResponses(questions, answers, weights) {
   }, {});
 }
 
-export function buildSubmissionPayload(questions, answers, weights, demographics, fingerprint, turnstileToken, captchaType = 'turnstile', isResubmission = false, quizVersion = null) {
+export function buildSubmissionPayload(questions, answers, weights, demographics, fingerprint, captchaToken, captchaType = 'turnstile', isResubmission = false, quizVersion = null) {
   const compactResponses = buildCompactResponses(questions, answers, weights);
 
   const userId = localStorage.getItem("userId") || Date.now().toString();
@@ -26,7 +26,7 @@ export function buildSubmissionPayload(questions, answers, weights, demographics
     stats_id: getAnalyticsConsent() ? statsUserId() : null,
     responses: compactResponses,
     demographics: demographics || null,
-    turnstile_token: turnstileToken,
+    captcha_token: captchaToken,
     captcha_type: captchaType,
     fingerprint: fingerprint || null,
     is_resubmission: isResubmission,
@@ -35,10 +35,16 @@ export function buildSubmissionPayload(questions, answers, weights, demographics
 }
 
 export async function submitQuizAnswers(payload) {
-  const response = await fetch(`${import.meta.env.BASE_URL}api/form`, {
+  // Use fallback API for hCaptcha (old browsers that can't run Turnstile)
+  const useFallbackApi = payload.captcha_type === 'hcaptcha' && import.meta.env.VITE_HCAPTCHA_FALLBACK_API;
+  const endpoint = useFallbackApi
+    ? `${import.meta.env.VITE_HCAPTCHA_FALLBACK_API}/api/form`
+    : `${import.meta.env.BASE_URL}api/form`;
+
+  const response = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
+    credentials: useFallbackApi ? 'omit' : 'include',
     body: JSON.stringify(payload),
   });
 

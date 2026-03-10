@@ -34,10 +34,12 @@ export default function ResultsView({
   presIncomplete,
   hoveredOption,
   branding,
+  restoredFromMnemonic,
   onResultTypeChange,
   onEntityClick,
   onBackToSurvey,
   onHover,
+  onDismissRestoredModal,
 }) {
   const { t } = useTranslate();
   const [mobileResultsTab, setMobileResultsTab] = React.useState("list");
@@ -51,7 +53,11 @@ export default function ResultsView({
   const [listHasBottomFade, setListHasBottomFade] = React.useState(false);
   const [showResultsScrollDownFab, setShowResultsScrollDownFab] = React.useState(false);
   const [showComparisonInfoModal, setShowComparisonInfoModal] = React.useState(false);
-  const [showSavedToast, setShowSavedToast] = React.useState(false);
+  const [showSaveModal, setShowSaveModal] = React.useState(false);
+  const [savedUrl, setSavedUrl] = React.useState("");
+  const [savedMnemonic, setSavedMnemonic] = React.useState("");
+  const [copiedUrl, setCopiedUrl] = React.useState(false);
+  const [copiedMnemonic, setCopiedMnemonic] = React.useState(false);
   const [resolvedLogoUrls, setResolvedLogoUrls] = React.useState({});
   const resolvedLogoUrlsRef = React.useRef({});
   const logoResolveInFlightRef = React.useRef(new Set());
@@ -131,12 +137,36 @@ export default function ResultsView({
   const saveResultsLabel = t("results.saveResults") === "results.saveResults"
     ? "Guardar resultados"
     : t("results.saveResults");
-  const resultsSavedLabel = t("results.resultsSaved") === "results.resultsSaved"
-    ? "Enlace copiado"
-    : t("results.resultsSaved");
+  const restoredTitleLabel = t("results.restoredTitle") === "results.restoredTitle"
+    ? "Resultados restaurados"
+    : t("results.restoredTitle");
+  const restoredBodyLabel = t("results.restoredBody") === "results.restoredBody"
+    ? "Tus resultados han sido restaurados. Si no coinciden con lo que recuerdas, puedes presionar el botón 'Reiniciar' en la esquina superior izquierda."
+    : t("results.restoredBody");
+  const restoredCloseLabel = t("results.restoredClose") === "results.restoredClose"
+    ? "Entendido"
+    : t("results.restoredClose");
+  const savedTitleLabel = t("results.savedTitle") === "results.savedTitle"
+    ? "Resultados guardados"
+    : t("results.savedTitle");
+  const savedBodyLabel = t("results.savedBody") === "results.savedBody"
+    ? "Guarda este enlace para ver tus resultados en el futuro:"
+    : t("results.savedBody");
+  const savedMnemonicLabelText = t("results.savedMnemonicLabel") === "results.savedMnemonicLabel"
+    ? "Tu código mnemónico:"
+    : t("results.savedMnemonicLabel");
+  const copyUrlLabel = t("results.copyUrl") === "results.copyUrl"
+    ? "Copiar enlace"
+    : t("results.copyUrl");
+  const copyMnemonicLabel = t("results.copyMnemonic") === "results.copyMnemonic"
+    ? "Copiar código"
+    : t("results.copyMnemonic");
+  const copiedLabel = t("results.copied") === "results.copied"
+    ? "¡Copiado!"
+    : t("results.copied");
 
-  // Handle saving results to URL and clipboard
-  const handleSaveResults = async () => {
+  // Handle saving results - opens modal with URL and mnemonic
+  const handleSaveResults = () => {
     const wordList = config?.mnemonicWordList;
     const mnemonic = encodeToMnemonic(answers, weights, wordList);
     if (!mnemonic) return;
@@ -149,25 +179,33 @@ export default function ResultsView({
     // Update browser URL without reload
     window.history.replaceState(null, "", newUrl);
 
-    // Copy to clipboard
+    // Show modal with URL and mnemonic
+    setSavedUrl(newUrl);
+    setSavedMnemonic(mnemonic);
+    setCopiedUrl(false);
+    setCopiedMnemonic(false);
+    setShowSaveModal(true);
+  };
+
+  const copyToClipboard = async (text, setCopied) => {
     try {
-      await navigator.clipboard.writeText(newUrl);
-      setShowSavedToast(true);
-      setTimeout(() => setShowSavedToast(false), 2500);
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       // Fallback for older browsers
       const textArea = document.createElement("textarea");
-      textArea.value = newUrl;
+      textArea.value = text;
       textArea.style.position = "fixed";
       textArea.style.left = "-9999px";
       document.body.appendChild(textArea);
       textArea.select();
       try {
         document.execCommand("copy");
-        setShowSavedToast(true);
-        setTimeout(() => setShowSavedToast(false), 2500);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
       } catch (_) {
-        console.warn("Failed to copy URL to clipboard");
+        console.warn("Failed to copy to clipboard");
       }
       document.body.removeChild(textArea);
     }
@@ -325,7 +363,7 @@ export default function ResultsView({
     return () => {
       cancelled = true;
     };
-  }, [partyComplete, partyIncomplete, presidentialResultsAll, config?.assetsBaseUrl, config?.assetsPath]);
+  }, [partyComplete, partyIncomplete, presidentialResultsAll, config?.assetsBaseUrl, config?.assetsPath, comparisonResults]);
 
   const isSelectedRow = (row) => {
     if (!selectedEntity) return false;
@@ -774,14 +812,6 @@ export default function ResultsView({
           </button>
         </div>
 
-        <button
-          className="results-save-btn"
-          onClick={handleSaveResults}
-          type="button"
-        >
-          {saveResultsLabel}
-        </button>
-
         {isMobile && resultsViewMode === "comparison" && (
           <div className="results-mobile-tabs">
             <button
@@ -1066,6 +1096,14 @@ export default function ResultsView({
       )}
 
       <button
+        className="results-save-btn"
+        onClick={handleSaveResults}
+        type="button"
+      >
+        {saveResultsLabel}
+      </button>
+
+      <button
         ref={backToSurveyRef}
         className="back-to-survey-button"
         onClick={onBackToSurvey}
@@ -1076,9 +1114,63 @@ export default function ResultsView({
         {t("nav.backToSurvey")}
       </button>
 
-      {showSavedToast && createPortal(
-        <div className="results-saved-toast">
-          {resultsSavedLabel}
+      {showSaveModal && createPortal(
+        <div className="results-save-modal-overlay" onClick={() => setShowSaveModal(false)}>
+          <div className="results-save-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>{savedTitleLabel}</h3>
+            <p>{savedBodyLabel}</p>
+            <div className="results-save-modal__url-box">
+              <input
+                type="text"
+                className="results-save-modal__url-input"
+                value={savedUrl}
+                readOnly
+                onClick={(e) => e.target.select()}
+              />
+              <button
+                type="button"
+                className="results-save-modal__copy-btn"
+                onClick={() => copyToClipboard(savedUrl, setCopiedUrl)}
+              >
+                {copiedUrl ? copiedLabel : copyUrlLabel}
+              </button>
+            </div>
+            <p className="results-save-modal__mnemonic-label">{savedMnemonicLabelText}</p>
+            <div className="results-save-modal__mnemonic-box">
+              <code className="results-save-modal__mnemonic-code">{savedMnemonic}</code>
+              <button
+                type="button"
+                className="results-save-modal__copy-btn"
+                onClick={() => copyToClipboard(savedMnemonic, setCopiedMnemonic)}
+              >
+                {copiedMnemonic ? copiedLabel : copyMnemonicLabel}
+              </button>
+            </div>
+            <button
+              type="button"
+              className="results-save-modal__close"
+              onClick={() => setShowSaveModal(false)}
+            >
+              {t("common.close")}
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {restoredFromMnemonic && createPortal(
+        <div className="results-restored-modal-overlay" onClick={onDismissRestoredModal}>
+          <div className="results-restored-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>{restoredTitleLabel}</h3>
+            <p>{restoredBodyLabel}</p>
+            <button
+              type="button"
+              className="results-restored-modal__close"
+              onClick={onDismissRestoredModal}
+            >
+              {restoredCloseLabel}
+            </button>
+          </div>
         </div>,
         document.body
       )}

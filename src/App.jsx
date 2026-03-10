@@ -51,6 +51,8 @@ function AppContent() {
     demographics,
     showGenericIntro,
     showElectionIntro,
+    restoredFromMnemonic,
+    setRestoredFromMnemonic,
 
     // Computed values
     displayIndex,
@@ -141,6 +143,8 @@ function AppContent() {
           electionId={election}
           electionLabel={config?.label}
           onStart={handleStartQuiz}
+          onRestore={restoreFromMnemonic}
+          mnemonicWordList={config?.mnemonicWordList}
         />
       );
     }
@@ -219,11 +223,13 @@ function AppContent() {
                 presIncomplete={presIncomplete}
                 hoveredOption={state.hoveredOption}
                 branding={branding}
+                restoredFromMnemonic={restoredFromMnemonic}
                 onResultTypeChange={setSelectedResultType}
                 onEntityClick={handleEntityClick}
                 onMobileToggle={handleMobileToggle}
                 onBackToSurvey={handleBackToSurvey}
                 onHover={(option) => dispatch({ type: "SET_HOVERED_OPTION", payload: option })}
+                onDismissRestoredModal={() => setRestoredFromMnemonic(false)}
               />
             )}
           </>

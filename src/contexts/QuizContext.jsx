@@ -67,6 +67,7 @@ export function QuizProvider({ children }) {
   const [demographics, setDemographics] = useState(null);
   const [showTurnstileOverlay, setShowTurnstileOverlay] = useState(false);
   const [turnstileVerified, setTurnstileVerified] = useState(false);
+  const [restoredFromMnemonic, setRestoredFromMnemonic] = useState(false);
   const votesDataCacheRef = useRef({});
 
   // Fingerprint
@@ -513,6 +514,7 @@ export function QuizProvider({ children }) {
     setTurnstileVerified(true);
     setShowGenericIntro(false);
     setShowElectionIntro(false);
+    setRestoredFromMnemonic(true);
 
     // Scroll to top
     window.scrollTo(0, 0);
@@ -579,6 +581,8 @@ export function QuizProvider({ children }) {
     setShowTurnstileOverlay,
     turnstileVerified,
     setTurnstileVerified,
+    restoredFromMnemonic,
+    setRestoredFromMnemonic,
 
     // Fingerprint
     fingerprint,

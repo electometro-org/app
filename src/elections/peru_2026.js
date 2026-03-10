@@ -120,6 +120,49 @@ export default {
   // Minimum ratio of answered questions required to finish quiz and show results.
   // Skipped/unanswered questions do not count.
   minAnsweredRatioForResults: 0.5,
+    
+  mnemonicWordList: [
+    "anden", "cordillera", "selva", "amazonas", "urubamba", "madredeDios", "titicaca", "sagrado",
+    "ica", "huacachina", "mancora", "costa", "montana", "misti", "sajama", "cascada",
+    "nublado", "pantano", "lluvia", "sol", "nube", "aire", "tierra", "arena",
+    "roca", "flora", "pampa", "cumbre", "cueva", "gruta", "dunas", "luz",
+
+    "llama", "alpaca", "vicuna", "guanaco", "cuy", "puma", "jaguar", "tapir",
+    "condor", "flame", "guacamayo", "tucan", "pirarucu", "sachavaca", "oso", "zorro",
+    "saki", "araguato", "caiman", "conga", "tortuga", "abeja", "mariposa", "hormiga",
+    "colibri", "gallinazo", "pato", "liebre", "serpiente", "camaleon", "dendrobates", "delfin",
+
+    "terracota", "cobalto", "espinaca", "flamenco", "marfil", "ebano", "piedra", "oro",
+    "plata", "bronce", "coral", "crema", "lila", "tostado", "mandarina", "violeta",
+
+    "mano", "pie", "ojo", "nariz", "boca", "oreja", "dedo", "brazo",
+    "pierna", "cara", "pelo", "cuello", "espalda", "pecho", "codo", "rodilla",
+
+    "andina", "madera", "rustica", "cama", "puerta", "ventana", "techo", "pared",
+    "textil", "ceramica", "papel", "caja", "bolsa", "copa", "vaso", "plato",
+    "cuchara", "tenedor", "olla", "sarten", "reloj", "llave", "anillo", "espejo",
+    "vela", "lampara", "alfombra", "cortina", "cuadro", "foto", "radio", "carro",
+
+    "ceviche", "saltado", "gallina", "causa", "anticucho", "pachamanca", "tacutacu", "brasa",
+    "huancaina", "mazamorra", "suspiro", "chicha", "canchita", "humita", "lucuma", "camote",
+    "quinoa", "maiz", "aji", "amarillo", "rocoto", "ocopa", "pan", "queso",
+    "carne", "pescado", "fruta", "papa", "cebolla", "ajo", "pisco", "tacu",
+
+    "jacha", "jani", "chika", "pacha", "thaki", "qama", "llawi", "tika",
+    "chuwa", "qana", "uma", "apu", "tata", "kuychi", "ayni", "sumaq",
+    "nawi", "phuyu", "qipi", "chuya", "lliqi", "qata", "taki", "kasa",
+    "challa", "qillu", "jata", "mayu", "rapi", "suma", "waka", "umaq",
+
+    "machupicchu", "cusco", "lima", "arequipa", "nazca", "paracas", "colca", "trujillo",
+    "chiclayo", "piura", "puno", "rainbow", "amazona", "manu", "chanchan", "sillustani",
+    "huayna", "ollantaytambo", "moray", "maras", "tambo", "volcan", "platanares", "loreto",
+    "desierto", "playa", "ballestas", "cajamarca", "chachapoyas", "kuelap", "sipan", "lambayeque",
+
+    "inti", "pachamama", "viracocha", "kon", "supay", "illapa", "apus", "mamakilla",
+    "cavillaca", "wiracocha", "ayllu", "tupan", "qoyllur", "hanan", "intiraymi", "pachakuti",
+    "qhapac", "sacaca", "amaru", "wayra", "rumi", "chaska", "nusta", "llapa",
+    "hurin", "killa", "sumaqmy", "paqariq", "churi", "puyu", "allpa", "yaku",
+  ],
 
   // Widgets configuration
   widgets: [

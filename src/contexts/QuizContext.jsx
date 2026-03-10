@@ -20,6 +20,7 @@ import {
   showGenericIntro as showGenericIntroConfig,
   shouldShowElectionIntro
 } from "../config/appConfig";
+import { decodeFromMnemonic, isValidMnemonic } from "../utils/mnemonicCodec";
 
 const QuizContext = createContext(null);
 
@@ -66,6 +67,7 @@ export function QuizProvider({ children }) {
   const [demographics, setDemographics] = useState(null);
   const [showTurnstileOverlay, setShowTurnstileOverlay] = useState(false);
   const [turnstileVerified, setTurnstileVerified] = useState(false);
+  const [restoredFromMnemonic, setRestoredFromMnemonic] = useState(false);
   const votesDataCacheRef = useRef({});
 
   // Fingerprint
@@ -185,9 +187,20 @@ export function QuizProvider({ children }) {
     if (prev !== undefined) dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: prev });
   };
 
+  const clearMnemonicFromUrl = () => {
+    const currentHash = window.location.hash;
+    if (currentHash.includes("?r=")) {
+      const basePath = currentHash.split("?")[0] || "#/";
+      window.history.replaceState(null, "", `${window.location.pathname}${basePath}`);
+    }
+  };
+
   const handleAnswerClick = (option, { advance = true } = {}) => {
     const currentIndex = state.currentQuestionIndex;
     const currentQuestion = state.questions[currentIndex] || {};
+
+    // Clear mnemonic from URL when user changes answers
+    clearMnemonicFromUrl();
 
     trackEvent("answer_selected", {
       question_id: currentQuestion.id ?? null,
@@ -217,7 +230,7 @@ export function QuizProvider({ children }) {
     });
   };
 
-  const submitAnswersToAPI = async (demographicsData = null, turnstileToken = null, captchaType = 'turnstile') => {
+  const submitAnswersToAPI = async (demographicsData = null, turnstileToken = null, captchaType = 'turnstile', isResubmission = false) => {
     // Honeypot check
     const website_url = document.getElementById('website-url')?.value;
     if (website_url) return;
@@ -230,7 +243,8 @@ export function QuizProvider({ children }) {
         demographicsData,
         fingerprint,
         turnstileToken,
-        captchaType
+        captchaType,
+        isResubmission
       );
       const data = await submitQuizAnswers(payload);
       console.log("Form submitted successfully:", data);
@@ -342,6 +356,8 @@ export function QuizProvider({ children }) {
 
   // Handle toggling topic importance
   const handleToggleTopicImportance = (topicKey) => {
+    // Clear mnemonic from URL when user changes topic importance
+    clearMnemonicFromUrl();
     dispatch({ type: "TOGGLE_TOPIC_IMPORTANCE", topicKey });
   };
 
@@ -416,9 +432,13 @@ export function QuizProvider({ children }) {
     setHasReachedLastQuestion(false);
     setMinAnswersGate({ open: false, answered: 0, required: 0 });
     dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: state.questions.length - 1 });
+    window.scrollTo(0, 0);
   };
 
   const handleReset = () => {
+    // Clear mnemonic from URL
+    clearMnemonicFromUrl();
+
     // If pre-selected election, go back to election intro (not election selector)
     if (preSelectedElectionId) {
       setShowElectionIntro(shouldShowElectionIntro(config));
@@ -434,12 +454,15 @@ export function QuizProvider({ children }) {
     setShowDemographics(false);
     setTurnstileVerified(false);
     setShowTurnstileOverlay(false);
+    setRestoredFromMnemonic(false);
     dispatch({ type: "RESET" });
+    window.scrollTo(0, 0);
   };
 
   // Handle continuing past generic intro to election selector
   const handleGenericIntroContinue = () => {
     setShowGenericIntro(false);
+    window.scrollTo(0, 0);
   };
 
   // Handle selecting an election (from selector)
@@ -450,11 +473,82 @@ export function QuizProvider({ children }) {
     if (shouldShowElectionIntro(electionConfig)) {
       setShowElectionIntro(true);
     }
+    window.scrollTo(0, 0);
   };
 
   // Handle starting the quiz (from election intro)
   const handleStartQuiz = () => {
     setShowElectionIntro(false);
+    window.scrollTo(0, 0);
+  };
+
+  // Restore quiz state from mnemonic phrase (e.g., from URL hash)
+  const restoreFromMnemonic = async (phrase) => {
+    const wordList = config?.mnemonicWordList;
+    if (!phrase || !isValidMnemonic(phrase, wordList)) {
+      console.warn("Invalid mnemonic phrase:", phrase);
+      return false;
+    }
+
+    const decoded = decodeFromMnemonic(phrase, wordList);
+    if (!decoded) {
+      console.warn("Failed to decode mnemonic:", phrase);
+      return false;
+    }
+
+    // Wait for questions to be loaded if not yet available
+    if (state.questions.length === 0) {
+      console.warn("Questions not loaded yet, cannot restore");
+      return false;
+    }
+
+    // Restore state
+    dispatch({ type: "RESTORE_STATE", payload: decoded });
+
+    // Build user answers for results computation
+    const userAnswers = buildUserAnswers(state.questions, decoded.answers, decoded.weights);
+
+    // Fetch votes data and compute results
+    const partyPromise = config.partyVotesUrl ? fetchJsonSafe(config.partyVotesUrl) : Promise.resolve(null);
+    const presPromise = (config.questionTypes?.includes("presidential") && config.presVotesUrl)
+      ? fetchJsonSafe(config.presVotesUrl)
+      : Promise.resolve(null);
+
+    try {
+      const [partyData, presData] = await Promise.all([partyPromise, presPromise]);
+      const partyResults = partyData ? computeResultsFrom(partyData, "parties", userAnswers, { isImputedNeutral }) : [];
+      const presidentialResults = presData ? computeResultsFrom(presData, "candidates", userAnswers, { isImputedNeutral }) : [];
+      dispatch({
+        type: "SET_COMPARISON_RESULTS",
+        payload: {
+          party_results: partyResults,
+          presidential_results: presidentialResults
+        }
+      });
+    } catch (err) {
+      console.error("Error computing results from restored state:", err);
+      return false;
+    }
+
+    // Update URL with mnemonic
+    const currentHash = window.location.hash;
+    const basePath = currentHash.split("?")[0] || "#/";
+    const newUrl = `${window.location.origin}${window.location.pathname}${basePath}?r=${phrase}`;
+    window.history.replaceState(null, "", newUrl);
+
+    // Set UI state to show results
+    setShowTopicImportance(false);
+    setShowDemographics(false);
+    setShowTurnstileOverlay(false);
+    setTurnstileVerified(true);
+    setShowGenericIntro(false);
+    setShowElectionIntro(false);
+    setRestoredFromMnemonic(true);
+
+    // Scroll to top
+    window.scrollTo(0, 0);
+
+    return true;
   };
 
   const handleTurnstileSuccess = async (token, captchaType = 'turnstile') => {
@@ -468,7 +562,7 @@ export function QuizProvider({ children }) {
     } catch (_) {}
 
     try {
-      await submitAnswersToAPI(demographics, token, captchaType);
+      await submitAnswersToAPI(demographics, token, captchaType, restoredFromMnemonic);
     } catch (error) {
       console.error('Failed to submit form:', error);
     }
@@ -516,6 +610,8 @@ export function QuizProvider({ children }) {
     setShowTurnstileOverlay,
     turnstileVerified,
     setTurnstileVerified,
+    restoredFromMnemonic,
+    setRestoredFromMnemonic,
 
     // Fingerprint
     fingerprint,
@@ -554,6 +650,7 @@ export function QuizProvider({ children }) {
     handleGenericIntroContinue,
     handleSelectElection,
     handleStartQuiz,
+    restoreFromMnemonic,
 
     // Constants
     USER_TO_NUM,

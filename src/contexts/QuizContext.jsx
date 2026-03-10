@@ -187,9 +187,20 @@ export function QuizProvider({ children }) {
     if (prev !== undefined) dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: prev });
   };
 
+  const clearMnemonicFromUrl = () => {
+    const currentHash = window.location.hash;
+    if (currentHash.includes("?r=")) {
+      const basePath = currentHash.split("?")[0] || "#/";
+      window.history.replaceState(null, "", `${window.location.pathname}${basePath}`);
+    }
+  };
+
   const handleAnswerClick = (option, { advance = true } = {}) => {
     const currentIndex = state.currentQuestionIndex;
     const currentQuestion = state.questions[currentIndex] || {};
+
+    // Clear mnemonic from URL when user changes answers
+    clearMnemonicFromUrl();
 
     trackEvent("answer_selected", {
       question_id: currentQuestion.id ?? null,
@@ -344,6 +355,8 @@ export function QuizProvider({ children }) {
 
   // Handle toggling topic importance
   const handleToggleTopicImportance = (topicKey) => {
+    // Clear mnemonic from URL when user changes topic importance
+    clearMnemonicFromUrl();
     dispatch({ type: "TOGGLE_TOPIC_IMPORTANCE", topicKey });
   };
 
@@ -422,9 +435,7 @@ export function QuizProvider({ children }) {
 
   const handleReset = () => {
     // Clear mnemonic from URL
-    const currentHash = window.location.hash;
-    const basePath = currentHash.split("?")[0] || "#/";
-    window.history.replaceState(null, "", `${window.location.pathname}${basePath}`);
+    clearMnemonicFromUrl();
 
     // If pre-selected election, go back to election intro (not election selector)
     if (preSelectedElectionId) {

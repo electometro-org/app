@@ -2790,28 +2790,33 @@ button {
 .results-restored-modal {
   background: var(--buttonColor);
   color: var(--fontColor);
-  border-radius: 12px;
-  padding: 1.5rem;
-  max-width: 400px;
+  border-radius: 16px;
+  padding: 2rem 2rem 1.5rem;
+  max-width: 420px;
   width: 100%;
   text-align: center;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
 }
 .results-restored-modal h3 {
-  margin: 0 0 1rem 0;
-  font-size: 1.25rem;
+  margin: 0 0 0.75rem 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-align: center;
 }
 .results-restored-modal p {
-  margin: 0 0 1.5rem 0;
-  font-size: 0.95rem;
-  line-height: 1.5;
+  margin: 0 0 1.25rem 0;
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.6;
+  text-align: center;
+  opacity: 0.85;
 }
 .results-restored-modal__close {
-  background: var(--accent);
+  background: var(--buttonNext);
   color: var(--fontColorLight);
   border: none;
-  padding: 10px 24px;
-  border-radius: 6px;
+  padding: 14px 24px;
+  border-radius: 8px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
@@ -2819,7 +2824,7 @@ button {
   transition: background-color 0.2s;
 }
 .results-restored-modal__close:hover {
-  background: var(--accentLight);
+  background: var(--buttonNextHover);
 }
 
 /* Save Results Modal */

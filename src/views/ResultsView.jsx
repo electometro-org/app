@@ -35,11 +35,15 @@ export default function ResultsView({
   hoveredOption,
   branding,
   restoredFromMnemonic,
+  quizDataVersion,
+  restoredVersion,
+  versionMismatchType,
   onResultTypeChange,
   onEntityClick,
   onBackToSurvey,
   onHover,
   onDismissRestoredModal,
+  onForceReset,
 }) {
   const { t } = useTranslate();
   const [mobileResultsTab, setMobileResultsTab] = React.useState("list");
@@ -165,10 +169,49 @@ export default function ResultsView({
     ? "¡Copiado!"
     : t("results.copied");
 
+  // Version modal labels
+  const versionPatchTitleLabel = t("results.versionPatchTitle") === "results.versionPatchTitle"
+    ? "Información actualizada"
+    : t("results.versionPatchTitle");
+  const versionPatchBodyTemplate = t("results.versionPatchBody") === "results.versionPatchBody"
+    ? "Los datos del cuestionario fueron actualizados ({0} → {1}). Tu puntuación sigue siendo válida."
+    : t("results.versionPatchBody");
+  const versionPatchCloseLabel = t("results.versionPatchClose") === "results.versionPatchClose"
+    ? "Entendido"
+    : t("results.versionPatchClose");
+
+  const versionMinorTitleLabel = t("results.versionMinorTitle") === "results.versionMinorTitle"
+    ? "Cuestionario actualizado"
+    : t("results.versionMinorTitle");
+  const versionMinorBodyTemplate = t("results.versionMinorBody") === "results.versionMinorBody"
+    ? "El cuestionario ha cambiado significativamente ({0} → {1}). Te recomendamos volver a responder."
+    : t("results.versionMinorBody");
+  const versionMinorCloseLabel = t("results.versionMinorClose") === "results.versionMinorClose"
+    ? "Reiniciar cuestionario"
+    : t("results.versionMinorClose");
+
+  const versionMajorTitleLabel = t("results.versionMajorTitle") === "results.versionMajorTitle"
+    ? "Nueva versión disponible"
+    : t("results.versionMajorTitle");
+  const versionMajorBodyTemplate = t("results.versionMajorBody") === "results.versionMajorBody"
+    ? "Esta versión del cuestionario ({0}) ya no es compatible. Por favor, responde el nuevo cuestionario."
+    : t("results.versionMajorBody");
+  const versionMajorCloseLabel = t("results.versionMajorClose") === "results.versionMajorClose"
+    ? "Comenzar de nuevo"
+    : t("results.versionMajorClose");
+
+  // Format version body text with version numbers
+  const formatVersionBody = (template, oldVersion, newVersion) => {
+    return template
+      .replace("{0}", oldVersion || "?")
+      .replace("{1}", newVersion || "?");
+  };
+
   // Handle saving results - opens modal with URL and mnemonic
   const handleSaveResults = () => {
     const wordList = config?.mnemonicWordList;
-    const mnemonic = encodeToMnemonic(answers, weights, wordList);
+    // Include quizDataVersion in the mnemonic
+    const mnemonic = encodeToMnemonic(answers, weights, wordList, quizDataVersion);
     if (!mnemonic) return;
 
     // Update URL hash with mnemonic
@@ -1165,7 +1208,77 @@ export default function ResultsView({
         document.body
       )}
 
-      {restoredFromMnemonic && createPortal(
+      {/* Version-aware restored modals */}
+      {restoredFromMnemonic && versionMismatchType === "exact" && createPortal(
+        <div className="results-restored-modal-overlay" onClick={onDismissRestoredModal}>
+          <div className="results-restored-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>{restoredTitleLabel}</h3>
+            <p>{restoredBodyLabel}</p>
+            <button
+              type="button"
+              className="results-restored-modal__close"
+              onClick={onDismissRestoredModal}
+            >
+              {restoredCloseLabel}
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {restoredFromMnemonic && versionMismatchType === "patch" && createPortal(
+        <div className="results-restored-modal-overlay results-version-patch-overlay" onClick={onDismissRestoredModal}>
+          <div className="results-restored-modal results-version-patch-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>{versionPatchTitleLabel}</h3>
+            <p>{formatVersionBody(versionPatchBodyTemplate, restoredVersion, quizDataVersion)}</p>
+            <button
+              type="button"
+              className="results-restored-modal__close"
+              onClick={onDismissRestoredModal}
+            >
+              {versionPatchCloseLabel}
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {restoredFromMnemonic && versionMismatchType === "minor" && createPortal(
+        <div className="results-restored-modal-overlay results-version-minor-overlay">
+          <div className="results-restored-modal results-version-minor-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>{versionMinorTitleLabel}</h3>
+            <p>{formatVersionBody(versionMinorBodyTemplate, restoredVersion, quizDataVersion)}</p>
+            <button
+              type="button"
+              className="results-restored-modal__close results-version-minor-modal__close"
+              onClick={onForceReset}
+            >
+              {versionMinorCloseLabel}
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {restoredFromMnemonic && versionMismatchType === "major" && createPortal(
+        <div className="results-restored-modal-overlay results-version-major-overlay">
+          <div className="results-restored-modal results-version-major-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>{versionMajorTitleLabel}</h3>
+            <p>{formatVersionBody(versionMajorBodyTemplate, restoredVersion, quizDataVersion)}</p>
+            <button
+              type="button"
+              className="results-restored-modal__close results-version-major-modal__close"
+              onClick={onForceReset}
+            >
+              {versionMajorCloseLabel}
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Generic restored modal for invalid/null versions (legacy mnemonics) */}
+      {restoredFromMnemonic && (versionMismatchType === "invalid" || versionMismatchType === null) && createPortal(
         <div className="results-restored-modal-overlay" onClick={onDismissRestoredModal}>
           <div className="results-restored-modal" onClick={(e) => e.stopPropagation()}>
             <h3>{restoredTitleLabel}</h3>

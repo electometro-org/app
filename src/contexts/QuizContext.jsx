@@ -20,7 +20,8 @@ import {
   showGenericIntro as showGenericIntroConfig,
   shouldShowElectionIntro
 } from "../config/appConfig";
-import { decodeFromMnemonic, isValidMnemonic } from "../utils/mnemonicCodec";
+import { decodeFromMnemonic, encodeToMnemonic, isValidMnemonic } from "../utils/mnemonicCodec";
+import { compareVersions, isVersionGreaterThan } from "../utils/versionUtils";
 
 const QuizContext = createContext(null);
 
@@ -69,6 +70,11 @@ export function QuizProvider({ children }) {
   const [turnstileVerified, setTurnstileVerified] = useState(false);
   const [restoredFromMnemonic, setRestoredFromMnemonic] = useState(false);
   const votesDataCacheRef = useRef({});
+
+  // Version tracking state
+  const [quizDataVersion, setQuizDataVersion] = useState(null);
+  const [restoredVersion, setRestoredVersion] = useState(null);
+  const [versionMismatchType, setVersionMismatchType] = useState(null);
 
   // Fingerprint
   const { fingerprint, loading: fingerprintLoading } = useFingerprint();
@@ -230,7 +236,7 @@ export function QuizProvider({ children }) {
     });
   };
 
-  const submitAnswersToAPI = async (demographicsData = null, turnstileToken = null, captchaType = 'turnstile', isResubmission = false) => {
+  const submitAnswersToAPI = async (demographicsData = null, turnstileToken = null, captchaType = 'turnstile', isResubmission = false, quizVersion = null) => {
     // Honeypot check
     const website_url = document.getElementById('website-url')?.value;
     if (website_url) return;
@@ -244,7 +250,8 @@ export function QuizProvider({ children }) {
         fingerprint,
         turnstileToken,
         captchaType,
-        isResubmission
+        isResubmission,
+        quizVersion || quizDataVersion
       );
       const data = await submitQuizAnswers(payload);
       console.log("Form submitted successfully:", data);
@@ -323,7 +330,13 @@ export function QuizProvider({ children }) {
 
   // Handle continuing from Topic Importance view to Demographics
   const handleTopicImportanceContinue = () => {
-    // Apply topic importance to weights before proceeding
+    // Compute boosted weights synchronously (dispatch is async, so we compute inline)
+    const boostedWeights = state.weights.map((w, i) => {
+      const q = state.questions[i];
+      return (q && state.topicImportance[q.topic_key]) ? 3 : w;
+    });
+
+    // Apply topic importance to state (for UI consistency)
     applyTopicImportanceToWeights();
     setShowTopicImportance(false);
     setShowDemographics(true);
@@ -331,8 +344,8 @@ export function QuizProvider({ children }) {
     // Scroll to top when switching views
     window.scrollTo(0, 0);
 
-    // Now compute results with updated weights
-    const userAnswers = buildUserAnswers(state.questions, state.answers, state.weights);
+    // Compute results with the boosted weights (using synchronously computed values)
+    const userAnswers = buildUserAnswers(state.questions, state.answers, boostedWeights);
 
     const partyPromise = config.partyVotesUrl ? fetchJsonSafe(config.partyVotesUrl) : Promise.resolve(null);
     const presPromise = (config.questionTypes?.includes("presidential") && config.presVotesUrl)
@@ -376,6 +389,12 @@ export function QuizProvider({ children }) {
     if (votesDataCacheRef.current[url]) return votesDataCacheRef.current[url];
     const data = await fetchJsonSafe(url);
     votesDataCacheRef.current[url] = data;
+
+    // Capture version from fetched votes data
+    if (data?.version && !quizDataVersion) {
+      setQuizDataVersion(data.version);
+    }
+
     return data;
   };
 
@@ -455,6 +474,8 @@ export function QuizProvider({ children }) {
     setTurnstileVerified(false);
     setShowTurnstileOverlay(false);
     setRestoredFromMnemonic(false);
+    setRestoredVersion(null);
+    setVersionMismatchType(null);
     dispatch({ type: "RESET" });
     window.scrollTo(0, 0);
   };
@@ -516,6 +537,28 @@ export function QuizProvider({ children }) {
 
     try {
       const [partyData, presData] = await Promise.all([partyPromise, presPromise]);
+
+      // Capture version from fetched votes data
+      const fetchedVersion = partyData?.version || presData?.version || null;
+      if (fetchedVersion) {
+        setQuizDataVersion(fetchedVersion);
+      }
+
+      // Set restored version and compare
+      const mnemonicVersion = decoded.version || null;
+      setRestoredVersion(mnemonicVersion);
+
+      // TODO: Re-enable after modal adjustments
+      // Reject mnemonics from future versions (version higher than current)
+      if (isVersionGreaterThan(mnemonicVersion, fetchedVersion)) {
+        console.warn("Mnemonic version is newer than current quiz version:", mnemonicVersion, ">", fetchedVersion);
+        return false;
+      }
+
+      // Determine version mismatch type
+      const mismatchType = compareVersions(mnemonicVersion, fetchedVersion);
+      setVersionMismatchType(mismatchType);
+
       const partyResults = partyData ? computeResultsFrom(partyData, "parties", userAnswers, { isImputedNeutral }) : [];
       const presidentialResults = presData ? computeResultsFrom(presData, "candidates", userAnswers, { isImputedNeutral }) : [];
       dispatch({
@@ -562,7 +605,7 @@ export function QuizProvider({ children }) {
     } catch (_) {}
 
     try {
-      await submitAnswersToAPI(demographics, token, captchaType, restoredFromMnemonic);
+      await submitAnswersToAPI(demographics, token, captchaType, restoredFromMnemonic, quizDataVersion);
     } catch (error) {
       console.error('Failed to submit form:', error);
     }
@@ -612,6 +655,12 @@ export function QuizProvider({ children }) {
     setTurnstileVerified,
     restoredFromMnemonic,
     setRestoredFromMnemonic,
+
+    // Version tracking
+    quizDataVersion,
+    restoredVersion,
+    versionMismatchType,
+    setVersionMismatchType,
 
     // Fingerprint
     fingerprint,

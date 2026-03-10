@@ -2827,6 +2827,48 @@ button {
   background: var(--buttonNextHover);
 }
 
+/* Version Mismatch Modals */
+.results-version-patch-modal {
+  border-left: 5px solid var(--accent);
+}
+.results-version-patch-modal h3 {
+  color: var(--accent);
+}
+
+.results-version-minor-overlay {
+  cursor: default;
+}
+.results-version-minor-modal {
+  border-left: 5px solid #f59e0b;
+}
+.results-version-minor-modal h3 {
+  color: #f59e0b;
+}
+.results-version-minor-modal__close {
+  background: #f59e0b;
+  color: #000;
+}
+.results-version-minor-modal__close:hover {
+  background: #d97706;
+}
+
+.results-version-major-overlay {
+  cursor: default;
+}
+.results-version-major-modal {
+  border-left: 5px solid #ef4444;
+}
+.results-version-major-modal h3 {
+  color: #ef4444;
+}
+.results-version-major-modal__close {
+  background: #ef4444;
+  color: #fff;
+}
+.results-version-major-modal__close:hover {
+  background: #dc2626;
+}
+
 /* Save Results Modal */
 .results-save-modal-overlay {
   position: fixed;

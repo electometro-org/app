@@ -15,7 +15,7 @@ export function buildCompactResponses(questions, answers, weights) {
   }, {});
 }
 
-export function buildSubmissionPayload(questions, answers, weights, demographics, fingerprint, turnstileToken, captchaType = 'turnstile', isResubmission = false) {
+export function buildSubmissionPayload(questions, answers, weights, demographics, fingerprint, turnstileToken, captchaType = 'turnstile', isResubmission = false, quizVersion = null) {
   const compactResponses = buildCompactResponses(questions, answers, weights);
 
   const userId = localStorage.getItem("userId") || Date.now().toString();
@@ -30,6 +30,7 @@ export function buildSubmissionPayload(questions, answers, weights, demographics
     captcha_type: captchaType,
     fingerprint: fingerprint || null,
     is_resubmission: isResubmission,
+    quiz_version: quizVersion || null,
   };
 }
 

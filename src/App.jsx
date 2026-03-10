@@ -54,6 +54,12 @@ function AppContent() {
     restoredFromMnemonic,
     setRestoredFromMnemonic,
 
+    // Version tracking
+    quizDataVersion,
+    restoredVersion,
+    versionMismatchType,
+    setVersionMismatchType,
+
     // Computed values
     displayIndex,
     totalQuestions,
@@ -224,12 +230,19 @@ function AppContent() {
                 hoveredOption={state.hoveredOption}
                 branding={branding}
                 restoredFromMnemonic={restoredFromMnemonic}
+                quizDataVersion={quizDataVersion}
+                restoredVersion={restoredVersion}
+                versionMismatchType={versionMismatchType}
                 onResultTypeChange={setSelectedResultType}
                 onEntityClick={handleEntityClick}
                 onMobileToggle={handleMobileToggle}
                 onBackToSurvey={handleBackToSurvey}
                 onHover={(option) => dispatch({ type: "SET_HOVERED_OPTION", payload: option })}
-                onDismissRestoredModal={() => setRestoredFromMnemonic(false)}
+                onDismissRestoredModal={() => {
+                  setRestoredFromMnemonic(false);
+                  setVersionMismatchType(null);
+                }}
+                onForceReset={handleReset}
               />
             )}
           </>

@@ -11,7 +11,17 @@
  * For skipped questions, weight bit is always 0.
  *
  * Elections can provide a custom 256-word list via config.mnemonicWordList
+ *
+ * Version suffix support:
+ * - Encoding with version appends "-v1_2_3" suffix to the mnemonic phrase
+ * - Decoding extracts version from suffix if present
  */
+
+import {
+  encodeVersionForMnemonic,
+  decodeVersionFromMnemonic,
+  isVersionSuffix,
+} from "./versionUtils";
 
 // Answer key mappings
 const ANSWER_KEYS = {
@@ -108,9 +118,10 @@ export function isValidWordList(wordList) {
  * @param {Array} answers - Array of answer keys (e.g., "answers.agreeCapitalized") or null
  * @param {Array} weights - Array of weights (2 = normal, 3 = important)
  * @param {string[]} [wordList] - Optional custom 256-word list (defaults to DEFAULT_WORD_LIST)
- * @returns {string} Hyphen-separated mnemonic phrase
+ * @param {string} [version] - Optional version string (e.g., "1.2.3") to append as suffix
+ * @returns {string} Hyphen-separated mnemonic phrase, optionally with version suffix
  */
-export function encodeToMnemonic(answers, weights, wordList = DEFAULT_WORD_LIST) {
+export function encodeToMnemonic(answers, weights, wordList = DEFAULT_WORD_LIST, version = null) {
   if (!Array.isArray(answers) || answers.length === 0) {
     return "";
   }
@@ -148,14 +159,24 @@ export function encodeToMnemonic(answers, weights, wordList = DEFAULT_WORD_LIST)
     result.push(words[byte]);
   }
 
-  return result.join("-");
+  let mnemonic = result.join("-");
+
+  // Append version suffix if provided
+  if (version) {
+    const versionSuffix = encodeVersionForMnemonic(version);
+    if (versionSuffix) {
+      mnemonic += `-${versionSuffix}`;
+    }
+  }
+
+  return mnemonic;
 }
 
 /**
  * Decode mnemonic phrase to quiz state
- * @param {string} phrase - Hyphen-separated mnemonic phrase
+ * @param {string} phrase - Hyphen-separated mnemonic phrase (optionally with version suffix)
  * @param {string[]} [wordList] - Optional custom 256-word list (defaults to DEFAULT_WORD_LIST)
- * @returns {{ answers: Array, weights: Array } | null} Decoded state or null if invalid
+ * @returns {{ answers: Array, weights: Array, version: string | null } | null} Decoded state or null if invalid
  */
 export function decodeFromMnemonic(phrase, wordList = DEFAULT_WORD_LIST) {
   if (!phrase || typeof phrase !== "string") {
@@ -170,14 +191,37 @@ export function decodeFromMnemonic(phrase, wordList = DEFAULT_WORD_LIST) {
     return null;
   }
 
+  // Check for version suffix at the end
+  let version = null;
+  let wordsToProcess = phraseWords;
+
+  const lastWord = phraseWords[phraseWords.length - 1];
+  if (isVersionSuffix(lastWord)) {
+    version = decodeVersionFromMnemonic(lastWord);
+    wordsToProcess = phraseWords.slice(0, -1);
+
+    if (wordsToProcess.length === 0) {
+      return null; // Only version suffix, no actual mnemonic
+    }
+  }
+
   // Convert words to bytes
   const bytes = [];
-  for (const word of phraseWords) {
+  for (const word of wordsToProcess) {
     const index = wordToIndex[word];
     if (index === undefined) {
+      // If last word is invalid and looks like a malformed version suffix, try to proceed
+      if (word === wordsToProcess[wordsToProcess.length - 1] && word.startsWith("v")) {
+        console.warn("Invalid version suffix detected, ignoring:", word);
+        continue;
+      }
       return null; // Invalid word
     }
     bytes.push(index);
+  }
+
+  if (bytes.length === 0) {
+    return null;
   }
 
   // Convert bytes to bit string
@@ -212,12 +256,12 @@ export function decodeFromMnemonic(phrase, wordList = DEFAULT_WORD_LIST) {
     i += 3;
   }
 
-  return { answers, weights };
+  return { answers, weights, version };
 }
 
 /**
  * Validate mnemonic phrase format
- * @param {string} phrase - Hyphen-separated mnemonic phrase
+ * @param {string} phrase - Hyphen-separated mnemonic phrase (optionally with version suffix)
  * @param {string[]} [wordList] - Optional custom 256-word list (defaults to DEFAULT_WORD_LIST)
  * @returns {boolean} True if valid format
  */
@@ -234,8 +278,18 @@ export function isValidMnemonic(phrase, wordList = DEFAULT_WORD_LIST) {
     return false;
   }
 
-  // All words must be in the list
-  return phraseWords.every((word) => wordToIndex[word] !== undefined);
+  // Check for version suffix at the end
+  let wordsToValidate = phraseWords;
+  const lastWord = phraseWords[phraseWords.length - 1];
+  if (isVersionSuffix(lastWord)) {
+    wordsToValidate = phraseWords.slice(0, -1);
+    if (wordsToValidate.length === 0) {
+      return false; // Only version suffix, no actual mnemonic
+    }
+  }
+
+  // All words (except version suffix) must be in the list
+  return wordsToValidate.every((word) => wordToIndex[word] !== undefined);
 }
 
 /**

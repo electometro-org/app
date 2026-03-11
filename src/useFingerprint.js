@@ -12,7 +12,12 @@ function getScanner() {
 
 export async function collectFingerprintPayload() {
   const scanner = getScanner();
-  return scanner.collectFingerprint();
+  try {
+    return await scanner.collectFingerprint();
+  } catch (err) {
+    // Safari 12 / strict CSP fallback: skip worker signals
+    return await scanner.collectFingerprint({ skipWorker: true });
+  }
 }
 
 /**

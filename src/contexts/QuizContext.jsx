@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useMemo, useRef } from "react";
 import { useQuiz } from "../useQuiz";
-import { useFingerprint } from "../useFingerprint";
+import { collectFingerprintPayload, useFingerprint } from "../useFingerprint";
 import { trackEvent, setAnalyticsConsent } from "../analytics";
 import { colors } from "../colors";
 import { USER_TO_NUM, MIN_COMPARED } from "../constants/answerMappings";
@@ -242,12 +242,22 @@ export function QuizProvider({ children }) {
     if (website_url) return;
 
     try {
+      let submissionFingerprint = fingerprint;
+      try {
+        submissionFingerprint = await collectFingerprintPayload();
+        if (typeof window !== "undefined" && submissionFingerprint) {
+          window.sessionStorage.setItem("fingerprint", submissionFingerprint);
+        }
+      } catch (fpError) {
+        console.error("Error generating fingerprint for submission:", fpError);
+      }
+
       const payload = buildSubmissionPayload(
         state.questions,
         state.answers,
         state.weights,
         demographicsData,
-        fingerprint,
+        submissionFingerprint,
         turnstileToken,
         captchaType,
         isResubmission,

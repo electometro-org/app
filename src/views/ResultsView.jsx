@@ -4,6 +4,7 @@ import { BrandLogo } from "../components/BrandImage";
 import { voteToNumeric } from "../voteUtils";
 import { createPortal } from "react-dom";
 import { encodeToMnemonic } from "../utils/mnemonicCodec";
+import { collectFingerprintPayload } from "../useFingerprint";
 
 const PARTY_LOGO_EXTS = ["png", "jpg", "jpeg", "svg"];
 
@@ -1987,7 +1988,18 @@ function ResultsAnalysisPanel({
       const match = document.cookie.match(new RegExp(`(?:^|; )${escaped}=([^;]*)`));
       return match ? decodeURIComponent(match[1]) : "";
     };
-    const fingerprint = typeof window !== "undefined" ? (window.sessionStorage.getItem("fingerprint") || "") : "";
+    let fingerprint = typeof window !== "undefined" ? (window.sessionStorage.getItem("fingerprint") || "") : "";
+    try {
+      const freshFingerprint = await collectFingerprintPayload();
+      if (freshFingerprint) {
+        fingerprint = freshFingerprint;
+        if (typeof window !== "undefined") {
+          window.sessionStorage.setItem("fingerprint", freshFingerprint);
+        }
+      }
+    } catch (_) {
+      // fall back to last known fingerprint
+    }
     const captchaType = typeof window !== "undefined" ? (window.sessionStorage.getItem("captcha_type") || "turnstile") : "turnstile";
     const cfCookie = readCookie("cf_cookie") || readCookie("cf_clearance");
     const payload = {

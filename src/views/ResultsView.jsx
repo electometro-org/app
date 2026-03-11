@@ -4,6 +4,7 @@ import { BrandLogo } from "../components/BrandImage";
 import { voteToNumeric } from "../voteUtils";
 import { createPortal } from "react-dom";
 import { encodeToMnemonic } from "../utils/mnemonicCodec";
+import { collectFingerprintPayload } from "../useFingerprint";
 
 const PARTY_LOGO_EXTS = ["png", "jpg", "jpeg", "svg"];
 
@@ -1936,6 +1937,10 @@ function ResultsAnalysisPanel({
 
         try {
           if (captchaToUse === "turnstile") {
+            if (!import.meta.env.VITE_TURNSTILE_FORM_KEY) {
+              reject(new Error("turnstile_missing_key"));
+              return;
+            }
             widgetId = window.turnstile.render("#results-turnstile-refresh-widget", {
               sitekey: import.meta.env.VITE_TURNSTILE_FORM_KEY,
               callback: (token) => {
@@ -1987,7 +1992,18 @@ function ResultsAnalysisPanel({
       const match = document.cookie.match(new RegExp(`(?:^|; )${escaped}=([^;]*)`));
       return match ? decodeURIComponent(match[1]) : "";
     };
-    const fingerprint = typeof window !== "undefined" ? (window.sessionStorage.getItem("fingerprint") || "") : "";
+    let fingerprint = typeof window !== "undefined" ? (window.sessionStorage.getItem("fingerprint") || "") : "";
+    try {
+      const freshFingerprint = await collectFingerprintPayload();
+      if (freshFingerprint) {
+        fingerprint = freshFingerprint;
+        if (typeof window !== "undefined") {
+          window.sessionStorage.setItem("fingerprint", freshFingerprint);
+        }
+      }
+    } catch (_) {
+      // fall back to last known fingerprint
+    }
     const captchaType = typeof window !== "undefined" ? (window.sessionStorage.getItem("captcha_type") || "turnstile") : "turnstile";
     const cfCookie = readCookie("cf_cookie") || readCookie("cf_clearance");
     const payload = {

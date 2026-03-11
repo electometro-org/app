@@ -1,5 +1,19 @@
 import { useState, useEffect } from 'react';
-import FingerprintJS from '@fingerprintjs/fingerprintjs';
+import FingerprintScanner from 'fpscanner';
+
+let scannerInstance = null;
+
+function getScanner() {
+  if (!scannerInstance) {
+    scannerInstance = new FingerprintScanner();
+  }
+  return scannerInstance;
+}
+
+export async function collectFingerprintPayload() {
+  const scanner = getScanner();
+  return scanner.collectFingerprint();
+}
 
 /**
  * Custom hook to generate and manage browser fingerprint
@@ -11,21 +25,16 @@ export function useFingerprint() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const generateFingerprint = async () => {
       try {
-        // Initialize FingerprintJS agent
-        const fpPromise = FingerprintJS.load();
-        const fp = await fpPromise;
-
-        // Get the visitor identifier
-        const result = await fp.get();
-
-        // Store the fingerprint (visitorId is the unique identifier)
-        setFingerprint(result.visitorId);
+        const payload = await collectFingerprintPayload();
+        if (!isMounted) return;
+        setFingerprint(payload);
         setLoading(false);
-
-        console.log('Fingerprint generated:', result.visitorId);
       } catch (err) {
+        if (!isMounted) return;
         console.error('Error generating fingerprint:', err);
         setError(err);
         setLoading(false);
@@ -33,6 +42,10 @@ export function useFingerprint() {
     };
 
     generateFingerprint();
+
+    return () => {
+      isMounted = false;
+    };
   }, []); // Run only once on mount
 
   return { fingerprint, loading, error };

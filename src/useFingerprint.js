@@ -12,7 +12,17 @@ function getScanner() {
 
 export async function collectFingerprintPayload() {
   const scanner = getScanner();
+  const shouldSkipWorker = () => {
+    if (typeof CSS === 'undefined' || typeof CSS.supports !== 'function') return false;
+    // Safari 15 and lower gives problems...
+    const lacksSubgrid = !CSS.supports('grid-template-rows: subgrid');
+    return lacksSubgrid;
+  };
+
   try {
+    if (shouldSkipWorker()) {
+      return await scanner.collectFingerprint({ skipWorker: true });
+    }
     return await scanner.collectFingerprint();
   } catch (err) {
     // Safari 12 / strict CSP fallback: skip worker signals

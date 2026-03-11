@@ -142,6 +142,10 @@ export default function TurnstileOverlay({ show, onSuccess, branding = defaultBr
     let turnstileWidgetId = null;
 
     if (captchaType === 'turnstile') {
+      if (!import.meta.env.VITE_TURNSTILE_FORM_KEY) {
+        fallbackToHCaptcha();
+        return () => {};
+      }
       setIsRendering(true);
 
       checkWidgetInterval = setInterval(() => {

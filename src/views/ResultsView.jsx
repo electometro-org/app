@@ -1937,6 +1937,10 @@ function ResultsAnalysisPanel({
 
         try {
           if (captchaToUse === "turnstile") {
+            if (!import.meta.env.VITE_TURNSTILE_FORM_KEY) {
+              reject(new Error("turnstile_missing_key"));
+              return;
+            }
             widgetId = window.turnstile.render("#results-turnstile-refresh-widget", {
               sitekey: import.meta.env.VITE_TURNSTILE_FORM_KEY,
               callback: (token) => {

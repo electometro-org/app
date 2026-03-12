@@ -444,18 +444,33 @@ export function QuizProvider({ children }) {
     }
   };
 
+  // Sort results deterministically (same logic as ResultsView)
+  const sortByScoreDesc = (a, b) => {
+    const scoreA = Number(a.similarity_score) || 0;
+    const scoreB = Number(b.similarity_score) || 0;
+    if (scoreB !== scoreA) return scoreB - scoreA;
+    const comparedA = Number(a.compared_questions || 0);
+    const comparedB = Number(b.compared_questions || 0);
+    if (comparedB !== comparedA) return comparedB - comparedA;
+    const nameA = a.displayName || a.name || "";
+    const nameB = b.displayName || b.name || "";
+    return nameA.localeCompare(nameB);
+  };
+
   // Auto-open first entity when results change
   useEffect(() => {
     if (!state.comparisonResults || !selectedResultType) return;
 
     if (selectedResultType === "party") {
-      const firstTop = partyComplete[0] || partyIncomplete[0];
+      const sorted = [...partyComplete, ...partyIncomplete].sort(sortByScoreDesc);
+      const firstTop = sorted[0];
       if (firstTop) handleEntityClick(firstTop, "party");
       return;
     }
 
     if (selectedResultType === "presidentialCandidates") {
-      const firstTop = presComplete[0] || presIncomplete[0];
+      const sorted = [...presComplete, ...presIncomplete].sort(sortByScoreDesc);
+      const firstTop = sorted[0];
       if (firstTop) handleEntityClick(firstTop, "presidential");
     }
   }, [state.comparisonResults, selectedResultType]);

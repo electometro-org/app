@@ -126,46 +126,73 @@ export default {
   minAnsweredRatioForResults: 0.5,
     
   mnemonicWordList: [
-    "anden", "cordillera", "selva", "amazonas", "urubamba", "madredeDios", "titicaca", "sagrado",
-    "ica", "huacachina", "mancora", "costa", "montana", "misti", "sajama", "cascada",
-    "nublado", "pantano", "lluvia", "sol", "nube", "aire", "tierra", "arena",
-    "roca", "flora", "pampa", "cumbre", "cueva", "gruta", "dunas", "luz",
-
-    "llama", "alpaca", "vicuna", "guanaco", "cuy", "puma", "jaguar", "tapir",
-    "condor", "flame", "guacamayo", "tucan", "pirarucu", "sachavaca", "oso", "zorro",
-    "saki", "araguato", "caiman", "conga", "tortuga", "abeja", "mariposa", "hormiga",
-    "colibri", "gallinazo", "pato", "liebre", "serpiente", "camaleon", "dendrobates", "delfin",
-
-    "terracota", "cobalto", "espinaca", "flamenco", "marfil", "ebano", "piedra", "oro",
-    "plata", "bronce", "coral", "crema", "lila", "tostado", "mandarina", "violeta",
-
-    "mano", "pie", "ojo", "nariz", "boca", "oreja", "dedo", "brazo",
-    "pierna", "cara", "pelo", "cuello", "espalda", "pecho", "codo", "rodilla",
-
-    "andina", "madera", "rustica", "cama", "puerta", "ventana", "techo", "pared",
-    "textil", "ceramica", "papel", "caja", "bolsa", "copa", "vaso", "plato",
-    "cuchara", "tenedor", "olla", "sarten", "reloj", "llave", "anillo", "espejo",
-    "vela", "lampara", "alfombra", "cortina", "cuadro", "foto", "radio", "carro",
-
-    "ceviche", "saltado", "gallina", "causa", "anticucho", "pachamanca", "tacutacu", "brasa",
-    "huancaina", "mazamorra", "suspiro", "chicha", "canchita", "humita", "lucuma", "camote",
-    "quinoa", "maiz", "aji", "amarillo", "rocoto", "ocopa", "pan", "queso",
-    "carne", "pescado", "fruta", "papa", "cebolla", "ajo", "pisco", "tacu",
-
-    "jacha", "jani", "chika", "pacha", "thaki", "qama", "llawi", "tika",
-    "chuwa", "qana", "uma", "apu", "tata", "kuychi", "ayni", "sumaq",
-    "nawi", "phuyu", "qipi", "chuya", "lliqi", "qata", "taki", "kasa",
-    "challa", "qillu", "jata", "mayu", "rapi", "suma", "waka", "umaq",
-
-    "machupicchu", "cusco", "lima", "arequipa", "nazca", "paracas", "colca", "trujillo",
-    "chiclayo", "piura", "puno", "rainbow", "amazona", "manu", "chanchan", "sillustani",
-    "huayna", "ollantaytambo", "moray", "maras", "tambo", "volcan", "platanares", "loreto",
-    "desierto", "playa", "ballestas", "cajamarca", "chachapoyas", "kuelap", "sipan", "lambayeque",
-
-    "inti", "pachamama", "viracocha", "kon", "supay", "illapa", "apus", "mamakilla",
-    "cavillaca", "wiracocha", "ayllu", "tupan", "qoyllur", "hanan", "intiraymi", "pachakuti",
-    "qhapac", "sacaca", "amaru", "wayra", "rumi", "chaska", "nusta", "llapa",
-    "hurin", "killa", "sumaqmy", "paqariq", "churi", "puyu", "allpa", "yaku",
+    // A (16 words)
+    "abeja","acero","actor","aguja","aire","ala","alga","alma","alto","ancla","anillo","animal","apio","arco","arena","ave",
+    // B (16 words)
+    "avena","avion","azul","bala","barco","barro","base","bebe","beso","bicho","blusa","boca","bola","borde","bosque","bote",
+    // C (32 words)
+    "brasa","brazo","brisa","broma","brote","bruja","buho","burro","cabra","cacao","cafe","caja","cal","calor","calma","cama",
+    "campo","canal","canoa","canto","cara","carne","carro","carta","casa","castor","cebolla","cedro","celda","cena","censo","cerdo",
+    // C-D (16 words)
+    "cerca","cerro","chico","chile","chivo","choza","ciclo","cielo","cima","cine","cinta","circo","cisne","claro","clase","clavo",
+    // D (16 words)
+    "cobre","coco","cola","colina","color","cometa","copa","coral","corcho","corte","costa","cria","cruce","cuadro","cueva","cuero",
+    // D-E (16 words)
+    "cuota","curva","dado","danza","dardo","dedo","delta","denso","diente","dieta","dique","dolar","domo","dorso","drama","ducha",
+    // E-F (16 words)
+    "duelo","dulce","duro","eco","edad","eje","elite","embudo","empuje","enojo","entero","envio","epoca","equipo","error","escala",
+    // F (16 words)
+    "escena","esfera","espada","espejo","espina","espuma","estado","etapa","etica","extra","faja","falda","fama","fase","fauna","fecha",
+    // F-G (16 words)
+    "feliz","feria","fideo","fiera","fila","filtro","firma","flauta","flor","foco","forma","foto","frase","fresa","frio","fruta",
+    // G-H (16 words)
+    "fuego","fuente","fuerza","fuga","funda","furia","gafas","gallo","gamba","gancho","ganso","garra","gato","gemelo","genio","gente",
+    // H (16 words)
+    "germen","gesto","giro","globo","golpe","goma","gorra","gota","grada","grano","grasa","grifo","grillo","grupo","guante","guerra",
+    // H-I (16 words)
+    "guia","gusto","habla","hacha","hada","harina","helio","heroe","hielo","higo","hilo","hongo","honor","hora","hormiga","horno",
+    // I-J (16 words)
+    "hotel","hueso","humo","humor","huron","icono","idea","igual","isla","jabon","jarra","jaula","jefe","jinete","joya","juego",
+    // J-L (16 words)
+    "juez","jugo","junco","lago","lana","lapiz","largo","lata","latir","laurel","lava","lazo","leche","lector","leon","letra",
+    // L-M (16 words)
+    "libre","limon","lindo","linea","lista","lobo","loco","loma","lote","lucha","lugar","luna","luz","madre","magia","maiz",
+    // M (16 words)
+    "mango","mano","mapa","marca","marea","marfil","masa","mayor","medal","medio","mejor","melon","menor","mente","menu","mesa",
+    // M-N (16 words)
+    "metal","metro","miel","mimo","mina","modo","moho","molde","molino","mono","monte","morado","mosca","motor","muelle","muro",
+    // N-O (16 words)
+    "nabo","nadar","nariz","nata","nave","nectar","negro","neon","nido","niebla","nieve","ninja","nivel","noche","nogal","norma",
+    // O-P (16 words)
+    "nota","nube","nudo","nueve","nuez","obvio","ocaso","ocho","ocio","oeste","ogro","ola","olivo","olla","olmo","olor",
+    // P (16 words)
+    "onda","opera","orden","oreja","orilla","oro","oruga","oso","oveja","oxido","padre","paja","palma","palo","pan","panda",
+    // P (16 words)
+    "papel","pared","parque","parte","pasar","pasta","patio","pato","pausa","pavo","paz","peine","pelar","pena","pensar","peor",
+    // P-R (16 words)
+    "perla","perro","peso","piano","pico","pie","piedra","piel","pierna","pieza","pila","pilon","pino","pista","plano","plata",
+    // R (16 words)
+    "playa","plaza","pluma","pobre","poco","poder","poema","polen","polvo","poner","portal","poste","potro","precio","presa","primo",
+    // R-S (16 words)
+    "proa","probar","puma","punto","queso","rama","rampa","rana","rango","rapto","razon","recto","red","reloj","remo","reina",
+    // S (16 words)
+    "relato","reno","resto","rio","ritmo","roca","roce","rocio","rodar","rodeo","rojo","romper","ron","rosa","rostro","rueda",
+    // S (16 words)
+    "ruido","rumbo","rural","saber","sabor","sacar","sal","salir","salon","salsa","salto","salud","samba","santo","sapo","sarten",
+    // S-T (16 words)
+    "sauce","saxo","seco","seda","selva","senal","serie","sierra","siglo","signo","silbar","silla","sol","solar","solo","soltar",
+    // T (16 words)
+    "sombra","son","sonar","sopa","soplar","sordo","subir","sucio","suelo","sueno","suerte","suma","sur","surco","tabla","taco",
+    // T-U (16 words)
+    "talon","tango","tapa","tarde","tarea","tarro","tauro","taza","techo","tejer","tela","tema","temor","templo","tenaz","tenis",
+    // U-V (16 words)
+    "tenso","tetera","texto","tigre","tijera","tinta","tipo","tirar","titan","titulo","tocar","toldo","tomar","tono","topar","toro",
+    // V-Z (16 words)
+    "torre","torta","tos","total","trapo","trece","trigo","tripa","trozo","trueno","tubo","tumba","tunel","turbio","turno","tutor",
+    // Final (16 words)
+    "unico","unir","uva","vaca","vacio","vago","vaina","valle","valor","vapor","vara","vaso","vela","veloz","vena","venta",
+    // Final (16 words)
+    "ver","verde","verso","viajar","vida","vidrio","viejo","viento","viernes","vigor","vino","vista","viuda","vivir","zanja","zapato"
   ],
 
   // Widgets configuration

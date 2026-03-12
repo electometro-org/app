@@ -108,7 +108,7 @@ export default function ResultsView({
   const [copiedMnemonic, setCopiedMnemonic] = React.useState(false);
   const [resolvedLogoUrls, setResolvedLogoUrls] = React.useState({});
   const resolvedLogoUrlsRef = React.useRef({});
-  const logoResolveInFlightRef = React.useRef(new Set());
+  const logoResolveInFlightRef = React.useRef(new Map()); // Map<slug, Promise<[slug, url]>>
   const logoCacheContextRef = React.useRef("");
   const analysisNavFlashTimerRef = React.useRef(null);
   const analysisNavFlashRafRef = React.useRef(null);
@@ -413,20 +413,27 @@ export default function ResultsView({
       if (Object.prototype.hasOwnProperty.call(resolvedLogoUrlsRef.current, slug)) {
         return [slug, resolvedLogoUrlsRef.current[slug] || ""];
       }
-      if (logoResolveInFlightRef.current.has(slug)) return null;
-      logoResolveInFlightRef.current.add(slug);
-      for (const ext of PARTY_LOGO_EXTS) {
-        const url = `${prefix}${assetsPath}party_logos/${slug}.${ext}`;
-        try {
-          await preloadImage(url);
-          logoResolveInFlightRef.current.delete(slug);
-          return [slug, url];
-        } catch {
-          // Try next extension
-        }
+      // If already resolving, wait for the existing promise
+      if (logoResolveInFlightRef.current.has(slug)) {
+        return logoResolveInFlightRef.current.get(slug);
       }
-      logoResolveInFlightRef.current.delete(slug);
-      return [slug, null];
+      // Create and store the resolution promise
+      const resolutionPromise = (async () => {
+        for (const ext of PARTY_LOGO_EXTS) {
+          const url = `${prefix}${assetsPath}party_logos/${slug}.${ext}`;
+          try {
+            await preloadImage(url);
+            logoResolveInFlightRef.current.delete(slug);
+            return [slug, url];
+          } catch {
+            // Try next extension
+          }
+        }
+        logoResolveInFlightRef.current.delete(slug);
+        return [slug, null];
+      })();
+      logoResolveInFlightRef.current.set(slug, resolutionPromise);
+      return resolutionPromise;
     };
 
     let cancelled = false;
@@ -436,7 +443,6 @@ export default function ResultsView({
         return (
           !!slug
           && !Object.prototype.hasOwnProperty.call(resolvedLogoUrlsRef.current, slug)
-          && !logoResolveInFlightRef.current.has(slug)
         );
       });
       if (missingPartyNames.length === 0) return;

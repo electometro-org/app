@@ -838,6 +838,12 @@ button {
   white-space: nowrap;
 }
 
+.results-analysis-active-card__party-inline {
+  font-weight: 500;
+  color: var(--fontColor);
+  opacity: 0.7;
+}
+
 .results-analysis-active-card__score {
   display: flex;
   flex-direction: column;
@@ -883,6 +889,20 @@ button {
   left: 4px;
   width: calc(100% - 8px);
   height: calc(100% - 8px);
+}
+
+.results-analysis-active-card .results-slot-item__avatar.has-photo {
+  padding: 0;
+  transform: none;
+}
+
+.results-analysis-active-card .results-slot-item__avatar-img.is-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  right: -3px;
+  bottom: -3px;
+  padding: 2px;
 }
 
 .results-coincidence-grid {
@@ -1024,6 +1044,59 @@ button {
   opacity: 1;
 }
 
+/* Candidate photo styles for slot avatar */
+.results-slot-item__avatar-photo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity 120ms ease;
+  border-radius: inherit;
+}
+
+.results-slot-item__avatar-photo.is-visible {
+  opacity: 1;
+}
+
+.results-slot-item__avatar.has-photo {
+  background: #f0f0f0;
+  border: none;
+  padding: 0;
+  transform: rotate(3deg);
+  overflow: visible;
+}
+
+.results-slot-item__avatar.has-photo .results-slot-item__avatar-fallback {
+  opacity: 0;
+}
+
+/* Party logo as badge when candidate photo is shown */
+.results-slot-item__avatar-img.is-badge {
+  top: auto;
+  right: -6px;
+  bottom: -6px;
+  left: auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 3px;
+  box-sizing: border-box;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  z-index: 1;
+}
+
+.results-slot-item__avatar-img.is-badge.is-visible {
+  opacity: 1;
+}
+
 .results-slot-item__name {
   margin: 0;
   /* Fallback for older browsers that don't support clamp() */
@@ -1036,6 +1109,15 @@ button {
   /* Fallback for older browsers that don't support min() */
   max-width: 92%;
   max-width: min(92%, 740px);
+}
+
+.results-slot-item__party {
+  font-size: 1rem;
+  font-size: clamp(0.85rem, 2vw, 1.1rem);
+  font-weight: 600;
+  color: var(--fontColor);
+  opacity: 0.8;
+  margin-top: -4px;
 }
 
 .results-slot-item__score {
@@ -1449,6 +1531,57 @@ button {
 }
 
 .results-row__avatar-img.is-visible {
+  opacity: 1;
+}
+
+/* Candidate photo styles */
+.results-row__avatar-photo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity 120ms ease;
+  border-radius: inherit;
+}
+
+.results-row__avatar-photo.is-visible {
+  opacity: 1;
+}
+
+.results-row__avatar.has-photo {
+  background: #f0f0f0;
+  border: none;
+  padding: 0;
+}
+
+.results-row__avatar.has-photo .results-row__avatar-fallback {
+  opacity: 0;
+}
+
+/* Party logo as badge when candidate photo is shown */
+.results-row__avatar-img.is-badge {
+  top: auto;
+  right: -4px;
+  bottom: -4px;
+  left: auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 2px;
+  box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  z-index: 1;
+}
+
+.results-row__avatar-img.is-badge.is-visible {
   opacity: 1;
 }
 
@@ -2500,6 +2633,10 @@ button {
     font-size: 0.66rem;
   }
 
+  .results-analysis-active-card__party-inline {
+    font-size: 0.9em;
+  }
+
   .results-analysis-active-card__label {
     font-size: 0.78rem;
   }
@@ -2517,6 +2654,22 @@ button {
     height: 46px;
     border-radius: 12px;
     font-size: 1.2rem;
+  }
+
+  .results-analysis-active-card .results-slot-item__avatar-img.is-badge {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    right: -2px;
+    bottom: -2px;
+  }
+
+  .results-slot-item__avatar-img.is-badge {
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    right: -4px;
+    bottom: -4px;
   }
 
   .results-list {

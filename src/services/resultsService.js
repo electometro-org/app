@@ -61,11 +61,16 @@ export function computeResultsFrom(dataObj, keyName, userAnswers, opts = {}) {
       // Compact: key is "c1", name is in info.name; Legacy: key is "Full Name (Party)"
       const fullName = isCompact ? info.name : key;
       const displayName = fullName.replace(/\s*[\(\[\{].*?[\)\]\}]\s*$/, "").trim();
+      // Party can be string (legacy) or object { id, name } (compact)
+      const partyRaw = info.party;
+      const party = typeof partyRaw === "object" && partyRaw !== null ? partyRaw.name : partyRaw;
+      const partyId = typeof partyRaw === "object" && partyRaw !== null ? partyRaw.id : undefined;
       return {
         id: isCompact ? key : undefined,
         name: fullName,
         displayName,
-        party: info.party,
+        party,
+        partyId,
         similarity_score,
         compared_questions: matchedCount,
         available_questions: candidateAvailable

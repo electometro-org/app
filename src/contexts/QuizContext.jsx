@@ -421,19 +421,26 @@ export function QuizProvider({ children }) {
           }
 
           const userAnswersMap = buildUserAnswersWithRaw(state.questions, state.answers, state.weights);
-          const entityDetailsPayload = buildEntityDetails(obj, userAnswersMap, type);
+          // Pass full data for quizData context (compact format needs quiz object for question text)
+          const entityDetailsPayload = buildEntityDetails(obj, userAnswersMap, type, data);
           dispatch({ type: "SET_ENTITY_DETAILS", payload: entityDetailsPayload });
         })
         .catch(err => console.error("Error fetching votes:", err));
     };
 
     if (type === "presidential") {
-      fetchAndDispatchDetails(config.presVotesUrl, data => data.candidates?.[entity.name]);
+      // Compact format: entity.id is "c1"; Legacy: entity.name is "Full Name (Party)"
+      fetchAndDispatchDetails(config.presVotesUrl, data =>
+        entity.id ? data.candidates?.[entity.id] : data.candidates?.[entity.name]
+      );
       return;
     }
 
     if (type === "party") {
-      fetchAndDispatchDetails(config.partyVotesUrl, data => data.parties?.[entity.party]);
+      // Compact format: entity.id is "p1"; Legacy: entity.party is the party name
+      fetchAndDispatchDetails(config.partyVotesUrl, data =>
+        entity.id ? data.parties?.[entity.id] : data.parties?.[entity.party]
+      );
     }
   };
 

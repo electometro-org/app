@@ -21,7 +21,10 @@ function shuffle(arr) {
 export function computeResultsFrom(dataObj, keyName, userAnswers, opts = {}) {
   if (!dataObj) return [];
 
-  const entries = Object.entries(dataObj[keyName]).map(([name, info]) => {
+  // Compact format detection: entries have 'id' and 'name' fields
+  const isCompact = Object.values(dataObj[keyName])[0]?.id !== undefined;
+
+  const entries = Object.entries(dataObj[keyName]).map(([key, info]) => {
     let weightedDiff = 0;
     let totalWeight = 0;
     let matchedCount = 0;
@@ -44,17 +47,23 @@ export function computeResultsFrom(dataObj, keyName, userAnswers, opts = {}) {
     const similarity_score = totalWeight ? Math.round((1 - weightedDiff / totalWeight) * 100) : null;
 
     if (keyName === "parties") {
+      // Compact: key is "p1", name is in info.name; Legacy: key is the party name
+      const partyName = isCompact ? info.name : key;
       return {
-        name,
-        party: name,
+        id: isCompact ? key : undefined,
+        name: partyName,
+        party: partyName,
         similarity_score,
         compared_questions: matchedCount,
         available_questions: candidateAvailable
       };
     } else {
-      const displayName = name.replace(/\s*[\(\[\{].*?[\)\]\}]\s*$/, "").trim();
+      // Compact: key is "c1", name is in info.name; Legacy: key is "Full Name (Party)"
+      const fullName = isCompact ? info.name : key;
+      const displayName = fullName.replace(/\s*[\(\[\{].*?[\)\]\}]\s*$/, "").trim();
       return {
-        name,
+        id: isCompact ? key : undefined,
+        name: fullName,
         displayName,
         party: info.party,
         similarity_score,
@@ -147,7 +156,12 @@ export function partitionByCompared(arr, minCompared = MIN_COMPARED) {
   return { complete, incomplete };
 }
 
-export function buildEntityDetails(votesObj, userAnswersMap, type) {
+export function buildEntityDetails(votesObj, userAnswersMap, type, quizData = null) {
+  // Compact format detection: entity has 'id' field (like "c1" or "p1")
+  const entityId = votesObj.id;
+  const isCompact = !!entityId;
+  const entityType = type === "presidential" ? "candidates" : "parties";
+
   const detailsArr = Object.entries(votesObj.votes).map(([qid, qobj]) => {
     const candidateVoteNum = (qobj.vote !== undefined && qobj.vote !== null && !Number.isNaN(parseFloat(qobj.vote)))
       ? parseFloat(qobj.vote)
@@ -157,15 +171,36 @@ export function buildEntityDetails(votesObj, userAnswersMap, type) {
     const userAnswered = !!ua;
     const compared = userAnswered && includedInAnalysis;
 
+    let questionKey, topicKey, commentKey, question;
+
+    if (isCompact) {
+      // Compact format: generate keys from qid (e.g., "t1")
+      questionKey = `quiz.questions.${qid}`;
+      topicKey = `quiz.topics.${qid}`;
+      commentKey = `explanations.${entityType}.${entityId}.${qid}`;
+      // Get question text from quizData if available, otherwise null (UI will use translation)
+      question = quizData?.quiz?.[qid]?.question ?? null;
+    } else {
+      // Legacy format: transform existing keys
+      questionKey = qobj.question_key?.startsWith('questions.')
+        ? `quiz.${qobj.question_key}`
+        : qobj.question_key;
+      topicKey = qobj.topic_key?.startsWith('topics.')
+        ? `quiz.${qobj.topic_key}`
+        : qobj.topic_key;
+      commentKey = qobj.comment_key;
+      question = qobj.question;
+    }
+
     return {
       id: qid,
-      question: qobj.question,
-      question_key: qobj.question_key,
-      topic_key: qobj.topic_key,
+      question,
+      question_key: questionKey,
+      topic_key: topicKey,
       vote: qobj.vote,
       voteNumeric: candidateVoteNum,
       comment: qobj.comment,
-      comment_key: qobj.comment_key,
+      comment_key: commentKey,
       source: qobj.source,
       includedInAnalysis,
       userAnswerRaw: ua?.raw ?? null,

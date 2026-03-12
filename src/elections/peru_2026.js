@@ -1,6 +1,9 @@
 // Register election-specific widgets
 import './peru_2026/widgets';
 
+// Use /qa/ path prefix for QA environment
+const qaPrefix = import.meta.env.VITE_TOLGEE_QA_TRANSLATIONS === 'true' ? '/qa' : '';
+
 export default {
   id: "peru_2026",
   label: "elections.peru2026",  // Translation key
@@ -107,9 +110,10 @@ export default {
     // overlay: { color: "rgba(255, 255, 255, 0.65)" }  // optional dark overlay
   },
 
-  // API endpoints
-  partyVotesUrl: `${import.meta.env.VITE_ELECTIONS_DATA_URL}/peru_2026/combined_votes_peru_partidos_2026.json`,
-  presVotesUrl: `${import.meta.env.VITE_ELECTIONS_DATA_URL}/peru_2026/combined_votes_peru_pres_2026.json`,
+  // API endpoints (compact JSON format with short keys: t1, c1, p1, etc.)
+  // Uses /qa/ prefix when VITE_TOLGEE_QA_TRANSLATIONS is set
+  partyVotesUrl: `${import.meta.env.VITE_ELECTIONS_DATA_URL}${qaPrefix}/peru_2026/combined_votes_peru_partidos_2026_compact.json`,
+  presVotesUrl: `${import.meta.env.VITE_ELECTIONS_DATA_URL}${qaPrefix}/peru_2026/combined_votes_peru_pres_2026_compact.json`,
   isPresidentialElection: true,
   processCandidateVote: v => v,
   showLawInfo: true,

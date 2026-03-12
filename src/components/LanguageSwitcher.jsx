@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslate, useTolgee } from '@tolgee/react';
+import { esLang, quLang, ayLang } from '../tolgee';
 
 export default function LanguageSwitcher() {
   const { t } = useTranslate();
@@ -12,27 +13,27 @@ export default function LanguageSwitcher() {
   return (
     <div style={{ display: 'flex', gap: '10px', padding: '10px' }}>
       <button
-        onClick={() => changeLanguage('es')}
+        onClick={() => changeLanguage(esLang)}
         style={{
-          fontWeight: tolgee.getLanguage() === 'es' ? 'bold' : 'normal',
+          fontWeight: tolgee.getLanguage() === esLang ? 'bold' : 'normal',
           padding: '5px 10px'
         }}
       >
         {t('languages.spanish')}
       </button>
       <button
-        onClick={() => changeLanguage('qu')}
+        onClick={() => changeLanguage(quLang)}
         style={{
-          fontWeight: tolgee.getLanguage() === 'qu' ? 'bold' : 'normal',
+          fontWeight: tolgee.getLanguage() === quLang ? 'bold' : 'normal',
           padding: '5px 10px'
         }}
       >
         {t('languages.quechua')}
       </button>
       <button
-        onClick={() => changeLanguage('ay')}
+        onClick={() => changeLanguage(ayLang)}
         style={{
-          fontWeight: tolgee.getLanguage() === 'ay' ? 'bold' : 'normal',
+          fontWeight: tolgee.getLanguage() === ayLang ? 'bold' : 'normal',
           padding: '5px 10px'
         }}
       >

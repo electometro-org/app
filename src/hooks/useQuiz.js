@@ -114,17 +114,41 @@ export function useQuiz(election) {
       ? fetch(config.presVotesUrl)
           .then(r => r.json())
           .then(data => {
-            // Iterate through ALL candidates to find ALL unique questions
-            const allQuestionsMap = {};
+            // Compact format: questions are in data.quiz object with keys like t1, t2, etc.
+            if (data.quiz) {
+              return Object.entries(data.quiz).map(([id, q]) => ({
+                id,
+                question: q.question,
+                tema: q.topic,
+                // Translation keys: quiz.questions.t1, quiz.topics.t1
+                question_key: `quiz.questions.${id}`,
+                topic_key: `quiz.topics.${id}`,
+                options: [
+                  'answers.agreeCapitalized',
+                  'answers.neutralCapitalized',
+                  'answers.disagreeCapitalized'
+                ],
+                polarity: ""
+              }));
+            }
 
+            // Legacy format: iterate through candidates to find unique questions
+            const allQuestionsMap = {};
             Object.values(data.candidates).forEach(candidate => {
               Object.entries(candidate.votes).forEach(([id, q]) => {
                 if (!allQuestionsMap[id]) {
+                  const questionKey = q.question_key?.startsWith('questions.')
+                    ? `quiz.${q.question_key}`
+                    : q.question_key;
+                  const topicKey = q.topic_key?.startsWith('topics.')
+                    ? `quiz.${q.topic_key}`
+                    : q.topic_key;
+
                   allQuestionsMap[id] = {
                     id,
                     question: q.question,
-                    question_key: q.question_key,
-                    topic_key: q.topic_key,
+                    question_key: questionKey,
+                    topic_key: topicKey,
                     options: [
                       'answers.agreeCapitalized',
                       'answers.neutralCapitalized',
@@ -135,7 +159,6 @@ export function useQuiz(election) {
                 }
               });
             });
-
             return Object.values(allQuestionsMap);
           })
       : Promise.resolve([]);

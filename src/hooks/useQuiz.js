@@ -25,7 +25,7 @@ function reducer(state, action) {
         questions: action.payload,
         questionDetails: action.payload,
         answers: Array(action.payload.length).fill(null),
-        weights: Array(action.payload.length).fill(2),
+        weights: Array(action.payload.length).fill(1),
       };
     case "SET_CURRENT_QUESTION_INDEX":
       return { ...state, currentQuestionIndex: action.payload };
@@ -66,15 +66,15 @@ function reducer(state, action) {
         const { answers: restoredAnswers, weights: restoredWeights } = action.payload;
         const qLen = state.questions.length;
         const answers = Array(qLen).fill(null);
-        const weights = Array(qLen).fill(2);
+        const weights = Array(qLen).fill(1);
         for (let i = 0; i < qLen && i < restoredAnswers.length; i++) {
           answers[i] = restoredAnswers[i];
-          weights[i] = restoredWeights[i] ?? 2;
+          weights[i] = restoredWeights[i] ?? 1;
         }
-        // Derive topicImportance from weights (3 = important)
+        // Derive topicImportance from weights (2 = important)
         const topicImportance = {};
         state.questions.forEach((q, i) => {
-          if (q.topic_key && weights[i] >= 3) {
+          if (q.topic_key && weights[i] >= 2) {
             topicImportance[q.topic_key] = true;
           }
         });
@@ -93,7 +93,7 @@ function reducer(state, action) {
         questions: state.questions,
         questionDetails: state.questionDetails,
         answers: Array(state.questions.length).fill(null),
-        weights: Array(state.questions.length).fill(2),
+        weights: Array(state.questions.length).fill(1),
         seenQuestions: [],
         topicImportance: {},
       };

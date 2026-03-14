@@ -116,7 +116,7 @@ export function isValidWordList(wordList) {
 /**
  * Encode quiz state to mnemonic phrase
  * @param {Array} answers - Array of answer keys (e.g., "answers.agreeCapitalized") or null
- * @param {Array} weights - Array of weights (2 = normal, 3 = important)
+ * @param {Array} weights - Array of weights (1 = normal, 2 = important)
  * @param {string[]} [wordList] - Optional custom 256-word list (defaults to DEFAULT_WORD_LIST)
  * @param {string} [version] - Optional version string (e.g., "1.2.3") to append as suffix
  * @returns {string} Hyphen-separated mnemonic phrase, optionally with version suffix
@@ -132,7 +132,7 @@ export function encodeToMnemonic(answers, weights, wordList = DEFAULT_WORD_LIST,
   let bits = "";
   for (let i = 0; i < answers.length; i++) {
     const answer = answers[i];
-    const weight = weights?.[i] ?? 2;
+    const weight = weights?.[i] ?? 1;
 
     // Encode answer (2 bits): agree=0, neutral=1, disagree=2, skip=3
     let answerCode = 3; // default to skip
@@ -140,8 +140,8 @@ export function encodeToMnemonic(answers, weights, wordList = DEFAULT_WORD_LIST,
       answerCode = ANSWER_KEYS[answer];
     }
 
-    // Encode weight (1 bit): normal(2)=0, important(3)=1
-    const weightBit = answerCode === 3 ? 0 : (weight >= 3 ? 1 : 0);
+    // Encode weight (1 bit): normal(1)=0, important(2)=1
+    const weightBit = answerCode === 3 ? 0 : (weight >= 2 ? 1 : 0);
 
     // Combine: answerCode (2 bits) + weightBit (1 bit)
     const combined = (answerCode << 1) | weightBit;
@@ -249,7 +249,7 @@ export function decodeFromMnemonic(phrase, wordList = DEFAULT_WORD_LIST) {
     }
 
     const answer = ANSWER_VALUES[answerCode];
-    const weight = answerCode === 3 ? 2 : (weightBit === 1 ? 3 : 2);
+    const weight = answerCode === 3 ? 1 : (weightBit === 1 ? 2 : 1);
 
     answers.push(answer);
     weights.push(weight);

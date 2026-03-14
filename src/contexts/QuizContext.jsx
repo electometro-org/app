@@ -332,8 +332,8 @@ export function QuizProvider({ children }) {
   const applyTopicImportanceToWeights = () => {
     state.questions.forEach((q, i) => {
       if (state.topicImportance[q.topic_key]) {
-        // Boost weight: 2 -> 3 for "very important" topics
-        dispatch({ type: "SET_WEIGHTS", index: i, weight: 3 });
+        // Boost weight: 1 -> 2 for "very important" topics (doubles influence)
+        dispatch({ type: "SET_WEIGHTS", index: i, weight: 2 });
       }
     });
   };
@@ -343,7 +343,7 @@ export function QuizProvider({ children }) {
     // Compute boosted weights synchronously (dispatch is async, so we compute inline)
     const boostedWeights = state.weights.map((w, i) => {
       const q = state.questions[i];
-      return (q && state.topicImportance[q.topic_key]) ? 3 : w;
+      return (q && state.topicImportance[q.topic_key]) ? 2 : w;
     });
 
     // Apply topic importance to state (for UI consistency)

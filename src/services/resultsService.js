@@ -115,7 +115,7 @@ export function buildUserAnswers(questions, answers, weights) {
 
     numericAnswer = applyPolarity(numericAnswer, q.polarity);
 
-    const weight = Number(weights?.[i] ?? 2) || 2;
+    const weight = Number(weights?.[i] ?? 1) || 1;
     userAnswers[q.id] = { answer: numericAnswer, weight };
   }
 
@@ -138,7 +138,7 @@ export function buildUserAnswersWithRaw(questions, answers, weights) {
 
     numeric = applyPolarity(numeric, q.polarity);
 
-    const weight = Number(weights?.[i] ?? 2) || 2;
+    const weight = Number(weights?.[i] ?? 1) || 1;
     userAnswersMap[q.id] = { raw, numeric, weight };
   }
 

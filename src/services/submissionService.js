@@ -10,7 +10,7 @@ export function buildCompactResponses(questions, answers, weights) {
     let vote = normalizeAnswer(raw);
     if (vote === null) vote = 0.5;
 
-    acc[q.id] = [vote, Number(weights?.[i] ?? 2)];
+    acc[q.id] = [vote, Number(weights?.[i] ?? 1)];
     return acc;
   }, {});
 }

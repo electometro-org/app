@@ -170,7 +170,7 @@ export default function ResultsView({
     const uniqueImportantTopics = new Set();
     entityDetails.details.forEach((detail) => {
       const weight = Number(detail?.userWeight);
-      if (!Number.isFinite(weight) || weight < 3) return;
+      if (!Number.isFinite(weight) || weight < 2) return;
       const key = detail?.topic_key || detail?.question_key || detail?.id;
       if (key != null) uniqueImportantTopics.add(String(key));
     });

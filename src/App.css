@@ -35,6 +35,12 @@ button {
 }
 
 
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+}
+
 .menu-panel {
   position: fixed;
   top: 60px;

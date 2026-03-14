@@ -218,9 +218,8 @@ function Gauge({ config, quizState }) {
       {/* Gauge SVG */}
       <div className="gauge-svg-container">
         <svg
-          width={width}
-          height={height}
           viewBox={`0 0 ${width} ${height}`}
+          preserveAspectRatio="xMidYMax meet"
           className="gauge-svg"
         >
           {/* Gradient definition - from grayish to full color (left to right) */}

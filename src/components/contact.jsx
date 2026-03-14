@@ -1,5 +1,6 @@
 import React from "react";
 import { T, useTranslate } from "@tolgee/react";
+import BackToQuizButton from "./BackToQuizButton";
 
 export default function Contact() {
   const { t } = useTranslate();
@@ -45,6 +46,8 @@ export default function Contact() {
             </a>
           </p>
         </section>
+
+        <BackToQuizButton />
       </div>
     </div>
   );

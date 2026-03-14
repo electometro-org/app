@@ -123,6 +123,10 @@ input:checked + .toggle-slider:before {
   gap: 16px;
 }
 
+.settings-actions .back-to-survey-button {
+  margin-top: 0;
+}
+
 .save-button {
   padding: 12px 24px;
   background: #0066cc;

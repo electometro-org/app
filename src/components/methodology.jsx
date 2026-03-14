@@ -1,5 +1,6 @@
 import React from "react";
 import { T } from "@tolgee/react";
+import BackToQuizButton from "./BackToQuizButton";
 
 export default function Methodology() {
   return (
@@ -52,6 +53,8 @@ export default function Methodology() {
             </p>
 
         </section>
+
+        <BackToQuizButton />
       </div>
     </div>
   );

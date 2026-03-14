@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getAnalyticsConsent, setAnalyticsConsent } from "../analytics";
 import { useTranslate } from "@tolgee/react";
+import BackToQuizButton from "./BackToQuizButton";
 import "./CookieSettings.css";
 
 export default function CookieSettings() {
@@ -89,11 +90,8 @@ export default function CookieSettings() {
         <button className="save-button" onClick={handleSave}>
           {t('common.savePreferences')}
         </button>
+        <BackToQuizButton inline />
         {saved && <span className="save-confirmation">{t('common.preferencesSaved')}</span>}
-      </div>
-
-      <div className="settings-footer">
-        <Link to="/">{t('nav.backToSurvey')}</Link>
       </div>
     </div>
   );

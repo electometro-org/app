@@ -1,6 +1,7 @@
 // src/components/privacyPolicy.jsx
 import React from "react";
 import { Link } from "react-router-dom";
+import BackToQuizButton from "./BackToQuizButton";
 
 export default function PrivacyPolicy() {
   return (
@@ -262,9 +263,7 @@ export default function PrivacyPolicy() {
         </p>
       </section>
 
-      <div style={{ marginTop: "40px", textAlign: "center" }}>
-        <Link to="/" style={{ textDecoration: "underline" }}>Volver a la encuesta</Link>
-      </div>
+      <BackToQuizButton />
     </div>
   );
 }

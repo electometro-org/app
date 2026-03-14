@@ -2843,7 +2843,8 @@ button {
 }
 
 
-.back-to-survey-button {
+.back-to-survey-button,
+a.back-to-survey-button {
   align-self: center;
   width: auto;
   display: inline-flex;
@@ -2858,6 +2859,10 @@ button {
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 5px;
   transition: background-color 0.2s ease-in-out;
+}
+
+a.back-to-survey-button:hover {
+  background-color: var(--buttonNextHover);
 }
 
 /* Save Results Button - styled like end quiz button */

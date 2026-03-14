@@ -219,8 +219,12 @@
   color: var(--accent);
 }
 
-[data-election="peru_2026"] .back-to-survey-button {
+[data-election="peru_2026"] .results-view .back-to-survey-button {
   background-color: transparent;
+}
+
+[data-election="peru_2026"] .static-page-shell .back-to-survey-button {
+  background-color: var(--buttonNext);
 }
 
 [data-election="peru_2026"] #questions-progress-counter {

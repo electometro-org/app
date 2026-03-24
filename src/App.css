@@ -4156,3 +4156,337 @@ button,
     border: 2px solid var(--topic-fab-border, color-mix(in srgb, var(--topic-fab-text, #fff) 35%, transparent)) !important;
   }
 }
+
+/* =====================================================
+   FIGHT MODE - Capibarismo Integration
+   ===================================================== */
+
+/* Results Action Buttons Container */
+.results-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.results-action-buttons .results-save-btn {
+  margin-top: 0;
+}
+
+/* Fight Mode Button */
+.results-fight-mode-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f97316 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+  -webkit-transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+.results-fight-mode-btn__logo {
+  height: 22px;
+  width: auto;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+.results-fight-mode-btn:hover {
+  -webkit-transform: translateY(-2px) scale(1.02);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+}
+.results-fight-mode-btn:active {
+  -webkit-transform: translateY(0) scale(0.98);
+  transform: translateY(0) scale(0.98);
+}
+
+/* Fight Mode Overlay */
+.fight-mode-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10003;
+  -webkit-animation: fightModeOverlayIn 0.2s ease-out;
+  animation: fightModeOverlayIn 0.2s ease-out;
+}
+
+@-webkit-keyframes fightModeOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fightModeOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Fight Mode Modal */
+.fight-mode-modal {
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+  border-radius: 20px;
+  padding: 1.5rem;
+  max-width: 420px;
+  width: calc(100% - 32px);
+  text-align: center;
+  box-shadow:
+    0 0 0 2px rgba(139, 92, 246, 0.5),
+    0 0 40px rgba(139, 92, 246, 0.3),
+    0 20px 60px rgba(0, 0, 0, 0.5);
+  -webkit-animation: fightModeModalIn 0.3s ease-out;
+  animation: fightModeModalIn 0.3s ease-out;
+}
+
+@-webkit-keyframes fightModeModalIn {
+  from {
+    opacity: 0;
+    -webkit-transform: scale(0.9) translateY(20px);
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: scale(1) translateY(0);
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes fightModeModalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Fight Mode Header */
+.fight-mode-header {
+  margin-bottom: 1rem;
+}
+
+.fight-mode-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 0.75rem;
+}
+
+.fight-mode-logo {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+}
+
+.fight-mode-logo--capibarismo {
+  filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.5));
+}
+
+.fight-mode-logo--decide {
+  filter: drop-shadow(0 0 6px rgba(236, 72, 153, 0.4));
+}
+
+.fight-mode-logo-divider {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.fight-mode-title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  background: linear-gradient(135deg, #fff 0%, #ec4899 50%, #f97316 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(236, 72, 153, 0.5);
+}
+
+.fight-mode-description {
+  margin: 0 0 1.25rem 0;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.5;
+}
+
+/* Candidate Grid */
+.fight-mode-candidate-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.fight-mode-candidate {
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  -webkit-transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.fight-mode-candidate:hover {
+  border-color: rgba(236, 72, 153, 0.6);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.fight-mode-candidate-photo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.fight-mode-candidate-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fight-mode-candidate-placeholder {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.fight-mode-candidate-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.fight-mode-candidate-rank {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #ec4899;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Fight Mode Actions */
+.fight-mode-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fight-mode-cta {
+  width: 100%;
+  padding: 16px 24px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #fff;
+  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f97316 100%);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow:
+    0 4px 15px rgba(236, 72, 153, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  -webkit-transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fight-mode-cta:hover {
+  -webkit-transform: translateY(-2px);
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 25px rgba(236, 72, 153, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.fight-mode-cta:active {
+  -webkit-transform: translateY(0);
+  transform: translateY(0);
+}
+
+.fight-mode-cancel {
+  width: 100%;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  -webkit-transition: color 0.2s, border-color 0.2s, background 0.2s;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.fight-mode-cancel:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .fight-mode-modal {
+    padding: 1.25rem;
+  }
+
+  .fight-mode-title {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+  }
+
+  .fight-mode-candidate-photo {
+    width: 56px;
+    height: 56px;
+  }
+
+  .fight-mode-candidate-name {
+    font-size: 0.8rem;
+  }
+
+  .fight-mode-cta {
+    padding: 14px 20px;
+    font-size: 1rem;
+  }
+}

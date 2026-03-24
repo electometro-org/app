@@ -5,6 +5,7 @@ import { voteToNumeric } from "../voteUtils";
 import { createPortal } from "react-dom";
 import { encodeToMnemonic } from "../utils/mnemonicCodec";
 import { collectFingerprintPayload } from "../useFingerprint";
+import FightModeModal from "../components/FightModeModal";
 
 const PARTY_LOGO_EXTS = ["png", "jpg", "jpeg", "svg"];
 const CANDIDATE_PHOTO_EXTS = ["jpg", "jpeg", "png"];
@@ -103,6 +104,7 @@ export default function ResultsView({
   const [showResultsScrollDownFab, setShowResultsScrollDownFab] = React.useState(false);
   const [showComparisonInfoModal, setShowComparisonInfoModal] = React.useState(false);
   const [showSaveModal, setShowSaveModal] = React.useState(false);
+  const [showFightModeModal, setShowFightModeModal] = React.useState(false);
   const [savedUrl, setSavedUrl] = React.useState("");
   const [savedMnemonic, setSavedMnemonic] = React.useState("");
   const [copiedUrl, setCopiedUrl] = React.useState(false);
@@ -1294,13 +1296,30 @@ export default function ResultsView({
         document.body
       )}
 
-      <button
-        className="results-save-btn"
-        onClick={handleSaveResults}
-        type="button"
-      >
-        {saveResultsLabel}
-      </button>
+      <div className="results-action-buttons">
+        <button
+          className="results-save-btn"
+          onClick={handleSaveResults}
+          type="button"
+        >
+          {saveResultsLabel}
+        </button>
+
+        {selectedResultType !== "party" && rows.length >= 4 && (
+          <button
+            className="results-fight-mode-btn"
+            onClick={() => setShowFightModeModal(true)}
+            type="button"
+          >
+            <img
+              src="https://capibarismo.com/capi_logo.webp"
+              alt=""
+              className="results-fight-mode-btn__logo"
+            />
+            {t("results.fightMode.button") === "results.fightMode.button" ? "FIGHT MODE" : t("results.fightMode.button")}
+          </button>
+        )}
+      </div>
 
       <button
         ref={backToSurveyRef}
@@ -1443,6 +1462,16 @@ export default function ResultsView({
         </div>,
         document.body
       )}
+
+      {/* Fight Mode Modal - Capibarismo Integration */}
+      <FightModeModal
+        isOpen={showFightModeModal}
+        onClose={() => setShowFightModeModal(false)}
+        topCandidates={rows.slice(0, 4)}
+        config={config}
+        branding={branding}
+        resolvedCandidatePhotoUrls={resolvedCandidatePhotoUrls}
+      />
     </div>
   );
 }

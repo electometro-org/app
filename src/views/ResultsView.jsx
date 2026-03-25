@@ -6,7 +6,6 @@ import { createPortal } from "react-dom";
 import { encodeToMnemonic } from "../utils/mnemonicCodec";
 import { collectFingerprintPayload } from "../useFingerprint";
 import FightModeModal from "../components/FightModeModal";
-import BattleModeCTA from "../components/BattleModeCTA";
 
 const PARTY_LOGO_EXTS = ["png", "jpg", "jpeg", "svg"];
 const CANDIDATE_PHOTO_EXTS = ["jpg", "jpeg", "png"];
@@ -973,8 +972,6 @@ export default function ResultsView({
         <h2>{t("results.title")}</h2>
       </div>
 
-         {rows.length >= 4 && (
- <BattleModeCTA onClick={() => setShowFightModeModal(true)} /> )}
       <div className={`results-toolbar ${resultsViewMode === "comparison" ? "is-detailed" : "is-compact"}`}>
         {resultTypes.length > 1 && (
           <div className="results-type-toggle">

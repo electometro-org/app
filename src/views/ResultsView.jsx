@@ -10,6 +10,7 @@ const PARTY_LOGO_EXTS = ["png", "jpg", "jpeg", "svg"];
 const CANDIDATE_PHOTO_EXTS = ["jpg", "jpeg", "png"];
 
 import CapictiveCTA from "../components/CapictiveCTA";
+import CapictiveModal from "../components/CapictiveModal";
 
 const TURNSTILE_SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js";
 const HCAPTCHA_SCRIPT_URL = "https://js.hcaptcha.com/1/api.js";
@@ -105,6 +106,7 @@ export default function ResultsView({
   const [showResultsScrollDownFab, setShowResultsScrollDownFab] = React.useState(false);
   const [showComparisonInfoModal, setShowComparisonInfoModal] = React.useState(false);
   const [showSaveModal, setShowSaveModal] = React.useState(false);
+  const [showCapictiveModal, setShowCapictiveModal] = React.useState(false);
   const [savedUrl, setSavedUrl] = React.useState("");
   const [savedMnemonic, setSavedMnemonic] = React.useState("");
   const [copiedUrl, setCopiedUrl] = React.useState(false);
@@ -1312,7 +1314,7 @@ export default function ResultsView({
               </button>
             </div>
             {!isMobile && resultsViewMode === "comparison" && selectedResultType === "party" && (
-              <CapictiveCTA href={captiveUrl} />
+              <CapictiveCTA href={captiveUrl} onClick={() => setShowCapictiveModal(true)} />
             )}
             {isMobile && (
               <div className="results-analysis-nav is-single">
@@ -1364,8 +1366,18 @@ export default function ResultsView({
         <CapictiveCTA
           href={captiveUrl}
           className={!isMobile && resultsViewMode !== "comparison" ? "is-compact-width" : undefined}
+          onClick={() => setShowCapictiveModal(true)}
         />
       )}
+
+      <CapictiveModal
+        isOpen={showCapictiveModal}
+        onClose={() => setShowCapictiveModal(false)}
+        top5Rows={top5Rows}
+        captiveUrl={captiveUrl}
+        branding={branding}
+        resolvedLogoUrls={resolvedLogoUrls}
+      />
 
       <button
         className="results-save-btn"

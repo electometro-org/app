@@ -4292,3 +4292,252 @@ button,
     transform: translateX(75px);
   }
 }
+
+/* ── Capictive Modal ────────────────────────────────────────── */
+.capictive-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10003;
+  animation: capictiveOverlayIn 0.2s ease-out;
+}
+
+@keyframes capictiveOverlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.capictive-modal {
+  background: linear-gradient(180deg, #2e1200 0%, #4a1e00 100%);
+  color: #fff;
+  border-radius: 20px;
+  padding: 1.5rem;
+  max-width: 440px;
+  width: calc(100% - 32px);
+  text-align: center;
+  box-shadow:
+    0 0 0 2px rgba(200, 120, 42, 0.5),
+    0 0 40px rgba(200, 120, 42, 0.25),
+    0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: capictiveModalIn 0.3s ease-out;
+}
+
+@keyframes capictiveModalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.capictive-modal-header {
+  margin-bottom: 1rem;
+}
+
+.capictive-modal-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 0.75rem;
+}
+
+.capictive-modal-logo {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+}
+
+.capictive-modal-logo--capictive {
+  border-radius: 10px;
+  filter: drop-shadow(0 0 8px rgba(200, 120, 42, 0.6));
+}
+
+.capictive-modal-logo--brand {
+  filter: drop-shadow(0 0 6px rgba(255, 216, 77, 0.4));
+}
+
+.capictive-modal-logo-divider {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.capictive-modal-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ffd84d 0%, #ff9f2e 60%, #fff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.capictive-modal-description {
+  margin: 0 0 1.25rem 0;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.5;
+}
+
+/* Party grid */
+.capictive-modal-party-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.capictive-modal-party {
+  position: relative;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(200, 120, 42, 0.35);
+  border-radius: 10px;
+  padding: 10px 6px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.capictive-modal-party:hover {
+  border-color: rgba(255, 216, 77, 0.55);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.capictive-modal-party-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #a0520e, #c8782a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
+}
+
+.capictive-modal-party-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.capictive-modal-party-placeholder {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.capictive-modal-party-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.capictive-modal-party-rank {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #ffd84d;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* Actions */
+.capictive-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.capictive-modal-cta {
+  width: 100%;
+  padding: 15px 24px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #3d1200;
+  background: linear-gradient(135deg, #ffd84d 0%, #ff9f2e 100%);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow:
+    0 4px 15px rgba(255, 159, 46, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.capictive-modal-cta:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 24px rgba(255, 159, 46, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.capictive-modal-cta:active {
+  transform: translateY(0);
+}
+
+.capictive-modal-cancel {
+  width: 100%;
+  padding: 11px 24px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.65);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.capictive-modal-cancel:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 480px) {
+  .capictive-modal {
+    padding: 1.25rem;
+  }
+
+  .capictive-modal-title {
+    font-size: 1.3rem;
+  }
+
+  .capictive-modal-party-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .capictive-modal-party-logo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .capictive-modal-cta {
+    padding: 13px 20px;
+  }
+}

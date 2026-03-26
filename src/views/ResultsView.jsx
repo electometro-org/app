@@ -1311,6 +1311,9 @@ export default function ResultsView({
                 {t("common.next")}
               </button>
             </div>
+            {!isMobile && resultsViewMode === "comparison" && selectedResultType === "party" && (
+              <CapictiveCTA href={captiveUrl} />
+            )}
             {isMobile && (
               <div className="results-analysis-nav is-single">
                 <button
@@ -1357,8 +1360,11 @@ export default function ResultsView({
         document.body
       )}
 
-      {selectedResultType === "party" && (
-        <CapictiveCTA href={captiveUrl} />
+      {selectedResultType === "party" && (isMobile || resultsViewMode !== "comparison") && (
+        <CapictiveCTA
+          href={captiveUrl}
+          className={!isMobile && resultsViewMode !== "comparison" ? "is-compact-width" : undefined}
+        />
       )}
 
       <button

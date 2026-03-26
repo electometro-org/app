@@ -4158,6 +4158,14 @@ button,
 }
 
 /* ── Capictive CTA ──────────────────────────────────────────── */
+.capictive-cta.is-compact-width {
+  width: min(980px, 100%);
+  max-width: unset;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
 .capictive-cta {
   display: flex;
   justify-content: space-between;

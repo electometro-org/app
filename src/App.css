@@ -4156,3 +4156,131 @@ button,
     border: 2px solid var(--topic-fab-border, color-mix(in srgb, var(--topic-fab-text, #fff) 35%, transparent)) !important;
   }
 }
+
+/* ── Capictive CTA ──────────────────────────────────────────── */
+.capictive-cta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+
+  padding: 24px;
+  margin: 20px 0;
+
+  border-radius: 20px;
+  background: linear-gradient(135deg, #a0520e, #c8782a);
+  color: antiquewhite;
+  text-decoration: none;
+
+  box-shadow: 0 10px 30px rgba(140, 70, 10, 0.3);
+  flex-wrap: wrap;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  will-change: transform;
+  cursor: pointer;
+}
+
+.capictive-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(140, 70, 10, 0.4);
+  color: white;
+}
+
+.capictive-cta__deco {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.capictive-cta__content,
+.capictive-cta__button {
+  position: relative;
+  z-index: 1;
+}
+
+.capictive-cta__content {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 260px;
+}
+
+.capictive-cta__text {
+  text-align: left;
+}
+
+.capictive-cta__icon {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.capictive-cta__icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.capictive-cta__text h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.capictive-cta__text p {
+  margin: 6px 0 0;
+  font-size: 16px;
+  opacity: 0.95;
+}
+
+.capictive-cta__button {
+  background: #ffd84d;
+  color: #4b2000;
+
+  border-radius: 14px;
+  padding: 14px 22px;
+  font-size: 16px;
+  font-weight: 800;
+
+  white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.capictive-cta:hover .capictive-cta__button {
+  background: #ffe870;
+}
+
+@media (max-width: 767px) {
+  .capictive-cta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .capictive-cta__text h2 {
+    font-size: 22px;
+  }
+
+  .capictive-cta__button {
+    width: 100%;
+    text-align: center;
+    white-space: normal;
+    box-sizing: border-box;
+  }
+
+  .capictive-cta__deco-extra {
+    display: none;
+  }
+
+  .capictive-cta__deco {
+    transform: translateX(75px);
+  }
+}

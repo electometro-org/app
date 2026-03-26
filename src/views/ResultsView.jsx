@@ -9,7 +9,7 @@ import { collectFingerprintPayload } from "../useFingerprint";
 const PARTY_LOGO_EXTS = ["png", "jpg", "jpeg", "svg"];
 const CANDIDATE_PHOTO_EXTS = ["jpg", "jpeg", "png"];
 
-import captiveLogo from "/public/static/peru_2026/capictive.jpeg";
+import CapictiveCTA from "../components/CapictiveCTA";
 
 const TURNSTILE_SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js";
 const HCAPTCHA_SCRIPT_URL = "https://js.hcaptcha.com/1/api.js";
@@ -1089,58 +1089,6 @@ export default function ResultsView({
         )}
       </div>
       
-      {selectedResultType === "party" && (
-      <div
-        className="results-top-banner"
-        style={{ width: "100%", margin: "24px 0", textAlign: "center" }}
-      >
-        <a
-        href={captiveUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "12px",
-          width: "100%",
-          maxWidth: "1200px",
-          cursor: "pointer",
-          textDecoration: "none",
-          border: "2px solid #ddd",
-          borderRadius: "12px",
-          padding: "16px 24px",
-          boxShadow: "0 4px 8px rgba(0,0,0,0.08)",
-          transition: "all 0.2s ease",
-          color: "#000",
-          fontWeight: "600",
-          fontSize: "18px",
-          background: "#e0e0e0", 
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = "scale(1.02)";
-          e.currentTarget.style.boxShadow = "0 6px 14px rgba(0,0,0,0.12)";
-          e.currentTarget.style.background = "#dea86e"; 
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = "scale(1)";
-          e.currentTarget.style.boxShadow = "0 4px 8px rgba(0,0,0,0.08)";
-          e.currentTarget.style.background = "#e2ceb9"; 
-        }}
-      >
-        <span>
-          {t("¿Difícil decidir? ¡Compara en detalle tu Top5 en capictive.app!") || "¿Difícil decidir? ¡Compara en detalle tu Top5 en capictive.app!"}
-        </span>
-
-        <img
-          src={captiveLogo}
-          alt="Captive.app Logo"
-          style={{ height: "60px", objectFit: "contain" }}
-        />
-        </a>
-      </div>
-      )}
-
       {resultsViewMode === "coincidence" ? (
         <section className="results-slot-mode">
           <div className="results-slot-card">
@@ -1407,6 +1355,10 @@ export default function ResultsView({
           </div>
         </div>,
         document.body
+      )}
+
+      {selectedResultType === "party" && (
+        <CapictiveCTA href={captiveUrl} />
       )}
 
       <button

@@ -1,3 +1,5 @@
+const BASE_URL = import.meta.env.BASE_URL;
+
 export default function BattleModeCTA({ onClick, t, className }) {
   return (
     <section className={`cta-container${className ? ` ${className}` : ""}`}
@@ -6,7 +8,7 @@ export default function BattleModeCTA({ onClick, t, className }) {
     >
       <div style={{ borderRadius: "20px", overflow: "hidden" }}>
         <img
-          src="./capibarismo/capibara_fighter_CTA.png"
+          src={`${BASE_URL}capibarismo/capibara_fighter_CTA.png`}
           alt="Modo Batalla"
           style={{
             width: "100%",

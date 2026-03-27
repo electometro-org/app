@@ -5,6 +5,8 @@ import { voteToNumeric } from "../voteUtils";
 import { createPortal } from "react-dom";
 import { encodeToMnemonic } from "../utils/mnemonicCodec";
 import { collectFingerprintPayload } from "../useFingerprint";
+import FightModeModal from "../components/FightModeModal";
+import BattleModeCTA from "../components/BattleModeCTA";
 
 const PARTY_LOGO_EXTS = ["png", "jpg", "jpeg", "svg"];
 const CANDIDATE_PHOTO_EXTS = ["jpg", "jpeg", "png"];
@@ -107,6 +109,7 @@ export default function ResultsView({
   const [showComparisonInfoModal, setShowComparisonInfoModal] = React.useState(false);
   const [showSaveModal, setShowSaveModal] = React.useState(false);
   const [showCapictiveModal, setShowCapictiveModal] = React.useState(false);
+  const [showFightModeModal, setShowFightModeModal] = React.useState(false);
   const [savedUrl, setSavedUrl] = React.useState("");
   const [savedMnemonic, setSavedMnemonic] = React.useState("");
   const [copiedUrl, setCopiedUrl] = React.useState(false);
@@ -1090,7 +1093,7 @@ export default function ResultsView({
           </div>
         )}
       </div>
-      
+
       {resultsViewMode === "coincidence" ? (
         <section className="results-slot-mode">
           <div className="results-slot-card">
@@ -1316,6 +1319,9 @@ export default function ResultsView({
             {!isMobile && resultsViewMode === "comparison" && selectedResultType === "party" && (
               <CapictiveCTA href={captiveUrl} onClick={() => setShowCapictiveModal(true)} />
             )}
+            {!isMobile && resultsViewMode === "comparison" && selectedResultType !== "party" && rows.length >= 4 && (
+              <BattleModeCTA onClick={() => setShowFightModeModal(true)} t={t} />
+            )}
             {isMobile && (
               <div className="results-analysis-nav is-single">
                 <button
@@ -1328,7 +1334,7 @@ export default function ResultsView({
             )}
           </div>
         </div>
-        
+
 
       )}
 
@@ -1369,6 +1375,13 @@ export default function ResultsView({
           onClick={() => setShowCapictiveModal(true)}
         />
       )}
+      {selectedResultType !== "party" && rows.length >= 4 && (isMobile || resultsViewMode !== "comparison") && (
+        <BattleModeCTA
+          onClick={() => setShowFightModeModal(true)}
+          t={t}
+          className={!isMobile && resultsViewMode !== "comparison" ? "is-compact-width" : undefined}
+        />
+      )}
 
       <CapictiveModal
         isOpen={showCapictiveModal}
@@ -1379,13 +1392,15 @@ export default function ResultsView({
         resolvedLogoUrls={resolvedLogoUrls}
       />
 
-      <button
-        className="results-save-btn"
-        onClick={handleSaveResults}
-        type="button"
-      >
-        {saveResultsLabel}
-      </button>
+      <div className="results-action-buttons">
+        <button
+          className="results-save-btn"
+          onClick={handleSaveResults}
+          type="button"
+        >
+          {saveResultsLabel}
+        </button>
+      </div>
 
       <button
         ref={backToSurveyRef}
@@ -1528,6 +1543,16 @@ export default function ResultsView({
         </div>,
         document.body
       )}
+
+      {/* Fight Mode Modal - Capibarismo Integration */}
+      <FightModeModal
+        isOpen={showFightModeModal}
+        onClose={() => setShowFightModeModal(false)}
+        topCandidates={rows.slice(0, 4)}
+        config={config}
+        branding={branding}
+        resolvedCandidatePhotoUrls={resolvedCandidatePhotoUrls}
+      />
     </div>
   );
 }

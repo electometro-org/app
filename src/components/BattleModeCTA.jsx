@@ -1,7 +1,8 @@
 export default function BattleModeCTA({ onClick, t, className }) {
   return (
     <section className={`cta-container${className ? ` ${className}` : ""}`}
-      style={{ position: "relative", width: "100%", borderRadius: "25px" }}
+      style={{ position: "relative", width: "100%", borderRadius: "25px", cursor: "pointer" }}
+      onClick={onClick}
     >
       <div style={{ borderRadius: "20px", overflow: "hidden" }}>
         <img
@@ -14,10 +15,9 @@ export default function BattleModeCTA({ onClick, t, className }) {
         />
       </div>
 
-      <button onClick={onClick}
-      className="results-fight-mode-btn">
-  {t("results.fightMode.button","FIGHT MODE")}
-</button>
+      <button className="results-fight-mode-btn" tabIndex={-1} aria-hidden="true">
+        {t("results.fightMode.button","FIGHT MODE")}
+      </button>
     </section>
   );
 }

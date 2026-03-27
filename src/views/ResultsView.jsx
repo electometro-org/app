@@ -356,11 +356,11 @@ export default function ResultsView({
     return orderRowsForNavigation(mappedRows);
   };
 
-  const captiveMap = {
+  const capictiveMap = {
     "Ahora Nación": "AXLN",
     "Venceremos": "RXAS",
     "Fuerza y Libertad": "FXMA",
-    "Alianza Para el Progreso": "CXAP",
+    "Alianza para el Progreso": "CXAP",
     "Unidad Nacional": "RXCL",
     "Avanza País": "JXWZ",
     "Partido Político Cooperación Popular": "YXLA",
@@ -378,13 +378,13 @@ export default function ResultsView({
     "Partido Morado": "MXGA",
     "Partido Patriótico del Perú": "HXCG",
     "Partido Regionalista de Integración Nacional (PRIN)": "WXCP",
-    "País para todos": "CXÁL",
+    "País para Todos": "CXÁL",
     "Perú Acción": "FXCT",
     "Perú Libre": "VXCR",
     "Perú Moderno": "CXJC",
     "Perú Primero": "MXVC",
     "Podemos Perú": "JXLG",
-    "Primero la Gente": "MXDR",
+    "Primero La Gente": "MXDR",
     "Progresemos": "PXJB",
     "Renovación Popular": "RXLA",
     "Salvemos al Perú": "AXOV",
@@ -406,7 +406,7 @@ export default function ResultsView({
   const captiveQueryParams = top5Rows
     .map((r) => {
       const name = r.row.name || r.row.displayName;
-      const code = captiveMap[name];
+      const code = capictiveMap[name];
 
       return code;
     })

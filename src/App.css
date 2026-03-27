@@ -4271,6 +4271,7 @@ button,
   .capictive-cta {
     flex-direction: column;
     align-items: flex-start;
+    color: white;
   }
 
   .capictive-cta__text h2 {

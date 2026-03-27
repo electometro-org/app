@@ -11,6 +11,9 @@ import BattleModeCTA from "../components/BattleModeCTA";
 const PARTY_LOGO_EXTS = ["png", "jpg", "jpeg", "svg"];
 const CANDIDATE_PHOTO_EXTS = ["jpg", "jpeg", "png"];
 
+import CapictiveCTA from "../components/CapictiveCTA";
+import CapictiveModal from "../components/CapictiveModal";
+
 const TURNSTILE_SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js";
 const HCAPTCHA_SCRIPT_URL = "https://js.hcaptcha.com/1/api.js";
 
@@ -105,6 +108,7 @@ export default function ResultsView({
   const [showResultsScrollDownFab, setShowResultsScrollDownFab] = React.useState(false);
   const [showComparisonInfoModal, setShowComparisonInfoModal] = React.useState(false);
   const [showSaveModal, setShowSaveModal] = React.useState(false);
+  const [showCapictiveModal, setShowCapictiveModal] = React.useState(false);
   const [showFightModeModal, setShowFightModeModal] = React.useState(false);
   const [savedUrl, setSavedUrl] = React.useState("");
   const [savedMnemonic, setSavedMnemonic] = React.useState("");
@@ -355,8 +359,67 @@ export default function ResultsView({
     return orderRowsForNavigation(mappedRows);
   };
 
+  const capictiveMap = {
+    "Ahora Nación": "AXLN",
+    "Venceremos": "RXAS",
+    "Fuerza y Libertad": "FXMA",
+    "Alianza para el Progreso": "CXAP",
+    "Unidad Nacional": "RXCL",
+    "Avanza País": "JXWZ",
+    "Partido Político Cooperación Popular": "YXLA",
+    "Fe en el Perú": "AXLB",
+    "Partido Frente de la Esperanza 2021": "FXOV",
+    "Fuerza Popular": "KXFH",
+    "Partido Político Integridad Democrática": "WXGC",
+    "Juntos por el Perú": "RXSP",
+    "Libertad Popular": "RXBL",
+    "APRA": "EXVP",
+    "Partido Cívico OBRAS": "RXBC",
+    "Partido del Buen Gobierno": "JXNM",
+    "Partido Democrático Federal": "AXMF",
+    "Partido Demócrata Verde": "AXCG",
+    "Partido Morado": "MXGA",
+    "Partido Patriótico del Perú": "HXCG",
+    "Partido Regionalista de Integración Nacional (PRIN)": "WXCP",
+    "País para Todos": "CXÁL",
+    "Perú Acción": "FXCT",
+    "Perú Libre": "VXCR",
+    "Perú Moderno": "CXJC",
+    "Perú Primero": "MXVC",
+    "Podemos Perú": "JXLG",
+    "Primero La Gente": "MXDR",
+    "Progresemos": "PXJB",
+    "Renovación Popular": "RXLA",
+    "Salvemos al Perú": "AXOV",
+    "SíCreo": "CXEG",
+    "Somos Perú": "GXFS",
+    "Un Camino Diferente": "RXFB",
+    "FREPAP": "NA",
+    "PTE Perú": "NA",
+    "Partido Demócrata Unido Perú": "NA"
+  };
+
   const rows = getRows();
   const rowsWithIndex = rows.map((row, idx) => ({ row, idx }));
+
+  const top5Rows = [...rowsWithIndex]
+    .sort((a, b) => a.row.payload.ranking - b.row.payload.ranking)
+    .slice(0, 5);
+
+  const captiveQueryParams = top5Rows
+    .map((r) => {
+      const name = r.row.name || r.row.displayName;
+      const code = capictiveMap[name];
+
+      return code;
+    })
+    .filter(Boolean)
+    .join("&pp=");
+
+    // Build URL
+  const captiveUrl = `https://www.capictive.app/comparar?pp=${captiveQueryParams}`;
+  console.log(captiveUrl);
+
   const completeRows = rowsWithIndex.filter(({ row }) => !row.incomplete);
   const incompleteRows = rowsWithIndex.filter(({ row }) => row.incomplete);
   const completeComparisonsLabel = completeComparisonsTemplate.replace("[nrOfComplete]", String(completeRows.length));
@@ -1255,6 +1318,9 @@ export default function ResultsView({
                 {t("common.next")}
               </button>
             </div>
+            {!isMobile && resultsViewMode === "comparison" && selectedResultType === "party" && (
+              <CapictiveCTA href={captiveUrl} onClick={() => setShowCapictiveModal(true)} />
+            )}
             {isMobile && (
               <div className="results-analysis-nav is-single">
                 <button
@@ -1267,6 +1333,8 @@ export default function ResultsView({
             )}
           </div>
         </div>
+
+
       )}
 
       {showResultsScrollDownFab && createPortal(
@@ -1299,6 +1367,30 @@ export default function ResultsView({
         document.body
       )}
 
+      {selectedResultType === "party" && (isMobile || resultsViewMode !== "comparison") && (
+        <CapictiveCTA
+          href={captiveUrl}
+          className={!isMobile && resultsViewMode !== "comparison" ? "is-compact-width" : undefined}
+          onClick={() => setShowCapictiveModal(true)}
+        />
+      )}
+
+      <CapictiveModal
+        isOpen={showCapictiveModal}
+        onClose={() => setShowCapictiveModal(false)}
+        top5Rows={top5Rows}
+        captiveUrl={captiveUrl}
+        branding={branding}
+        resolvedLogoUrls={resolvedLogoUrls}
+      />
+
+      <button
+        className="results-save-btn"
+        onClick={handleSaveResults}
+        type="button"
+      >
+        {saveResultsLabel}
+      </button>
       <div className="results-action-buttons">
         <button
           className="results-save-btn"

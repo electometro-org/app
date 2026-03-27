@@ -1,6 +1,9 @@
+import { useTranslate } from "@tolgee/react";
 import capictiveLogo from "/public/static/peru_2026/capictive.jpeg";
 
 export default function CapictiveCTA({ href, className, onClick }) {
+  const { t } = useTranslate();
+
   const handleClick = onClick
     ? (e) => { e.preventDefault(); onClick(); }
     : undefined;
@@ -20,13 +23,13 @@ export default function CapictiveCTA({ href, className, onClick }) {
         </div>
 
         <div className="capictive-cta__text">
-          <h2>¡Investiga a los candidatos! 🔍</h2>
-          <p>Compara en detalle tu Top 5 antes de votar.</p>
+          <h2>{t("results.capictive.ctaTitle", "¡Investiga a los candidatos! 🔍")}</h2>
+          <p>{t("results.capictive.ctaDescription", "Compara en detalle tu Top 5 antes de votar.")}</p>
         </div>
       </div>
 
       <span className="capictive-cta__button">
-        Comparar en Capictive →
+        {t("results.capictive.ctaButton", "Comparar en Capictive →")}
       </span>
     </a>
   );

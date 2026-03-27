@@ -1,4 +1,5 @@
 import { createPortal } from "react-dom";
+import { useTranslate } from "@tolgee/react";
 import capictiveLogo from "/public/static/peru_2026/capictive.jpeg";
 
 function slugify(value) {
@@ -18,6 +19,8 @@ export default function CapictiveModal({
   branding,
   resolvedLogoUrls,
 }) {
+  const { t } = useTranslate();
+
   if (!isOpen) return null;
 
   const handleCompare = () => {
@@ -42,11 +45,11 @@ export default function CapictiveModal({
               className="capictive-modal-logo capictive-modal-logo--capictive"
             />
           </div>
-          <h2 className="capictive-modal-title">¡Investiga antes de votar!</h2>
+          <h2 className="capictive-modal-title">{t("results.capictive.modalTitle", "¡Investiga antes de votar!")}</h2>
         </div>
 
         <p className="capictive-modal-description">
-          Compara tu Top 5 en detalle en Capictive antes de decidir tu voto.
+          {t("results.capictive.modalDescription", "Compara tu Top 5 en detalle en Capictive antes de decidir tu voto.")}
         </p>
 
         <div className="capictive-modal-party-grid">
@@ -85,14 +88,14 @@ export default function CapictiveModal({
             className="capictive-modal-cta"
             onClick={handleCompare}
           >
-            Comparar en Capictive →
+            {t("results.capictive.modalCta", "Comparar en Capictive →")}
           </button>
           <button
             type="button"
             className="capictive-modal-cancel"
             onClick={onClose}
           >
-            Cancelar
+            {t("results.capictive.cancel", "Cancelar")}
           </button>
         </div>
       </div>

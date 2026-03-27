@@ -70,15 +70,15 @@ export default function FightModeModal({
         <div className="fight-mode-header">
           <div className="fight-mode-logos">
             <img
-              src="https://capibarismo.com/capi_logo.webp"
-              alt="Capibarismo"
-              className="fight-mode-logo fight-mode-logo--capibarismo"
-            />
-            <span className="fight-mode-logo-divider">x</span>
-            <img
               src={branding?.logo || "/favicon.svg"}
               alt="decide.pe"
               className="fight-mode-logo fight-mode-logo--decide"
+            />
+            <span className="fight-mode-logo-divider">x</span>
+            <img
+              src="https://capibarismo.com/capi_logo.webp"
+              alt="Capibarismo"
+              className="fight-mode-logo fight-mode-logo--capibarismo"
             />
           </div>
           <h2 className="fight-mode-title">{titleLabel}</h2>

@@ -4220,6 +4220,14 @@ button,
   }
 }
 
+.cta-container.is-compact-width {
+  width: min(980px, 100%) !important;
+  max-width: unset;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
 .cta-container:hover .results-fight-mode-btn {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
   background: #3F4A50;

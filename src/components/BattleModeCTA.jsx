@@ -1,7 +1,7 @@
-export default function BattleModeCTA({ onClick,t }) {
+export default function BattleModeCTA({ onClick, t, className }) {
   return (
-    <section className="cta-container"
-      style={{ position: "relative", width: "100%", marginBottom:"50px", borderRadius: "25px" }}
+    <section className={`cta-container${className ? ` ${className}` : ""}`}
+      style={{ position: "relative", width: "100%", borderRadius: "25px" }}
     >
       <div style={{ borderRadius: "20px", overflow: "hidden" }}>
         <img

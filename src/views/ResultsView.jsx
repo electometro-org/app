@@ -1036,8 +1036,6 @@ export default function ResultsView({
         <h2>{t("results.title")}</h2>
       </div>
 
-         {selectedResultType !== "party" && rows.length >= 4 && (
- <BattleModeCTA onClick={() => setShowFightModeModal(true)} t={t} /> )}
       <div className={`results-toolbar ${resultsViewMode === "comparison" ? "is-detailed" : "is-compact"}`}>
         {resultTypes.length > 1 && (
           <div className="results-type-toggle">
@@ -1321,6 +1319,9 @@ export default function ResultsView({
             {!isMobile && resultsViewMode === "comparison" && selectedResultType === "party" && (
               <CapictiveCTA href={captiveUrl} onClick={() => setShowCapictiveModal(true)} />
             )}
+            {!isMobile && resultsViewMode === "comparison" && selectedResultType !== "party" && rows.length >= 4 && (
+              <BattleModeCTA onClick={() => setShowFightModeModal(true)} t={t} />
+            )}
             {isMobile && (
               <div className="results-analysis-nav is-single">
                 <button
@@ -1374,6 +1375,13 @@ export default function ResultsView({
           onClick={() => setShowCapictiveModal(true)}
         />
       )}
+      {selectedResultType !== "party" && rows.length >= 4 && (isMobile || resultsViewMode !== "comparison") && (
+        <BattleModeCTA
+          onClick={() => setShowFightModeModal(true)}
+          t={t}
+          className={!isMobile && resultsViewMode !== "comparison" ? "is-compact-width" : undefined}
+        />
+      )}
 
       <CapictiveModal
         isOpen={showCapictiveModal}
@@ -1384,13 +1392,6 @@ export default function ResultsView({
         resolvedLogoUrls={resolvedLogoUrls}
       />
 
-      <button
-        className="results-save-btn"
-        onClick={handleSaveResults}
-        type="button"
-      >
-        {saveResultsLabel}
-      </button>
       <div className="results-action-buttons">
         <button
           className="results-save-btn"

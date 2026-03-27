@@ -30,9 +30,7 @@ export default function FightModeModal({
   const descriptionLabel = t("results.fightMode.description") === "results.fightMode.description"
     ? "Seras redirigido a capibarismo.com con tus 4 mejores candidatos"
     : t("results.fightMode.description");
-  const ctaLabel = t("results.fightMode.cta") === "results.fightMode.cta"
-    ? "A LUCHAR!"
-    : t("results.fightMode.cta");
+  const ctaLabel = t("results.fightMode.ct", "A LUCHAR!");
   const cancelLabel = t("results.fightMode.cancel") === "results.fightMode.cancel"
     ? "Cancelar"
     : t("results.fightMode.cancel");

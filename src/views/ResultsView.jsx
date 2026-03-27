@@ -973,8 +973,8 @@ export default function ResultsView({
         <h2>{t("results.title")}</h2>
       </div>
 
-         {rows.length >= 4 && (
- <BattleModeCTA onClick={() => setShowFightModeModal(true)} /> )}
+         {selectedResultType !== "party" && rows.length >= 4 && (
+ <BattleModeCTA onClick={() => setShowFightModeModal(true)} t={t} /> )}
       <div className={`results-toolbar ${resultsViewMode === "comparison" ? "is-detailed" : "is-compact"}`}>
         {resultTypes.length > 1 && (
           <div className="results-type-toggle">
@@ -1307,21 +1307,6 @@ export default function ResultsView({
         >
           {saveResultsLabel}
         </button>
-
-        {selectedResultType !== "party" && rows.length >= 4 && (
-          <button
-            className="results-fight-mode-btn"
-            onClick={() => setShowFightModeModal(true)}
-            type="button"
-          >
-            <img
-              src="https://capibarismo.com/capi_logo.webp"
-              alt=""
-              className="results-fight-mode-btn__logo"
-            />
-            {t("results.fightMode.button") === "results.fightMode.button" ? "FIGHT MODE" : t("results.fightMode.button")}
-          </button>
-        )}
       </div>
 
       <button

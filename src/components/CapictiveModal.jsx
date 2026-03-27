@@ -31,15 +31,15 @@ export default function CapictiveModal({
         <div className="capictive-modal-header">
           <div className="capictive-modal-logos">
             <img
-              src={capictiveLogo}
-              alt="Capictive"
-              className="capictive-modal-logo capictive-modal-logo--capictive"
+                src={branding?.logo || "/favicon.svg"}
+                alt="decide.pe"
+                className="capictive-modal-logo capictive-modal-logo--brand"
             />
             <span className="capictive-modal-logo-divider">×</span>
             <img
-              src={branding?.logo || "/favicon.svg"}
-              alt="decide.pe"
-              className="capictive-modal-logo capictive-modal-logo--brand"
+              src={capictiveLogo}
+              alt="Capictive"
+              className="capictive-modal-logo capictive-modal-logo--capictive"
             />
           </div>
           <h2 className="capictive-modal-title">¡Investiga antes de votar!</h2>

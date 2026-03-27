@@ -4529,7 +4529,13 @@ button,
   }
 
   .capictive-modal-party-grid {
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .capictive-modal-party {
+    width: calc(33.333% - 6px);
   }
 
   .capictive-modal-party-logo {

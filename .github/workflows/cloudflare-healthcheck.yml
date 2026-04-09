@@ -1,0 +1,41 @@
+
+name: Cloudflare Status Check
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # Every 30 minutes
+  workflow_dispatch:         # Allow manual trigger too
+
+jobs:
+  check-cloudflare:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch Cloudflare Status
+        id: cf_status
+        run: |
+          RESPONSE=$(curl -s https://www.cloudflarestatus.com/api/v2/status.json)
+          INDICATOR=$(echo $RESPONSE | jq -r '.status.indicator')
+          DESCRIPTION=$(echo $RESPONSE | jq -r '.status.description')
+
+          echo "indicator=$INDICATOR" >> $GITHUB_OUTPUT
+          echo "description=$DESCRIPTION" >> $GITHUB_OUTPUT
+
+          echo "Cloudflare status: $INDICATOR — $DESCRIPTION"
+
+      - name: Fail if Cloudflare is degraded or down
+        run: |
+          INDICATOR="${{ steps.cf_status.outputs.indicator }}"
+          DESCRIPTION="${{ steps.cf_status.outputs.description }}"
+
+          if [ "$INDICATOR" = "none" ]; then
+            echo "✅ Cloudflare is fully operational. No action needed."
+            exit 0
+          fi
+
+          echo "❌ Cloudflare is not healthy!"
+          echo "   Status   : $INDICATOR"
+          echo "   Message  : $DESCRIPTION"
+          echo ""
+          echo "👉 Consider triggering the 'DNS Migration to Vercel' workflow."
+          exit 1  # Fail the workflow so GitHub notifies you

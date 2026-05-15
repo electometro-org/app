@@ -340,6 +340,55 @@ button {
   color: var(--buttonColor);
 }
 
+/* Election Intro Round Selector */
+.election-intro-round-selector {
+  position: relative;
+  display: inline-flex;
+  margin-top: 8px;
+}
+
+.election-intro-round-selector::after {
+  content: '';
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--fontColor);
+  pointer-events: none;
+  -webkit-transition: border-top-color 0.2s;
+  transition: border-top-color 0.2s;
+}
+
+.election-intro-round-select {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  color: var(--fontColor);
+  border: 1px solid var(--fontColor);
+  padding: 10px 36px 10px 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 2px 4px 4px var(--buttonShadow);
+  -webkit-transition: background-color 0.2s, color 0.2s;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .election-intro-round-select:hover {
+    background-color: var(--fontColor);
+    color: var(--buttonColor);
+  }
+  .election-intro-round-selector:has(.election-intro-round-select:hover)::after {
+    border-top-color: var(--buttonColor);
+  }
+}
+
 /* Election Intro Restore Modal */
 .election-intro-restore-modal-overlay {
   position: fixed;

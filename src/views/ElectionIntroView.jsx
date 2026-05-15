@@ -4,7 +4,7 @@ import { useTranslate } from "@tolgee/react";
 import { BrandLogoAlt } from "../components/BrandImage";
 import { isValidMnemonic } from "../utils/mnemonicCodec";
 
-export default function ElectionIntroView({ branding, electionId, electionLabel, onStart, onRestore, mnemonicWordList }) {
+export default function ElectionIntroView({ branding, electionId, electionLabel, onStart, onRestore, mnemonicWordList, rounds, selectedRound, onRoundChange }) {
   const { t } = useTranslate();
   const description1 = t(`welcome.${electionId}.description1`);
   const description2 = t(`welcome.${electionId}.description2`);
@@ -129,6 +129,21 @@ export default function ElectionIntroView({ branding, electionId, electionLabel,
           {restoreResultsButtonLabel}
         </button>
       </div>
+
+      {rounds && rounds.length > 1 && (
+        <div className="election-intro-round-selector">
+          <select
+            className="election-intro-round-select"
+            value={selectedRound?.id ?? ''}
+            onChange={(e) => onRoundChange(e.target.value)}
+            aria-label="Seleccionar vuelta"
+          >
+            {rounds.map(r => (
+              <option key={r.id} value={r.id}>{r.label}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {showRestoreModal && createPortal(
         <div className="election-intro-restore-modal-overlay" onClick={() => setShowRestoreModal(false)}>

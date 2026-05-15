@@ -89,6 +89,11 @@ function AppContent() {
     handleSelectElection,
     handleStartQuiz,
     restoreFromMnemonic,
+
+    // Round selection
+    rounds,
+    selectedRound,
+    handleRoundChange,
   } = useQuizContext();
 
   // Handle URL mnemonic restore
@@ -151,6 +156,9 @@ function AppContent() {
           onStart={handleStartQuiz}
           onRestore={restoreFromMnemonic}
           mnemonicWordList={config?.mnemonicWordList}
+          rounds={rounds}
+          selectedRound={selectedRound}
+          onRoundChange={handleRoundChange}
         />
       );
     }

@@ -10,7 +10,9 @@ import {
   buildUserAnswers,
   buildUserAnswersWithRaw,
   partitionByCompared,
-  buildEntityDetails
+  buildEntityDetails,
+  filterCandidatesByRound,
+  filterPartiesByRound,
 } from "../services/resultsService";
 import { fetchJsonSafe, computeUniqueIndices, findNextUniqueIndex, findPrevUniqueIndex } from "../services/quizService";
 import { buildSubmissionPayload, submitQuizAnswers } from "../services/submissionService";
@@ -70,6 +72,16 @@ export function QuizProvider({ children }) {
   const [turnstileVerified, setTurnstileVerified] = useState(false);
   const [restoredFromMnemonic, setRestoredFromMnemonic] = useState(false);
   const votesDataCacheRef = useRef({});
+
+  // Round selection: null means "default to last round in config"
+  const [selectedRoundId, setSelectedRoundId] = useState(null);
+  const rounds = config?.rounds || [];
+  const selectedRound = rounds.find(r => r.id === selectedRoundId) ?? rounds[rounds.length - 1] ?? null;
+
+  // Reset round selection when election changes
+  useEffect(() => {
+    setSelectedRoundId(null);
+  }, [election]);
 
   // Version tracking state
   const [quizDataVersion, setQuizDataVersion] = useState(null);
@@ -362,10 +374,17 @@ export function QuizProvider({ children }) {
       ? fetchJsonSafe(config.presVotesUrl)
       : Promise.resolve(null);
 
+    const activeRound = selectedRound;
     Promise.all([partyPromise, presPromise])
       .then(([partyData, presData]) => {
-        const partyResults = partyData ? computeResultsFrom(partyData, "parties", userAnswers, { isImputedNeutral }) : [];
-        const presidentialResults = presData ? computeResultsFrom(presData, "candidates", userAnswers, { isImputedNeutral }) : [];
+        const partyResults = filterPartiesByRound(
+          partyData ? computeResultsFrom(partyData, "parties", userAnswers, { isImputedNeutral }) : [],
+          activeRound
+        );
+        const presidentialResults = filterCandidatesByRound(
+          presData ? computeResultsFrom(presData, "candidates", userAnswers, { isImputedNeutral }) : [],
+          activeRound
+        );
         dispatch({
           type: "SET_COMPARISON_RESULTS",
           payload: {
@@ -591,8 +610,14 @@ export function QuizProvider({ children }) {
       const mismatchType = compareVersions(mnemonicVersion, fetchedVersion);
       setVersionMismatchType(mismatchType);
 
-      const partyResults = partyData ? computeResultsFrom(partyData, "parties", userAnswers, { isImputedNeutral }) : [];
-      const presidentialResults = presData ? computeResultsFrom(presData, "candidates", userAnswers, { isImputedNeutral }) : [];
+      const partyResults = filterPartiesByRound(
+        partyData ? computeResultsFrom(partyData, "parties", userAnswers, { isImputedNeutral }) : [],
+        selectedRound
+      );
+      const presidentialResults = filterCandidatesByRound(
+        presData ? computeResultsFrom(presData, "candidates", userAnswers, { isImputedNeutral }) : [],
+        selectedRound
+      );
       dispatch({
         type: "SET_COMPARISON_RESULTS",
         payload: {
@@ -732,6 +757,11 @@ export function QuizProvider({ children }) {
     handleSelectElection,
     handleStartQuiz,
     restoreFromMnemonic,
+
+    // Round selection
+    rounds,
+    selectedRound,
+    handleRoundChange: setSelectedRoundId,
 
     // Constants
     USER_TO_NUM,

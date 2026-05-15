@@ -115,6 +115,17 @@ export default {
   partyVotesUrl: `${import.meta.env.VITE_ELECTIONS_DATA_URL}${qaPrefix}/peru_2026/combined_votes_peru_partidos_2026_compact.json`,
   presVotesUrl: `${import.meta.env.VITE_ELECTIONS_DATA_URL}${qaPrefix}/peru_2026/combined_votes_peru_pres_2026_compact.json`,
   isPresidentialElection: true,
+
+  rounds: [
+    { id: "round1", label: "1ª Vuelta" },
+    {
+      id: "round2",
+      label: "2ª Vuelta",
+      allowedCandidates: ["c7", "c9"],
+      allowedParties: ["p1", "p7", "p9", "p12", "p13", "p31"],
+    },
+  ],
+
   processCandidateVote: v => v,
   showLawInfo: true,
   questionTypes:   ["presidential"],

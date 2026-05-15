@@ -161,6 +161,18 @@ export function partitionByCompared(arr, minCompared = MIN_COMPARED) {
   return { complete, incomplete };
 }
 
+export function filterCandidatesByRound(results, round) {
+  if (!round?.allowedCandidates) return results;
+  const allowed = new Set(round.allowedCandidates);
+  return results.filter(r => allowed.has(r.id));
+}
+
+export function filterPartiesByRound(results, round) {
+  if (!round?.allowedParties) return results;
+  const allowed = new Set(round.allowedParties);
+  return results.filter(r => allowed.has(r.id));
+}
+
 export function buildEntityDetails(votesObj, userAnswersMap, type, quizData = null) {
   // Compact format detection: entity has 'id' field (like "c1" or "p1")
   const entityId = votesObj.id;

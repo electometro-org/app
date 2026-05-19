@@ -2,8 +2,8 @@
 name: Cloudflare Status Check
 
 on:
-  schedule:
-    - cron: '*/30 * * * *'  # Every 30 minutes
+ # schedule:
+ #   - cron: '*/30 * * * *'  # Every 30 minutes
   workflow_dispatch:         # Allow manual trigger too
 
 jobs:

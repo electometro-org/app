@@ -126,10 +126,10 @@ export function QuizProvider({ children }) {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Sync selectedResultType when resultTypes change
+  // Sync selectedResultType when resultTypes or selectedRound changes
   useEffect(() => {
-    if (resultTypes.length) setSelectedResultType(resultTypes[0]);
-  }, [resultTypes]);
+    if (resultTypes.length) setSelectedResultType(selectedRound?.defaultResultType ?? resultTypes[0]);
+  }, [resultTypes, selectedRound]);
 
   useEffect(() => {
     votesDataCacheRef.current = {};

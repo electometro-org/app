@@ -229,6 +229,7 @@ function AppContent() {
                 answers={state.answers}
                 weights={state.weights}
                 config={config}
+                selectedRound={selectedRound}
                 isMobile={isMobile}
                 mobileOpen={mobileOpen}
                 partyComplete={partyComplete}

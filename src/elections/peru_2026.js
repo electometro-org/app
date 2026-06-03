@@ -123,6 +123,8 @@ export default {
       label: "2ª Vuelta",
       allowedCandidates: ["c7", "c9"],
       allowedParties: ["p1", "p7", "p9", "p12", "p13", "p31"],
+      capictiveUrl: "https://www.capictive.app/comparar?pp=KXFH&pp=RXSP&pp=RXLA&pp=JXNM&pp=RXBC&pp=AXLN",
+      showBattleMode: false,
     },
   ],
 

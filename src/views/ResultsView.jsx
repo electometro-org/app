@@ -77,6 +77,7 @@ export default function ResultsView({
   answers,
   weights,
   config,
+  selectedRound,
   isMobile,
   partyComplete,
   partyIncomplete,
@@ -416,9 +417,11 @@ export default function ResultsView({
     .filter(Boolean)
     .join("&pp=");
 
-    // Build URL
   const captiveUrl = `https://www.capictive.app/comparar?pp=${captiveQueryParams}`;
-  console.log(captiveUrl);
+  const effectiveCaptiveUrl = selectedRound?.capictiveUrl ?? config.capictiveUrl ?? captiveUrl;
+  const showBattleMode = selectedRound?.showBattleMode ?? config.showBattleMode ?? true;
+  // When the URL is fixed, show all current party rows in the modal instead of dynamic top-5
+  const capictiveModalRows = (selectedRound?.capictiveUrl ?? config.capictiveUrl) ? rowsWithIndex : top5Rows;
 
   const completeRows = rowsWithIndex.filter(({ row }) => !row.incomplete);
   const incompleteRows = rowsWithIndex.filter(({ row }) => row.incomplete);
@@ -1317,9 +1320,9 @@ export default function ResultsView({
               </button>
             </div>
             {!isMobile && resultsViewMode === "comparison" && selectedResultType === "party" && (
-              <CapictiveCTA href={captiveUrl} onClick={() => setShowCapictiveModal(true)} />
+              <CapictiveCTA href={effectiveCaptiveUrl} onClick={() => setShowCapictiveModal(true)} />
             )}
-            {!isMobile && resultsViewMode === "comparison" && selectedResultType !== "party" && rows.length >= 4 && (
+            {!isMobile && resultsViewMode === "comparison" && selectedResultType !== "party" && rows.length >= 4 && showBattleMode && (
               <BattleModeCTA onClick={() => setShowFightModeModal(true)} t={t} />
             )}
             {isMobile && (
@@ -1370,12 +1373,12 @@ export default function ResultsView({
 
       {selectedResultType === "party" && (isMobile || resultsViewMode !== "comparison") && (
         <CapictiveCTA
-          href={captiveUrl}
+          href={effectiveCaptiveUrl}
           className={!isMobile && resultsViewMode !== "comparison" ? "is-compact-width" : undefined}
           onClick={() => setShowCapictiveModal(true)}
         />
       )}
-      {selectedResultType !== "party" && rows.length >= 4 && (isMobile || resultsViewMode !== "comparison") && (
+      {selectedResultType !== "party" && rows.length >= 4 && (isMobile || resultsViewMode !== "comparison") && showBattleMode && (
         <BattleModeCTA
           onClick={() => setShowFightModeModal(true)}
           t={t}
@@ -1386,8 +1389,8 @@ export default function ResultsView({
       <CapictiveModal
         isOpen={showCapictiveModal}
         onClose={() => setShowCapictiveModal(false)}
-        top5Rows={top5Rows}
-        captiveUrl={captiveUrl}
+        top5Rows={capictiveModalRows}
+        captiveUrl={effectiveCaptiveUrl}
         branding={branding}
         resolvedLogoUrls={resolvedLogoUrls}
       />

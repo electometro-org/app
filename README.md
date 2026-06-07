@@ -85,9 +85,9 @@ parameter) so a voter can save or share their result without an account.
 
 > 📸 _Screenshots are placeholders — replace with real captures._
 
-| Intro | Quiz | Results |
-| --- | --- | --- |
-| ![Intro screen](docs/assets/screenshot-intro.svg) <!-- TODO: replace with real image --> | ![Quiz view](docs/assets/screenshot-quiz.svg) <!-- TODO: replace with real image --> | ![Results view](docs/assets/screenshot-results.svg) <!-- TODO: replace with real image --> |
+| Intro                                                                                    | Quiz                                          | Results                                             |
+|------------------------------------------------------------------------------------------|-----------------------------------------------|-----------------------------------------------------|
+| ![Intro screen](docs/assets/screenshot-intro.png) | ![Quiz view](docs/assets/screenshot-quiz.png) | ![Results view](docs/assets/screenshot-results.png) |
 
 ---
 

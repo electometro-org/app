@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslate, useTolgee } from '@tolgee/react';
-import { esLang, quLang, ayLang } from '../tolgee';
+import { esLang, quLang, ayLang } from '../config/tolgee';
 
 export default function LanguageSwitcher() {
   const { t } = useTranslate();

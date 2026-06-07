@@ -1,7 +1,7 @@
 // src/components/CookieSettings.jsx
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getAnalyticsConsent, setAnalyticsConsent } from "../analytics";
+import { getAnalyticsConsent, setAnalyticsConsent } from "../utils/analytics";
 import { useTranslate } from "@tolgee/react";
 import BackToQuizButton from "./BackToQuizButton";
 import "./CookieSettings.css";

@@ -1,5 +1,5 @@
 import { useTranslate } from "@tolgee/react";
-import { trackEvent } from "../analytics";
+import { trackEvent } from "../utils/analytics";
 import { enabledElections } from "../elections";
 import { BrandLogoAlt } from "../components/BrandImage";
 

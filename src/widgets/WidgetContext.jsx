@@ -2,7 +2,7 @@ import React, { createContext, useContext, useMemo, useCallback, useState, useRe
 import { useQuizContext } from '../contexts/useQuizContext';
 import { useLayoutPersistence } from './useLayoutPersistence';
 import { getWidget } from './registry';
-import debug from '../debug';
+import debug from '../utils/debug';
 
 const WidgetContext = createContext(null);
 

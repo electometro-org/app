@@ -1,8 +1,8 @@
 import React, { createContext, useState, useEffect, useMemo, useRef } from "react";
-import { useQuiz } from "../useQuiz";
-import { collectFingerprintPayload, useFingerprint } from "../useFingerprint";
-import { trackEvent, setAnalyticsConsent } from "../analytics";
-import { colors } from "../colors";
+import { useQuiz } from "../hooks/useQuiz";
+import { collectFingerprintPayload, useFingerprint } from "../hooks/useFingerprint";
+import { trackEvent, setAnalyticsConsent } from "../utils/analytics";
+import { colors } from "../config/colors";
 import { USER_TO_NUM, MIN_COMPARED } from "../constants/answerMappings";
 import {
   isImputedNeutral,

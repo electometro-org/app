@@ -4,7 +4,7 @@ import { useWidgetContext } from './WidgetContext';
 import { getWidget } from './registry';
 import 'react-grid-layout/css/styles.css';
 import './WidgetLayout.css';
-import debug from '../debug';
+import debug from '../utils/debug';
 
 // Import built-in types (registers them)
 import './types';

@@ -1,10 +1,10 @@
 import React from "react";
 import { useTranslate } from "@tolgee/react";
 import { BrandLogo } from "../components/BrandImage";
-import { voteToNumeric } from "../voteUtils";
+import { voteToNumeric } from "../utils/voteUtils";
 import { createPortal } from "react-dom";
 import { encodeToMnemonic } from "../utils/mnemonicCodec";
-import { collectFingerprintPayload } from "../useFingerprint";
+import { collectFingerprintPayload } from "../hooks/useFingerprint";
 import FightModeModal from "../components/FightModeModal";
 import BattleModeCTA from "../components/BattleModeCTA";
 

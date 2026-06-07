@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDockingZone } from './useDocking';
 import './DockingZone.css';
-import debug from '../debug';
+import debug from '../utils/debug';
 
 /**
  * DockingZone

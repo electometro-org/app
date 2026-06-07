@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useWidgetContext } from './WidgetContext';
-import debug from '../debug';
+import debug from '../utils/debug';
 
 /**
  * useDockingZone

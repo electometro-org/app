@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslate } from "@tolgee/react";
-import { voteToNumeric } from "../voteUtils";
+import { voteToNumeric } from "../utils/voteUtils";
 
 function slugifyAssetName(value) {
   return String(value || "")

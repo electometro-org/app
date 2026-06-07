@@ -1,352 +1,354 @@
 # Electómetro
 
-El **Electómetro** es una herramienta digital de voto informado, inspirada en el
-modelo alemán Wahl-o-Mat (**bpb 2024**), pero adaptada al contexto político, institucional y social
-del país.  
+> 🌐 **Language:** English (canonical) · [Español](docs/es/README.es.md)
 
-Su objetivo es sencillo: ayudar a los votantes a identificar qué candidaturas se alinean mejor con
-sus posiciones y valores, mediante una experiencia interactiva, personalizada y fácil de usar.  
+**Electómetro** is a digital **Voting Advice Application (VAA)** — an interactive questionnaire that
+helps voters discover which parties and presidential candidates best match their political positions.
+It is inspired by Germany's **Wahl-o-Mat** model (Bundeszentrale für politische Bildung, *bpb*),
+adapted to the political, institutional, and social context of Latin American elections.
 
-Con ello buscamos empoderar a la ciudadanía con información clara y accesible, visibilizar
-propuestas políticas y fortalecer la legitimidad del proceso democrático.
+The goal is simple: empower citizens with clear, accessible information so they can make an informed
+vote, make political platforms more visible, and strengthen the legitimacy of the democratic process.
 
-## ¿Cómo funciona?
+Live deployments: [electometro.org](https://electometro.org) ·
+[electometro.decide.pe](https://electometro.decide.pe) (Perú 2026).
 
-* Los/las votantes responden un cuestionario de 10 a 20 tesis sobre temas clave del debate
-nacional.  
+---
 
-* Para cada tesis, el/la votante evalúa si está de en completo desacuerdo, neutral o en completo acuerdo con la tesis. 
-Además, podrá seleccionar si el tema le parece de alta, mediana o baja importancia.
+## Table of Contents
 
-*  En base a la respuesta de el/la votante, así como sus preferencias de importancia, se le
-informará sobre su cercanía programática e ideológica a los distintos partidos y candidaturas.
+- [How it works](#how-it-works)
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Tech stack](#tech-stack)
+- [Installation & development](#installation--development)
+- [Build](#build)
+- [Deployment](#deployment)
+- [Project structure](#project-structure)
+- [Configuration](#configuration)
+- [FAQ](#faq)
+- [Contributing](#contributing)
+- [License](#license)
 
-*  Además, se incluirá información relevante de las candidaturas, como antecedentes penales o
-investigaciones por corrupción, historial partidario, niveles educativos, así como bienes e
-inmuebles declarados.
+---
 
-## Características
+## How it works
 
-### 📱 Experiencia de Usuario
-- Diseño responsive (móvil y escritorio)
-- Navegación fluída entre preguntas únicas
-- Sistema de pesos para preguntas importantes
-- Formulario demográfico opcional (género, edad, educación, región)
-- Detalles ampliados de candidatos/partidos
+1. Voters answer a questionnaire of theses (≈10–20) about key national debate topics.
+2. For each thesis the voter chooses **agree / neutral / disagree**, and can additionally mark whole
+   topics as **very important** (which boosts the weight of related questions).
+3. Based on the answers and importance weighting, the app computes the voter's programmatic and
+   ideological closeness to each party and presidential candidate (a weighted similarity score).
+4. Detailed per-question breakdowns show how each entity voted on every thesis.
 
-### 📊 Análisis de Resultados
-- Cálculo de similitud con partidos políticos
-- Cálculo de similitud con candidatos presidenciales
-- Partición de resultados según número mínimo de preguntas comparadas
-- Desempate aleatorio para evitar sesgos
-- Visualización de coincidencias por pregunta individual
-- **Gráficos de Tendencias Agregadas (TBA)** 
+Results can be encoded into a shareable **mnemonic phrase** (a sequence of words in the URL `?r=`
+parameter) so a voter can save or share their result without an account.
 
-### 🌍 Internacionalización (i18n)
-- Soporte multiidioma mediante [Tolgee](https://tolgee.io/)
-- Cambio de idioma dinámico sin recargar la página
-- Idiomas disponibles:
-  - Español
-  - Quechua
+---
 
-### 🔒 Seguridad y Anti-Fraude
-- Verificación CAPTCHA antes de enviar respuestas
-- Identificación única de dispositivos mediante FingerprintJS
-- Validación de cookies `cf_clearance` con fingerprints
-- **Rate limiting**: Protección contra envíos masivos automatizados
+## Features
+
+### 📱 User experience
+- Responsive design (mobile and desktop) with a draggable widget-based layout (`react-grid-layout`).
+- Smooth navigation across unique questions.
+- Topic-importance weighting for questions the voter cares about.
+- Optional demographic form (gender, age, education, region).
+- Expanded candidate/party detail views with per-question comparison.
+- Legacy-browser support (Chrome 70+, Safari 12+, iOS 12+) via `@vitejs/plugin-legacy`.
+
+### 📊 Results analysis
+- Weighted similarity scoring against parties and presidential candidates.
+- Results partitioned by a minimum number of compared questions (`MIN_COMPARED = 8`).
+- Random tie-breaking among equal scores to avoid ordering bias.
+- Per-question match visualization.
+- Multi-round support (e.g. first / second round) with per-round candidate and party filtering.
+
+### 🌍 Internationalization (i18n)
+- Multi-language support via [Tolgee](https://tolgee.io/).
+- Dynamic language switching without page reload.
+- Languages currently wired: Spanish (`es`), Quechua (`qu`).
+
+### 🔒 Security & anti-fraud
+- CAPTCHA verification before submission (Cloudflare Turnstile, with an hCaptcha fallback for older
+  browsers that cannot run Turnstile).
+- Device fingerprinting via `fpscanner` / FingerprintJS.
+- Hidden honeypot field to trap bots.
+- Database-side validation and Row-Level Security (see [`db/`](db/)).
 
 ### 📈 Analytics
-- Integración con [Trench.js](https://trench.dev/) para análisis de uso
-- Seguimiento de eventos respetando consentimiento del usuario
-- Métricas de finalización de cuestionarios
-- Análisis demográfico agregado
+- Consent-gated usage analytics via [Trench.js](https://trench.dev/).
+- Quiz-completion and demographic metrics, only when the user consents.
 
 ---
 
-## 🏗️ Stack
+## Screenshots
+
+> 📸 _Screenshots are placeholders — replace with real captures._
+
+| Intro | Quiz | Results |
+| --- | --- | --- |
+| ![Intro screen](docs/assets/screenshot-intro.svg) <!-- TODO: replace with real image --> | ![Quiz view](docs/assets/screenshot-quiz.svg) <!-- TODO: replace with real image --> | ![Results view](docs/assets/screenshot-results.svg) <!-- TODO: replace with real image --> |
+
+---
+
+## Tech stack
 
 ### Frontend (SPA)
-- ⚛️ **React**
-- 🚀 **Vite** (build y dev server)
-- 🌐 **React Router** para navegación
-- 🗣️ **Tolgee** para internacionalización
+- ⚛️ **React 18** with **Vite 6** (build + dev server)
+- 🌐 **React Router 7** (`HashRouter`)
+- 🧩 **react-grid-layout** for the draggable widget canvas
+- 🗣️ **Tolgee** for internationalization
 
-### **Backend (Serverless)**:
-- ☁️ **Cloudflare Workers** (edge computing)
-- 🗄️ **Supabase** (PostgreSQL) para almacenamiento
-- 📦 **Cloudflare R2** (S3 object storage) para traducciones
-- 🔑 **Cloudflare KV** para vinculación fingerprint-cookie
+### Backend (serverless)
+- ☁️ **Cloudflare Workers** (edge compute) — the API/Worker lives in a separate repository, included
+  here as the `external/cf-workers` git submodule.
+- 🗄️ **Supabase** (PostgreSQL) for response storage
+- 📦 **Cloudflare R2** for translation assets
+- 🔑 **Cloudflare KV** for fingerprint ↔ cookie binding
+> The Cloudflare health-check workflow mentions a possible DNS migration to Vercel, but this checkout
+> does not currently track `vercel.json`, `microfrontends.json`, or Vercel-specific npm scripts.
 
-### **Seguridad**:
-- 🔐 **Cloudflare Turnstile** (CAPTCHA)
-- 🖐️ **FingerprintJS 5.0** (device fingerprinting)
-- 🛡️ **Row Level Security** en Supabase
+### Security & monitoring
+- 🔐 Cloudflare Turnstile (+ hCaptcha fallback)
+- 🖐️ FingerprintJS / `fpscanner`
+- 🛡️ Supabase Row-Level Security + validation triggers
+- 📊 Trench.js (consent-gated analytics)
 
-### **Análisis y Monitoreo**:
-- 📊 **Trench.js** (analytics con consentimiento)
-- 📈 Supabase Analytics (métricas del lado del servidor)
-
----
-
-## 💻 Instalación y Desarrollo
-
-### Prerrequisitos
-
-- Node.js >= 18
-- `npm`
-- Cuenta de Cloudflare (para Workers, KV, R2)
-- Cuenta de Supabase
-- Cuenta de Tolgee (opcional, para gestionar traducciones)
-
-### Configuración Local
-
-1. **Clonar el repositorio**:
-```bash
-git clone https://github.com/electometro-org/app.git "electometro-app"
-cd electometro-app
-```
-
-2. **Instalar dependencias**:
-```bash
-npm install
-```
-
-3. **Configurar variables de entorno**:
-
-- Copiar `.env.example` a nuevo archivo `.env`
-- Copiar `.env.development.example` a nuevo archivo `.env.development`
-- Copiar `.env.local.example` a nuevo archivo `.env.local`
-- Completar valores de variables necesarias
-
-4. **Configurar carpeta `public`**:
-
-El proyecto requiere una carpeta `public` con los assets de la elección. Esta carpeta **no está incluida en el repositorio** y debe ser proporcionada por separado.
-
-**Estructura requerida**:
-```
-public/
-├── index.html              # Página principal (usar index.html.example como plantilla)
-└── static/                 # Assets estáticos (copiados a dist/ en build)
-    ├── favicon.svg
-    ├── i18n/               # Archivos de traducción (OPCIONAL)
-    │   ├── es.json
-    │   └── qu.json
-    ├── {election_id}/      # Assets específicos de la elección (ej: peru_2026/)
-    │   ├── party_logos/    # Logos de partidos políticos
-    │   └── favicon.svg     # Favicon específico de la elección
-    └── combined_votes_*.json  # Datos de votación generados por scripts (OPCIONAL DURANTE DESARROLLO)
-```
-
-**Opciones de configuración**:
-
-- **Opción A**: Crear la carpeta `public` manualmente siguiendo la estructura anterior
-- **Opción B**: Usar un submódulo git con los assets:
-  ```bash
-  # Ejecutar en la raiz del proyecto
-  git submodule add <url-repositorio-assets> external/assets
-  ln -s ./external/assets/app/public ./public
-  ```
-
-> **Nota**: El archivo `index.html.example` en la raíz del proyecto sirve como plantilla. Cópialo a `public/index.html` y ajusta los valores de CSP y meta tags según tu dominio.
-
-5. **Configurar carpeta `wrangler`**:
-
-El proyecto requiere una carpeta `wrangler` con la configuración del Worker de Cloudflare. Esta carpeta **no está incluida en el repositorio** y debe ser proporcionada por separado.
-
-**Estructura requerida**:
-```
-wrangler/
-├── wrangler.toml           # Configuración principal del Worker
-└── worker/                 # Código del Worker (opcional, si se separa del src/)
-    └── api.ts
-```
-
-**Opciones de configuración**:
-
-- **Opción A**: Crear la carpeta `wrangler` manualmente:
-  ```bash
-  # Ejecutar en la raiz del proyecto
-  mkdir -p wrangler
-  cp wrangler.toml.example wrangler/wrangler.toml
-  # Editar wrangler/wrangler.toml con tus valores
-  ```
-
-- **Opción B**: Usar un submódulo git (si los assets incluyen configuración):
-  ```bash
-  git submodule add <url-repositorio-workers> external/cloudflare-worker
-  ln -s ./external/cloudflare-worker/wrangler ./wrangler
-  ```
-
-> La documentación completa de Wrangler se encuentra [aquí](https://developers.cloudflare.com/workers/wrangler/configuration/)
-
-6. **Ejecutar migraciones de base de datos**:
-```bash
-# En Supabase SQL Editor, ejecutar:
-# 1. migration.sql
-# 2. security.sql
-```
-
-7. **Iniciar servidor de desarrollo**:
-```bash
-# Hot reloading activado. Ideal para desarollo continuo
-npm run dev
-```
-
-### Scripts Disponibles
-
-```bash
-# Desarrollo
-npm run dev              # Inicia Vite dev server
-
-# Build
-npm run build            # Build de producción
-npm run build-dev        # Build de desarrollo
-
-# Preview
-npm run preview          # Preview del build con Wrangler
-
-# Deploy
-npm run deploy           # Deploy a Cloudflare Pages + Worker
-
-# Linting
-npm run lint             # Ejecuta ESLint
-```
+> **Note on dependencies:** `express`, `mongoose`, `cors`, and `body-parser` appear in
+> `package.json` but are not used by the frontend SPA in this repository; they relate to the
+> standalone Worker/API. See [ARCHITECTURE.md](ARCHITECTURE.md) for dependency boundaries.
 
 ---
 
-## 🚀 Lanzamiento
+## Installation & development
 
-### Cloudflare Pages + Workers
+### Prerequisites
+- Node.js >= 18 and `npm`
+- A Cloudflare account (Workers, KV, R2) for the tracked deployment path
+- A Supabase account
+- (Optional) A Tolgee account to manage translations
 
-El proyecto usa **Cloudflare Pages** para el frontend estático y **Cloudflare Workers** para el backend.
+### Local setup
 
-**Pasos de despliegue**:
-
-1. **Configurar secretos en Cloudflare**:
-```bash
-wrangler secret put TURNSTILE_SECRET_KEY
-wrangler secret put VITE_SUPABASE_PUBLISHABLE_KEY
-```
-
-2. **Desplegar Worker**:
-```bash
-npm run deploy
-```
-
-3. **Configurar dominio personalizado**:
-  - En Cloudflare Dashboard → Pages → Custom domains
-  - Agregar p.ej. `decide.pe`
-
-4. **Configurar R2 Bucket para traducciones**:
-```bash
-# Crear bucket
-wrangler r2 bucket create electometro-i18n
-
-# Subir archivos de traducción (NO recomendado)
-wrangler r2 object put electometro-i18n/es.json --file=public/i18n/es.json
-wrangler r2 object put electometro-i18n/qu.json --file=public/i18n/qu.json
-
-# Tonglee mantiene el bucket actualizado automaticamente
-```
-
----
-
-## 🤝 Contribuir
-
-¡Las contribuciones son bienvenidas! Este proyecto busca fortalecer la democracia mediante tecnología abierta.
-
-### Proceso de Contribución
-
-1. **Fork el repositorio**
-2. **Crea una rama para tu feature**:
+1. **Clone the repository** (with submodules if you have access to the asset/worker repos):
    ```bash
-   git checkout -b feat/nueva-caracteristica
+   git clone --recurse-submodules https://github.com/electometro-org/app.git electometro-app
+   cd electometro-app
    ```
-3. **Realiza tus cambios** siguiendo las guías de estilo
-4. **Ejecuta los tests y linter**:
+
+2. **Install dependencies:**
    ```bash
-   npm run lint
+   npm install
    ```
-5. **Commit con mensaje descriptivo**:
+
+3. **Configure environment variables.** Copy the example files and fill in the values:
    ```bash
-   git commit -m "feat: agregar gráfico de tendencias semanales"
+   cp .env.example .env
+   cp .env.development.example .env.development
+   cp .env.local.example .env.local
    ```
-6. **Push a tu fork**:
+   See [Configuration](#configuration) for what each variable does.
+
+4. **Provide the `public/` assets.** The app needs a `public/` directory with the election assets and
+   an `index.html`. It is **not committed** to this repo. Either create it manually following the
+   structure below, or symlink the assets submodule:
    ```bash
-   git push origin feat/nueva-caracteristica
+   git submodule add <assets-repo-url> external/peru-assets
+   ln -s ./external/peru-assets/app/public ./public
    ```
-7. **Abre un Pull Request** describiendo los cambios
+   Expected layout:
+   ```
+   public/
+   ├── index.html             # main page (use index.html.example as a template)
+   └── static/                # static assets (copied to dist/ on build)
+       ├── favicon.svg
+       ├── i18n/              # translation files (optional)
+       ├── {election_id}/     # election-specific assets (e.g. peru_2026/)
+       └── combined_votes_*.json  # generated vote data (optional in dev)
+   ```
+   > `index.html.example` at the repo root is a template — copy it to `public/index.html` and adjust
+   > the CSP and meta tags for your domain.
 
-### Guías de Estilo
+5. **Provide the `wrangler/` config** (Cloudflare target only). Also not committed:
+   ```bash
+   mkdir -p wrangler
+   cp wrangler.toml.example wrangler/wrangler.toml   # then edit values
+   ```
+   See the [Wrangler configuration docs](https://developers.cloudflare.com/workers/wrangler/configuration/).
 
-- **JavaScript**: Seguir ESLint config del proyecto
-- **Commits**: Usar [Conventional Commits](https://www.conventionalcommits.org/)
-  - `feat:` nueva funcionalidad
-  - `fix:` corrección de bugs
-  - `docs:` cambios en documentación
-  - `refactor:` refactorización sin cambios funcionales
-  - `style:` cambios de formato (sin afectar código)
-  - `test:` agregar o modificar tests
-  - `chore:` tareas de mantenimiento
+6. **Run the database migrations** in the Supabase SQL editor, in order:
+   1. [`db/migration.sql`](db/migration.sql) — creates `quiz_answers`, indexes, RLS.
+   2. [`db/security.sql`](db/security.sql) — check constraints + validation triggers.
 
-### Áreas donde Contribuir
+7. **Start the dev server:**
+   ```bash
+   npm run dev
+   ```
 
-- 🌍 **Traducciones**: Agregar nuevos idiomas (Aymara, Inglés, etc.)
-- 🎨 **Diseño**: Mejorar UX/UI
-- 🔒 **Seguridad**: Reforzar medidas anti-fraude
-- 📊 **Visualizaciones**: Nuevos tipos de gráficos
-- 🧪 **Testing**: Agregar tests unitarios y de integración
-- 📱 **Accesibilidad**: Mejorar compatibilidad con lectores de pantalla
-- 🐛 **Bug fixes**: Reportar y solucionar bugs
+### Available scripts
 
----
-
-## 🗓️ Roadmap
-
-### Q1/1 2026
-- ✅ Sistema de internacionalización (Tolgee)
-- ✅ Soporte para Quechua
-- ✅ Backend de traducciones en Cloudflare R2
-- 🔄 Migración completa de strings hardcodeados a translation keys
-
-### Q1/2 2026
-- 🎨 **Fondos dinámicos por pregunta**
-- 📊 **Gráficos de tendencias agregadas**
-- 🏗️ **Refactorización OOP**: Modularización del código
-  - Extracción de modelos de dominio
-  - Servicios de negocio separados
-  - Arquitectura en capas
-  - Mejor testabilidad
-
-### Planificado
-- 🧪 Suite completa de tests (unit, integration, e2e)
-- 💾 Guardar y compartir resultados
-
-### Futuro
-- 👤 Sistema de cuentas de usuario
-- 🔍 Búsqueda y filtrado avanzado de candidatos
-- 📈 Dashboard de estadísticas en tiempo real
-- 📊 Visualizaciones demográficas (con privacidad)
-- 📱 Progressive Web App (PWA) con soporte offline
-- 🌐 Expansión a más países de Latinoamérica
+| Script | Purpose |
+| --- | --- |
+| `npm run dev` | Vite dev server (`--mode development`) |
+| `npm run build` | Production build |
+| `npm run build-dev` | Development-mode build |
+| `npm run preview` | Build + serve via `wrangler dev` |
+| `npm run preview-qa` | QA preview with `CLOUDFLARE_ENV=qa` |
+| `npm run deploy` | Build + `wrangler deploy` |
+| `npm run deploy-qa` | QA deploy with `CLOUDFLARE_ENV=qa` |
+| `npm run lint` | Run ESLint over the project |
 
 ---
 
-## 🙏 Agradecimientos
+## Build
 
-- **Bundeszentrale für politische Bildung (bpb)** por el modelo Wahl-o-Mat
-- **Comunidad open-source** por las herramientas utilizadas
-- **Contribuidores** que hacen posible este proyecto
-- **Votantes** que utilizan la herramienta para tomar decisiones informadas
+The current tracked build is Cloudflare-oriented and resolved in [`vite.config.js`](vite.config.js).
+It uses the Cloudflare Vite plugin, `public/index.html` as the entry file, `public/static` as the
+public asset directory, legacy browser output, and the `nest-assets-plugin`, which moves built assets
+under `/electometro/` to work around Wrangler asset-resolution limitations.
 
----
-
-## 📞 Contacto
-
-- **Sitio web**: [electometro.org](https://electometro.org)
-- **Repositorio**: [github.com/electometro-org/app](https://github.com/electometro-org/app)
-- **Issues**: [github.com/electometro-org/app/issues](https://github.com/electometro-org/app/issues)
+A per-election build also injects HTML `<title>`, description, canonical URL, favicon, and `lang` via
+[`vite-plugin-election-html.js`](vite-plugin-election-html.js), keyed on `VITE_ELECTION_ID`.
 
 ---
 
-**Hecho con ❤️ para fortalecer la democracia en Latinoamérica**
+## Deployment
+
+### Cloudflare Workers
+1. Set secrets:
+   ```bash
+   wrangler secret put TURNSTILE_SECRET_KEY
+   wrangler secret put VITE_SUPABASE_PUBLISHABLE_KEY
+   ```
+2. Deploy: `npm run deploy`
+3. Configure a custom domain in the Cloudflare dashboard (Pages → Custom domains).
+4. Create the R2 bucket for translations (Tolgee keeps it updated):
+   ```bash
+   wrangler r2 bucket create electometro-i18n
+   ```
+
+### Vercel
+
+A GitHub Actions workflow (`.github/workflows/cloudflare-healthcheck.yml`) mentions considering a DNS
+migration to Vercel if Cloudflare is degraded. Vercel deployment files and npm scripts are not tracked
+in this checkout, so Cloudflare is the documented deployment path here.
+
+---
+
+## Project structure
+
+```
+electometro/
+├── db/                         # Supabase SQL: schema (migration.sql) + hardening (security.sql)
+├── docs/                       # Project documentation
+│   ├── DECISIONS/              # Architecture Decision Records (ADRs)
+│   ├── es/                     # Spanish translations of community-facing docs
+│   ├── CONVENTIONS.md          # Naming & folder conventions
+│   └── assets/                 # Documentation images
+├── src/
+│   ├── App.jsx                 # Root component, routes, view switching
+│   ├── main.jsx                # Vite entry point
+│   ├── backgrounds/            # Background system (registry + types: solid/image/slideshow/gradient)
+│   ├── components/             # Reusable UI components (modals, CTAs, forms, menu, static pages)
+│   ├── config/                 # appConfig, branding, env, background defaults
+│   ├── constants/              # answerMappings, capibarismoMapping
+│   ├── contexts/               # QuizContext (global quiz/UI state provider)
+│   ├── elections/              # Per-election config registry (peru_2026, chile_2025) + widgets
+│   ├── hooks/                  # useQuiz (reducer-based quiz state)
+│   ├── services/               # quizService, resultsService, submissionService (logic layer)
+│   ├── utils/                  # mnemonicCodec, versionUtils
+│   ├── views/                  # Top-level screens (intro, selector, quiz, results, etc.)
+│   └── widgets/                # Widget system (registry + docking + types)
+├── vite-plugin-election-html.js  # Injects per-election meta tags at build
+├── vite.config.js              # Multi-target build config (local/cloudflare/vercel)
+└── wrangler.toml.example       # Template for Cloudflare deployment config
+```
+
+> The naming and folder conventions are documented in [docs/CONVENTIONS.md](docs/CONVENTIONS.md).
+
+---
+
+## Configuration
+
+Environment variables are read by Vite (`import.meta.env`). Copy from `.env.example` and fill in:
+
+| Variable | Purpose |
+| --- | --- |
+| `VITE_TRENCH_ENABLED` | Enable/disable Trench analytics. |
+| `VITE_TRENCH_SERVER_URL` / `VITE_TRENCH_PUBLIC_API_KEY` | Trench analytics endpoint + key. |
+| `VITE_TURNSTILE_FORM_KEY` | Cloudflare Turnstile site key. |
+| `VITE_HCAPTCHA_SITE_KEY` | hCaptcha site key (fallback for old browsers). |
+| `VITE_HCAPTCHA_FALLBACK_API` | Fallback API base URL for hCaptcha submissions. |
+| `VITE_I18N_URL` | Base URL for translation assets (R2). |
+| `VITE_ELECTIONS_DATA_URL` | Base URL for election vote data (compact JSON). |
+| `VITE_ELECTION_ID` | Which election(s) are enabled. Single ID = single-election mode (skips selector); comma-separated = multi-election; empty = all elections with `enabled: true`. |
+| `VITE_USE_ELECTION_BRANDING` | `false` keeps neutral branding for the whole session. |
+| `VITE_SHOW_GENERIC_INTRO` | Toggle the neutral intro shown before election selection. |
+| `VITE_SHOW_ELECTION_INTRO` | Toggle the election-specific intro before the quiz. |
+| `VITE_TOLGEE_QA_TRANSLATIONS` | Use the `/qa` data/translation prefix. |
+
+Application flow flags are resolved in [`src/config/appConfig.js`](src/config/appConfig.js); branding
+in [`src/config/branding.js`](src/config/branding.js). Adding a new election is a matter of dropping a
+config file into [`src/elections/`](src/elections/) and registering it in
+[`src/elections/index.js`](src/elections/index.js) — see [ARCHITECTURE.md](ARCHITECTURE.md).
+
+---
+
+## FAQ
+
+**Why HashRouter instead of BrowserRouter?**
+The app is served as a static SPA, sometimes mounted under a sub-path (`/electometro`) of a host
+microfrontend. Hash routing avoids server rewrite requirements for deep links.
+
+**Do I need a backend to run it locally?**
+For the quiz and results you only need the election vote data (`VITE_ELECTIONS_DATA_URL`). Submitting
+answers requires the Worker/API + Supabase; without them, submissions simply fail silently and the
+quiz still works.
+
+**Where does the vote data come from?**
+From external compact-format JSON files (keys like `t1`, `c1`, `p1`) served from
+`VITE_ELECTIONS_DATA_URL`. The frontend does not generate this data.
+
+**Can I add a new election or country?**
+Yes — that's a core design goal. Add an election config and assets; see
+[ARCHITECTURE.md](ARCHITECTURE.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
+
+**Are there automated tests?**
+Not yet. The pure logic modules (`services/`, `utils/`, `constants/`) are designed to be testable and
+are the recommended starting point — see [ROADMAP.md](ROADMAP.md).
+
+---
+
+## Contributing
+
+Contributions are welcome — this project aims to strengthen democracy through open technology. Please
+read:
+- [CONTRIBUTING.md](CONTRIBUTING.md) — setup, branch/commit conventions, PR & review process
+- [docs/CONVENTIONS.md](docs/CONVENTIONS.md) — naming and folder conventions
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — community standards
+- [SECURITY.md](SECURITY.md) — reporting vulnerabilities
+
+Architecture and decisions are documented in [ARCHITECTURE.md](ARCHITECTURE.md) and
+[docs/DECISIONS/](docs/DECISIONS/). The roadmap lives in [ROADMAP.md](ROADMAP.md).
+
+---
+
+## License
+
+Electometro is licensed under the [Apache License 2.0](LICENSE). The package metadata also declares
+`"license": "Apache-2.0"`.
+
+Apache-2.0 is a permissive OSI-approved license with an explicit patent grant, attribution/notice
+rules, and trademark boundaries that fit a public-interest civic technology project.
+
+---
+
+## Acknowledgements
+
+- **Bundeszentrale für politische Bildung (bpb)** for the Wahl-o-Mat model.
+- The open-source community for the tools used here.
+- Contributors and the voters who use the tool to make informed decisions.
+
+---
+
+**Made with ❤️ to strengthen democracy in Latin America.**

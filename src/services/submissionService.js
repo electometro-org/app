@@ -1,5 +1,5 @@
 import { USER_TO_NUM, normalizeAnswer } from "../constants/answerMappings";
-import { statsUserId, getAnalyticsConsent } from "../analytics";
+import { statsUserId, getAnalyticsConsent } from "../utils/analytics";
 
 // Build compact responses payload from quiz state
 export function buildCompactResponses(questions, answers, weights) {

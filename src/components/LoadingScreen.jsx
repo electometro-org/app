@@ -3,7 +3,7 @@ import './LoadingScreen.css'
 import { preSelectedElectionId } from '../config/appConfig'
 import { getElectionConfig } from '../elections'
 import { getBranding, defaultBranding } from '../config/branding'
-import { colors as defaultColors } from '../colors'
+import { colors as defaultColors } from '../config/colors'
 
 function getElectionStyles() {
   if (preSelectedElectionId) {

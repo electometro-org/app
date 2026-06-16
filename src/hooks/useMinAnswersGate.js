@@ -47,6 +47,10 @@ export function useMinAnswersGate({ state, config }) {
     });
   };
 
+  const setGate = (gateObj) => {
+    setMinAnswersGate(gateObj);
+  };
+
   const reset = () => {
     setMinAnswersGate({ open: false, answered: 0, required: 0 });
   };
@@ -56,6 +60,7 @@ export function useMinAnswersGate({ state, config }) {
     getMinAnswersStats,
     closeMinAnswersGate,
     openMinAnswersGate,
+    setGate,
     reset,
   };
 }

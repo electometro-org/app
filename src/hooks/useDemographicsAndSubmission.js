@@ -10,6 +10,9 @@ import { buildSubmissionPayload, submitQuizAnswers } from "../services/submissio
  * Args:
  * - state: quiz state from useQuiz (for questions, answers, weights)
  * - quizDataVersion: version from useResultsComputation
+ * - setShowTopicImportance: setter from useTopicImportance
+ * - setGate: setter from useMinAnswersGate
+ * - dispatch: quiz dispatch to set current question index
  *
  * Returns:
  * - showDemographics, setShowDemographics
@@ -22,7 +25,13 @@ import { buildSubmissionPayload, submitQuizAnswers } from "../services/submissio
  * - handleBackToSurvey()
  * - reset()
  */
-export function useDemographicsAndSubmission({ state, quizDataVersion }) {
+export function useDemographicsAndSubmission({
+  state,
+  quizDataVersion,
+  setShowTopicImportance,
+  setGate,
+  dispatch,
+}) {
   const [showDemographics, setShowDemographics] = useState(false);
   const [demographics, setDemographics] = useState(null);
   const [showTurnstileOverlay, setShowTurnstileOverlay] = useState(false);
@@ -102,6 +111,9 @@ export function useDemographicsAndSubmission({ state, quizDataVersion }) {
     setTurnstileVerified(false);
     setShowTurnstileOverlay(false);
     setShowDemographics(false);
+    setShowTopicImportance(false);
+    setGate({ open: false, answered: 0, required: 0 });
+    dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: state.questions.length - 1 });
     window.scrollTo(0, 0);
   };
 

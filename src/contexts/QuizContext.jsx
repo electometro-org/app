@@ -68,6 +68,7 @@ export function QuizProvider({ children }) {
     getMinAnswersStats,
     closeMinAnswersGate,
     openMinAnswersGate,
+    setGate,
     reset: resetMinAnswersGate,
   } = useMinAnswersGate({ state, config });
 
@@ -115,7 +116,13 @@ export function QuizProvider({ children }) {
     fingerprint,
     fingerprintLoading,
     reset: resetDemographicsAndSubmission,
-  } = useDemographicsAndSubmission({ state, quizDataVersion });
+  } = useDemographicsAndSubmission({
+    state,
+    quizDataVersion,
+    setShowTopicImportance,
+    setGate,
+    dispatch,
+  });
 
   // 7. Mnemonic restore (uses computeAndDispatchResults from step 4)
   const {

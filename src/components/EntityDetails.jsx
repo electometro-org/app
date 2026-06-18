@@ -88,7 +88,6 @@ export default function EntityDetails({
   questions = [],
   answers = {},
   config = {},
-  isMobile = false,
   inline = false
 }) {
   const { t } = useTranslate();
@@ -96,7 +95,7 @@ export default function EntityDetails({
 
   const isPartyEntity = !!entityDetails && !entityDetails.candidate_meta;
   const wrapperClass = inline ? "entity-details-inline" : "entity-details-container";
-  const { candidate_meta, details = [] } = entityDetails;
+  const { details = [] } = entityDetails;
 
   const includedDetails = details.filter(d => d.includedInAnalysis);
 

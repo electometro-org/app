@@ -8,7 +8,7 @@ import './QuizWidget.css';
  * Special container widget that renders quiz content (children from App.jsx).
  * This is a thin wrapper - all quiz logic stays in App.jsx and QuizContext.
  */
-function QuizWidget({ config, quizState, children }) {
+function QuizWidget({ children }) {
   return (
     <div className="quiz-widget">
       {children}

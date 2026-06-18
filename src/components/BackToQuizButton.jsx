@@ -19,7 +19,7 @@ const PHASE_KEYS = {
 
 export default function BackToQuizButton({ inline = false }) {
   const { t } = useTranslate();
-  const { state, showGenericIntro, showElectionIntro, showTopicImportance, showDemographics, turnstileVerified } = useQuizContext();
+  const { state, showGenericIntro, showElectionIntro, showTopicImportance, showDemographics } = useQuizContext();
 
   // Determine current phase (simplified version of getQuizPhase from WidgetContext)
   let phase = "quiz";

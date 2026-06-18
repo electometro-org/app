@@ -95,7 +95,7 @@ function nestAssetsPlugin(subdir) {
             fs.mkdirSync(destPath, { recursive: true });
             moveRecursive(srcPath, entryRelPath);
             // Only remove if empty (index.html might still be inside)
-            try { fs.rmdirSync(srcPath); } catch {}
+            try { fs.rmdirSync(srcPath); } catch { /* dir not empty, skip */ }
           } else {
             fs.mkdirSync(path.dirname(destPath), { recursive: true });
             fs.renameSync(srcPath, destPath);

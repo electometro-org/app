@@ -48,10 +48,24 @@
     "vite": "^6.4.1",
     "wrangler": "^4.58.0"
   },
-  "description": "Electometro: Voting Alignment WebApp, using Vite HMR and some ESLint rules.",
+  "description": "Electómetro: Voting Alignment WebApp, using Vite HMR and some ESLint rules.",
   "main": "eslint.config.js",
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "voting-advice-application",
+    "vaa",
+    "civic-tech",
+    "elections",
+    "democracy",
+    "electoral-technology",
+    "political-alignment",
+    "voter-education",
+    "informed-voting"
+  ],
+  "author": "Electómetro contributors",
+  "contributors": [
+    "José Valqui",
+    "Fernando Saba"
+  ],
   "license": "Apache-2.0",
   "browserslist": [
     "last 2 Chrome versions",

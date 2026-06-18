@@ -95,7 +95,7 @@ export function QuizProvider({ children }) {
     setShowTopicImportance,
     handleToggleTopicImportance,
     applyTopicImportanceToWeights,
-    handleTopicImportanceContinue,
+    handleTopicImportanceContinue: _handleTopicImportanceContinue,
     reset: resetTopicImportance,
   } = useTopicImportance({ state, dispatch, computeAndDispatchResults });
 
@@ -123,6 +123,12 @@ export function QuizProvider({ children }) {
     setGate,
     dispatch,
   });
+
+  // Wrap handleTopicImportanceContinue to also show demographics after topic importance
+  const handleTopicImportanceContinue = () => {
+    _handleTopicImportanceContinue();
+    setShowDemographics(true);
+  };
 
   // 7. Mnemonic restore (uses computeAndDispatchResults from step 4)
   const {

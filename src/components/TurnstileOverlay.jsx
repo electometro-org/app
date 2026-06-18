@@ -55,6 +55,8 @@ export default function TurnstileOverlay({ show, onSuccess, branding = defaultBr
   const [isRendering, setIsRendering] = useState(false);
   const [isHidingLoader, setIsHidingLoader] = useState(false);
   const turnstileAbortedRef = React.useRef(false);
+  const onSuccessRef = React.useRef(onSuccess);
+  useEffect(() => { onSuccessRef.current = onSuccess; }, [onSuccess]);
 
   // Hide loader with animation
   const hideLoader = () => {
@@ -196,7 +198,7 @@ export default function TurnstileOverlay({ show, onSuccess, branding = defaultBr
           if (turnstileAbortedRef.current) return;
           hideLoader();
           setTimeout(() => {
-            if (onSuccess) onSuccess(token, 'turnstile');
+            if (onSuccessRef.current) onSuccessRef.current(token, 'turnstile');
           }, 1500);
         },
       });
@@ -208,7 +210,7 @@ export default function TurnstileOverlay({ show, onSuccess, branding = defaultBr
           theme: 'light',
           callback: function (token) {
             setTimeout(() => {
-              if (onSuccess) onSuccess(token, 'hcaptcha');
+              if (onSuccessRef.current) onSuccessRef.current(token, 'hcaptcha');
             }, 1500);
           },
           'error-callback': function () {},
@@ -231,7 +233,7 @@ export default function TurnstileOverlay({ show, onSuccess, branding = defaultBr
         }
       }
     };
-  }, [show, isLoading, captchaType, onSuccess]);
+  }, [show, isLoading, captchaType]);
 
   if (!show) return null;
 

@@ -16,6 +16,11 @@ uses Conventional Commit-style change descriptions.
 
 - README is now English canonical, with Spanish documentation linked under `docs/es/`.
 - Project license changed to Apache-2.0 in `LICENSE`, `package.json`, and `package-lock.json`.
+- Architecture refactor: decomposed `QuizContext` into eight focused hooks; normalized file naming and
+  folders per `docs/CONVENTIONS.md` (PascalCase components, `hooks/`/`utils/`/`config/`) and removed the
+  duplicate quiz hook and loose root modules.
+- Build simplified to a single platform (Cloudflare); removed the multi-target (`DEPLOY_TARGET`) build
+  matrix and Vercel/microfrontends configuration.
 
 ## [0.2.1]
 

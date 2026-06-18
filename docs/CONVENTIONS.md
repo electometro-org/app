@@ -1,8 +1,9 @@
 # Project Conventions
 
-This document is the source of truth for Electometro's file naming and folder organization. It
-describes the current migration target; some legacy names may still exist until the refactor is
-completed.
+This document is the source of truth for Electometro's file naming and folder organization. The
+migration to these conventions is complete (see
+[ADR 0002](DECISIONS/0002-architecture-refactor.md)); the rename map below is retained as a record of
+what changed. Keep new files compliant with the rules here.
 
 ## Naming Rules
 

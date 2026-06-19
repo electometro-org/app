@@ -9,6 +9,8 @@
     "build-dev": "vite build --mode development",
     "build": "vite build",
     "prepare": "lefthook install",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint .",
     "preview": "npm run build-dev && wrangler dev --local-protocol https",
     "preview-qa": "CLOUDFLARE_ENV=qa npm run build-dev && wrangler dev --local-protocol https",
@@ -46,6 +48,8 @@
     "lefthook": "^1.12.2",
     "terser": "^5.46.0",
     "vite": "^6.4.1",
+    "vite-plugin-terminal": "^1.4.0",
+    "vitest": "^4.1.9",
     "wrangler": "^4.58.0"
   },
   "description": "Electómetro: Voting Alignment WebApp, using Vite HMR and some ESLint rules.",

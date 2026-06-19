@@ -61,7 +61,7 @@ export const DEFAULT_WORD_LIST = [
   "vela", "lampara", "alfombra", "cortina", "cuadro", "foto", "radio", "carro",
   // Food (128-159)
   "pan", "leche", "queso", "huevo", "arroz", "pasta", "sopa", "carne",
-  "pollo", "pescado", "fruta", "manzana", "pera", "uva", "limon", "naranja",
+  "pollo", "pescado", "fruta", "manzana", "pera", "uva", "limon", "durazno",
   "fresa", "cereza", "melon", "sandia", "tomate", "papa", "cebolla", "ajo",
   "sal", "pimienta", "aceite", "miel", "azucar", "cafe", "te", "jugo",
   // Actions (160-191)

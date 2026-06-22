@@ -1,37 +1,40 @@
 import { useRef, useState, useEffect } from "react";
 import {
-  isImputedNeutral,
-  computeResultsFrom,
-  buildUserAnswers,
-  buildUserAnswersWithRaw,
-  partitionByCompared,
-  buildEntityDetails,
-  filterCandidatesByRound,
-  filterPartiesByRound,
+  isImputedNeutral as _isImputedNeutral,
+  computeResultsFrom as _computeResultsFrom,
+  buildUserAnswers as _buildUserAnswers,
+  buildUserAnswersWithRaw as _buildUserAnswersWithRaw,
+  partitionByCompared as _partitionByCompared,
+  buildEntityDetails as _buildEntityDetails,
+  filterCandidatesByRound as _filterCandidatesByRound,
+  filterPartiesByRound as _filterPartiesByRound,
 } from "../services/resultsService";
-import { fetchJsonSafe } from "../services/quizService";
+import { fetchJsonSafe as _fetchJsonSafe } from "../services/quizService";
 
-/**
- * useResultsComputation
- * Manages: fetching votes data + computing comparison results + entity details
- *
- * Args:
- * - state: quiz state from useQuiz (for questions, answers, weights, comparisonResults, selectedEntity)
- * - dispatch: quiz dispatch from useQuiz
- * - config: election config (for vote URLs, resultTypes, questionTypes)
- * - selectedRound: current round (for filtering results)
- *
- * Returns:
- * - votesDataCacheRef
- * - getVotesData(url)
- * - quizDataVersion, setQuizDataVersion
- * - partyComplete, partyIncomplete, presComplete, presIncomplete
- * - sortByScoreDesc
- * - handleEntityClick
- * - computeAndDispatchResults({ questions, answers, weights }) [main entry point for topic importance + mnemonic restore]
- * - reset()
- */
-export function useResultsComputation({ state, dispatch, config, selectedRound }) {
+const defaultServices = {
+  fetchJsonSafe: _fetchJsonSafe,
+  isImputedNeutral: _isImputedNeutral,
+  computeResultsFrom: _computeResultsFrom,
+  buildUserAnswers: _buildUserAnswers,
+  buildUserAnswersWithRaw: _buildUserAnswersWithRaw,
+  partitionByCompared: _partitionByCompared,
+  buildEntityDetails: _buildEntityDetails,
+  filterCandidatesByRound: _filterCandidatesByRound,
+  filterPartiesByRound: _filterPartiesByRound,
+};
+
+export function useResultsComputation({ state, dispatch, config, selectedRound, services = defaultServices }) {
+  const {
+    fetchJsonSafe,
+    isImputedNeutral,
+    computeResultsFrom,
+    buildUserAnswers,
+    buildUserAnswersWithRaw,
+    partitionByCompared,
+    buildEntityDetails,
+    filterCandidatesByRound,
+    filterPartiesByRound,
+  } = services;
   const votesDataCacheRef = useRef({});
   const [quizDataVersion, setQuizDataVersion] = useState(null);
 

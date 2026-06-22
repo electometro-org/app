@@ -1,10 +1,16 @@
-import { useContext } from "react";
-import { QuizContext } from "./QuizContext";
+import { useElectionContext } from "./ElectionContext";
+import { useQuizFlowContext } from "./QuizFlowContext";
+import { useResultsContext } from "./ResultsContext";
+import { useUIContext } from "./UIContext";
 
+// Composite hook for components that need values from multiple contexts.
+// For new components, prefer the focused hooks (useElectionContext,
+// useQuizFlowContext, useResultsContext, useUIContext).
 export function useQuizContext() {
-  const context = useContext(QuizContext);
-  if (!context) {
-    throw new Error("useQuizContext must be used within a QuizProvider");
-  }
-  return context;
+  return {
+    ...useElectionContext(),
+    ...useQuizFlowContext(),
+    ...useResultsContext(),
+    ...useUIContext(),
+  };
 }

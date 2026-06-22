@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslate } from '@tolgee/react';
 import { registerWidget } from '../registry';
 import { useWidgetContext } from '../WidgetContext';
-import { useQuizContext } from '../../contexts/useQuizContext';
+import { useQuizFlowContext } from '../../contexts/QuizFlowContext';
 import './OpinionButtons.css';
 
 /**
@@ -40,7 +40,7 @@ const SECTION_TO_GAUGE_VALUE = {
 
 function OpinionButtons({ config, quizState }) {
   const { t } = useTranslate();
-  const quizContext = useQuizContext();
+  const quizContext = useQuizFlowContext();
   const widgetContext = useWidgetContext();
 
   const {

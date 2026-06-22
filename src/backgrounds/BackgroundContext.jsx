@@ -1,16 +1,12 @@
 import React, { createContext, useContext, useMemo, useEffect } from 'react';
-import { useQuizContext } from '../contexts/useQuizContext';
+import { useElectionContext } from '../contexts/ElectionContext';
+import { useQuizFlowContext } from '../contexts/QuizFlowContext';
 
 const BackgroundContext = createContext(null);
 
-/**
- * BackgroundProvider
- *
- * Provides background configuration and quiz state to background components.
- * Reads background config from the current election config.
- */
 export function BackgroundProvider({ children }) {
-  const { config, state, election } = useQuizContext();
+  const { config, election } = useElectionContext();
+  const { state } = useQuizFlowContext();
 
   // Extract background config from election config (or use defaults)
   const backgroundConfig = useMemo(() => {

@@ -33,6 +33,14 @@ function reducer(state, action) {
       { const newAnswers = [...state.answers];
       newAnswers[action.index] = action.answer;
       return { ...state, answers: newAnswers }; }
+    // Answers every question sharing the same question text (handles duplicate questions)
+    case "ANSWER_SYNCED": {
+      const newAnswers = [...state.answers];
+      state.questions.forEach((q, i) => {
+        if (q.question === action.questionText) newAnswers[i] = action.answer;
+      });
+      return { ...state, answers: newAnswers };
+    }
     case "SET_WEIGHTS":
       { const newWeights = [...state.weights];
       newWeights[action.index] = action.weight;

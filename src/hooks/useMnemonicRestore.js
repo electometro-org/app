@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { decodeFromMnemonic, isValidMnemonic } from "../utils/mnemonicCodec";
+import { isVersionGreaterThan } from "../utils/versionUtils";
 
 /**
  * useMnemonicRestore
@@ -34,6 +35,7 @@ export function useMnemonicRestore({
   setShowTurnstileOverlay,
   setTurnstileVerified,
   setShowElectionIntro,
+  quizDataVersion,
 }) {
   const [restoredFromMnemonic, setRestoredFromMnemonic] = useState(false);
   const [restoredVersion, setRestoredVersion] = useState(null);
@@ -82,8 +84,8 @@ export function useMnemonicRestore({
       setRestoredVersion(mnemonicVersion);
 
       // Reject mnemonics from future versions (version higher than current)
-      if (isVersionGreaterThan(mnemonicVersion, currentQuizDataVersion)) {
-         console.warn("Mnemonic version is newer than current quiz version:", mnemonicVersion, ">", currentQuizDataVersion);
+      if (isVersionGreaterThan(mnemonicVersion, quizDataVersion)) {
+         console.warn("Mnemonic version is newer than current quiz version:", mnemonicVersion, ">", quizDataVersion);
          return false;
        }
 

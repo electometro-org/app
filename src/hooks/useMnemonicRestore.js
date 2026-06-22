@@ -81,12 +81,11 @@ export function useMnemonicRestore({
       const mnemonicVersion = decoded.version || null;
       setRestoredVersion(mnemonicVersion);
 
-      // TODO: Re-enable after modal adjustments
       // Reject mnemonics from future versions (version higher than current)
-      // if (isVersionGreaterThan(mnemonicVersion, currentQuizDataVersion)) {
-      //   console.warn("Mnemonic version is newer than current quiz version:", mnemonicVersion, ">", currentQuizDataVersion);
-      //   return false;
-      // }
+      if (isVersionGreaterThan(mnemonicVersion, currentQuizDataVersion)) {
+         console.warn("Mnemonic version is newer than current quiz version:", mnemonicVersion, ">", currentQuizDataVersion);
+         return false;
+       }
 
       // Determine version mismatch type
       // const mismatchType = compareVersions(mnemonicVersion, currentQuizDataVersion);

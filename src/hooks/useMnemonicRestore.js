@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { decodeFromMnemonic, isValidMnemonic } from "../utils/mnemonicCodec";
-import { isVersionGreaterThan } from "../utils/versionUtils";
+import { isVersionGreaterThan, compareVersions } from "../utils/versionUtils";
 
 /**
  * useMnemonicRestore
@@ -73,25 +73,29 @@ export function useMnemonicRestore({
 
     try {
       // Use computeAndDispatchResults to fetch and compute results
-      await computeAndDispatchResults({
+      const computeResult = await computeAndDispatchResults({
         questions: state.questions,
         answers: decoded.answers,
         weights: decoded.weights,
       });
+
+      // Use the version returned directly from the fetch — quizDataVersion prop
+      // is stale at this point because setQuizDataVersion is async
+      const currentVersion = computeResult?.version || quizDataVersion;
 
       // Capture version info
       const mnemonicVersion = decoded.version || null;
       setRestoredVersion(mnemonicVersion);
 
       // Reject mnemonics from future versions (version higher than current)
-      if (isVersionGreaterThan(mnemonicVersion, quizDataVersion)) {
-         console.warn("Mnemonic version is newer than current quiz version:", mnemonicVersion, ">", quizDataVersion);
-         return false;
-       }
+      if (isVersionGreaterThan(mnemonicVersion, currentVersion)) {
+        console.warn("Mnemonic version is newer than current quiz version:", mnemonicVersion, ">", currentVersion);
+        return false;
+      }
 
       // Determine version mismatch type
-      // const mismatchType = compareVersions(mnemonicVersion, currentQuizDataVersion);
-      // setVersionMismatchType(mismatchType);
+      const mismatchType = compareVersions(mnemonicVersion, currentVersion);
+      setVersionMismatchType(mismatchType);
     } catch (err) {
       console.error("Error computing results from restored state:", err);
       return false;

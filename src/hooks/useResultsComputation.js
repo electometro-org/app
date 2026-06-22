@@ -149,8 +149,10 @@ export function useResultsComputation({ state, dispatch, config, selectedRound, 
       const [partyData, presData] = await Promise.all([partyPromise, presPromise]);
 
       // Capture version from fetched votes data
+      let resolvedVersion = quizDataVersion;
       if ((partyData?.version || presData?.version) && !quizDataVersion) {
-        setQuizDataVersion(partyData?.version || presData?.version);
+        resolvedVersion = partyData?.version || presData?.version;
+        setQuizDataVersion(resolvedVersion);
       }
 
       const partyResults = filterPartiesByRound(
@@ -168,6 +170,8 @@ export function useResultsComputation({ state, dispatch, config, selectedRound, 
           presidential_results: presidentialResults
         }
       });
+
+      return { version: resolvedVersion };
     } catch (err) {
       console.error("Error computing results:", err);
     }

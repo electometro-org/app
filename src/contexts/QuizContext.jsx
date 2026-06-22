@@ -144,6 +144,7 @@ export function QuizProvider({ children }) {
     setShowDemographics,
     setShowTurnstileOverlay,
     setTurnstileVerified,
+    setShowElectionIntro,
   });
 
   // 8. Theme & assets (side-effect-only)

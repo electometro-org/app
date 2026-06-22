@@ -33,6 +33,7 @@ export function useMnemonicRestore({
   setShowDemographics,
   setShowTurnstileOverlay,
   setTurnstileVerified,
+  setShowElectionIntro,
 }) {
   const [restoredFromMnemonic, setRestoredFromMnemonic] = useState(false);
   const [restoredVersion, setRestoredVersion] = useState(null);
@@ -102,6 +103,7 @@ export function useMnemonicRestore({
     window.history.replaceState(null, "", newUrl);
 
     // Set UI state to show results
+    setShowElectionIntro?.(false);
     setShowTopicImportance(false);
     setShowDemographics(false);
     setShowTurnstileOverlay(false);

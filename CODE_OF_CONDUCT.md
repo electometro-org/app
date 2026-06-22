@@ -2,7 +2,7 @@
 
 ## Our Pledge
 
-We as members, contributors, and leaders pledge to make participation in our community a
+We as members, contributors, and maintainers pledge to make participation in our community a
 harassment-free experience for everyone, regardless of age, body size, visible or invisible
 disability, ethnicity, sex characteristics, gender identity and expression, level of experience,
 education, socio-economic status, nationality, personal appearance, race, caste, color, religion, or
@@ -41,7 +41,9 @@ code, wiki edits, issues, and other contributions that are not aligned to this C
 ## Scope
 
 This Code of Conduct applies within all community spaces, and also applies when an individual is
-officially representing the community in public spaces.
+officially representing the community in public spaces. Examples of representing our community include
+using an official email address, posting via an official social media account, or acting as an
+appointed representative at an online or offline event.
 
 ## Enforcement
 
@@ -91,3 +93,10 @@ Consequence: A permanent ban from any sort of public interaction within the comm
 
 This Code of Conduct is adapted from the Contributor Covenant, version 2.1, available at
 https://www.contributor-covenant.org/version/2/1/code_of_conduct.html.
+
+Community Impact Guidelines were inspired by
+[Mozilla's code of conduct enforcement ladder](https://github.com/mozilla/diversity).
+
+For answers to common questions about this code of conduct, see the FAQ at
+https://www.contributor-covenant.org/faq. Translations are available at
+https://www.contributor-covenant.org/translations.

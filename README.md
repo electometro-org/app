@@ -101,7 +101,8 @@ parameter) so a voter can save or share their result without an account.
 
 ### Backend (serverless)
 - ☁️ **Cloudflare Workers** (edge compute) — the API/Worker lives in a separate repository, included
-  here as the `external/cf-workers` git submodule.
+  here as the `external/cf-workers` git submodule. The exact API, asset, and data contracts are
+  documented in [docs/SUBMODULES.md](docs/SUBMODULES.md).
 - 🗄️ **Supabase** (PostgreSQL) for response storage
 - 📦 **Cloudflare R2** for translation assets
 - 🔑 **Cloudflare KV** for fingerprint ↔ cookie binding
@@ -254,13 +255,13 @@ electometro/
 │   ├── constants/              # answerMappings, capibarismoMapping
 │   ├── contexts/               # QuizContext (global quiz/UI state provider)
 │   ├── elections/              # Per-election config registry (peru_2026, chile_2025) + widgets
-│   ├── hooks/                  # useQuiz (reducer-based quiz state)
+│   ├── hooks/                  # useQuiz reducer + focused quiz hooks (flow, results, submission, …)
 │   ├── services/               # quizService, resultsService, submissionService (logic layer)
 │   ├── utils/                  # mnemonicCodec, versionUtils
 │   ├── views/                  # Top-level screens (intro, selector, quiz, results, etc.)
 │   └── widgets/                # Widget system (registry + docking + types)
 ├── vite-plugin-election-html.js  # Injects per-election meta tags at build
-├── vite.config.js              # Multi-target build config (local/cloudflare/vercel)
+├── vite.config.js              # Cloudflare-oriented Vite build config
 └── wrangler.toml.example       # Template for Cloudflare deployment config
 ```
 
@@ -327,6 +328,8 @@ read:
 - [docs/CONVENTIONS.md](docs/CONVENTIONS.md) — naming and folder conventions
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — community standards
 - [SECURITY.md](SECURITY.md) — reporting vulnerabilities
+- [docs/SUBMODULES.md](docs/SUBMODULES.md) — exact contracts for the asset and Worker/API submodules
+- [AGENTS.md](AGENTS.md) — condensed, agent-facing guidance for AI coding tools
 
 Architecture and decisions are documented in [ARCHITECTURE.md](ARCHITECTURE.md) and
 [docs/DECISIONS/](docs/DECISIONS/). The roadmap lives in [ROADMAP.md](ROADMAP.md).

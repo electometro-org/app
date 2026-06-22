@@ -29,7 +29,6 @@ import debug from '../utils/debug';
 export function useDockingZone(zoneId) {
   const {
     registerDockingZone,
-    unregisterDockingZone,
     activeDocks,
     draggingWidget,
     zoneBounds,

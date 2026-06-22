@@ -1,10 +1,8 @@
-import React, { createContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { useQuiz } from "../hooks/useQuiz";
 import { trackEvent } from "../utils/analytics";
 import { USER_TO_NUM, MIN_COMPARED } from "../constants/answerMappings";
 import { getBranding, defaultBranding, useElectionBranding } from "../config/branding";
-import { preSelectedElectionId, shouldShowElectionIntro } from "../config/appConfig";
-import { electionConfigs } from "../elections";
 import { findNextUniqueIndex } from "../services/quizService";
 
 // Import the new focused hooks
@@ -28,7 +26,6 @@ export function QuizProvider({ children }) {
     setShowGenericIntro,
     showElectionIntro,
     setShowElectionIntro,
-    electionIntroInitialized,
     handleGenericIntroContinue,
     handleSelectElection,
     handleStartQuiz,
@@ -74,15 +71,11 @@ export function QuizProvider({ children }) {
 
   // 4. Results computation (provides `computeAndDispatchResults` callback)
   const {
-    votesDataCacheRef,
-    getVotesData,
     quizDataVersion,
-    setQuizDataVersion,
     partyComplete,
     partyIncomplete,
     presComplete,
     presIncomplete,
-    sortByScoreDesc,
     handleEntityClick,
     computeAndDispatchResults,
     reset: resetResults,
@@ -94,7 +87,6 @@ export function QuizProvider({ children }) {
     showTopicImportance,
     setShowTopicImportance,
     handleToggleTopicImportance,
-    applyTopicImportanceToWeights,
     handleTopicImportanceContinue: _handleTopicImportanceContinue,
     reset: resetTopicImportance,
   } = useTopicImportance({ state, dispatch, computeAndDispatchResults });
@@ -109,7 +101,6 @@ export function QuizProvider({ children }) {
     setShowTurnstileOverlay,
     turnstileVerified,
     setTurnstileVerified,
-    submitAnswersToAPI,
     submitDemographicsAndComputeResults,
     handleTurnstileSuccess,
     handleBackToSurvey,
@@ -149,8 +140,6 @@ export function QuizProvider({ children }) {
     setShowDemographics,
     setShowTurnstileOverlay,
     setTurnstileVerified,
-    submitAnswersToAPI,
-    setQuizDataVersion,
   });
 
   // 8. Theme & assets (side-effect-only)

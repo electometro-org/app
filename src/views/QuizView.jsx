@@ -9,7 +9,6 @@ export default function QuizView({
   displayIndex,
   totalQuestions,
   selectedAnswer,
-  hoveredOption,
   isFirstQuestion,
   isLastQuestion,
   hasSeenQuestion,

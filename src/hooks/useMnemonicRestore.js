@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { decodeFromMnemonic, isValidMnemonic } from "../utils/mnemonicCodec";
-import { buildUserAnswers } from "../services/resultsService";
-import { compareVersions, isVersionGreaterThan } from "../utils/versionUtils";
 
 /**
  * useMnemonicRestore
@@ -35,8 +33,6 @@ export function useMnemonicRestore({
   setShowDemographics,
   setShowTurnstileOverlay,
   setTurnstileVerified,
-  submitAnswersToAPI,
-  setQuizDataVersion,
 }) {
   const [restoredFromMnemonic, setRestoredFromMnemonic] = useState(false);
   const [restoredVersion, setRestoredVersion] = useState(null);
@@ -71,9 +67,6 @@ export function useMnemonicRestore({
 
     // Restore state
     dispatch({ type: "RESTORE_STATE", payload: decoded });
-
-    // Build user answers for results computation
-    const userAnswers = buildUserAnswers(state.questions, decoded.answers, decoded.weights);
 
     try {
       // Use computeAndDispatchResults to fetch and compute results

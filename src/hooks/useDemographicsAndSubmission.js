@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { collectFingerprintPayload, useFingerprint } from "./useFingerprint";
-import { trackEvent, setAnalyticsConsent } from "../utils/analytics";
+import { setAnalyticsConsent } from "../utils/analytics";
 import { buildSubmissionPayload, submitQuizAnswers } from "../services/submissionService";
 
 /**
@@ -91,7 +91,7 @@ export function useDemographicsAndSubmission({
         window.sessionStorage.setItem("turnstile_verified_at", String(Date.now()));
         window.sessionStorage.setItem("captcha_type", captchaType);
       }
-    } catch (_) {}
+    } catch { /* ignore sessionStorage errors */ }
 
     try {
       await submitAnswersToAPI(demographics, token, captchaType, false, quizDataVersion);

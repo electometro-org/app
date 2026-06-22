@@ -72,7 +72,6 @@ export default function ResultsView({
   resultTypes,
   selectedEntity,
   entityDetails,
-  questionDetails,
   questions,
   answers,
   weights,
@@ -81,8 +80,6 @@ export default function ResultsView({
   isMobile,
   partyComplete,
   partyIncomplete,
-  presComplete,
-  presIncomplete,
   hoveredOption,
   branding,
   restoredFromMnemonic,
@@ -291,7 +288,7 @@ export default function ResultsView({
       await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
+    } catch {
       // Fallback for older browsers
       const textArea = document.createElement("textarea");
       textArea.value = text;
@@ -303,7 +300,7 @@ export default function ResultsView({
         document.execCommand("copy");
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-      } catch (_) {
+      } catch {
         console.warn("Failed to copy to clipboard");
       }
       document.body.removeChild(textArea);
@@ -2153,7 +2150,7 @@ function ResultsAnalysisPanel({
     : t("results.topicSuggestionSuccess");
 
   const sanitizeFreeText = (value) => String(value || "")
-    .replace(/[\u0000-\u001F\u007F]/g, " ")
+    .replace(/[\u0000-\u001F\u007F]/g, " ") // eslint-disable-line no-control-regex
     .replace(/\s+/g, " ")
     .trim();
   const sanitizeName = (value) => sanitizeFreeText(value)
@@ -2265,7 +2262,7 @@ function ResultsAnalysisPanel({
               if (window.turnstile?.remove) window.turnstile.remove(widgetId);
               if (window.hcaptcha?.reset) window.hcaptcha.reset(widgetId);
             }
-          } catch (_) {}
+          } catch { /* ignore widget cleanup errors */ }
           overlay.remove();
         };
 
@@ -2328,7 +2325,7 @@ function ResultsAnalysisPanel({
       if (refreshTurnstileToken && typeof window !== "undefined") {
         window.sessionStorage.setItem("turnstile_verified_at", String(Date.now()));
       }
-    } catch (_) {}
+    } catch { /* ignore token refresh errors */ }
 
     const readCookie = (name) => {
       if (typeof document === "undefined") return "";
@@ -2345,7 +2342,7 @@ function ResultsAnalysisPanel({
           window.sessionStorage.setItem("fingerprint", freshFingerprint);
         }
       }
-    } catch (_) {
+    } catch {
       // fall back to last known fingerprint
     }
     const captchaType = typeof window !== "undefined" ? (window.sessionStorage.getItem("captcha_type") || "turnstile") : "turnstile";
@@ -2386,7 +2383,7 @@ function ResultsAnalysisPanel({
       setSuggestionText("");
       setSuggestionName("");
       setSuggestionEmail("");
-    } catch (_) {
+    } catch {
       // Acknowledgement-first UX: do not block with errors in this flow.
     } finally {
       setSuggestionSubmitting(false);

@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useMemo, useCallback, useState, useRef, useEffect } from 'react';
-import { useQuizContext } from '../contexts/useQuizContext';
+import { useElectionContext } from '../contexts/ElectionContext';
+import { useQuizFlowContext } from '../contexts/QuizFlowContext';
+import { useUIContext } from '../contexts/UIContext';
 import { useLayoutPersistence } from './useLayoutPersistence';
 import { getWidget } from './registry';
 import debug from '../utils/debug';
@@ -47,19 +49,9 @@ function getQuizPhase(state, showGenericIntro, showElectionIntro, showTopicImpor
  * Provides widget configuration and layout state to all widgets.
  */
 export function WidgetProvider({ children }) {
-  const quizContext = useQuizContext();
-  const {
-    config,
-    state,
-    election,
-    showGenericIntro,
-    showElectionIntro,
-    showTopicImportance,
-    showDemographics,
-    turnstileVerified,
-    displayIndex,
-    totalQuestions,
-  } = quizContext;
+  const { config, election } = useElectionContext();
+  const { state, displayIndex, totalQuestions } = useQuizFlowContext();
+  const { showGenericIntro, showElectionIntro, showTopicImportance, showDemographics, turnstileVerified } = useUIContext();
 
   // ============ DOCKING SYSTEM ============
   // Registry of docking zones (quiz elements that can receive widgets)

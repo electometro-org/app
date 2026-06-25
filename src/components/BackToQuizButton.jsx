@@ -2,11 +2,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useTranslate } from "@tolgee/react";
-import { useQuizContext } from "../contexts/useQuizContext";
+import { useQuizFlowContext } from "../contexts/QuizFlowContext";
+import { useUIContext } from "../contexts/UIContext";
 
-/**
- * Maps quiz phases to translation key suffixes
- */
 const PHASE_KEYS = {
   intro: "intro",
   "election-intro": "intro",
@@ -19,7 +17,8 @@ const PHASE_KEYS = {
 
 export default function BackToQuizButton({ inline = false }) {
   const { t } = useTranslate();
-  const { state, showGenericIntro, showElectionIntro, showTopicImportance, showDemographics } = useQuizContext();
+  const { state } = useQuizFlowContext();
+  const { showGenericIntro, showElectionIntro, showTopicImportance, showDemographics } = useUIContext();
 
   // Determine current phase (simplified version of getQuizPhase from WidgetContext)
   let phase = "quiz";

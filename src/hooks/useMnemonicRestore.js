@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { decodeFromMnemonic, isValidMnemonic } from "../utils/mnemonicCodec";
-import { buildUserAnswers } from "../services/resultsService";
-import { compareVersions, isVersionGreaterThan } from "../utils/versionUtils";
+import { isVersionGreaterThan, compareVersions } from "../utils/versionUtils";
 
 /**
  * useMnemonicRestore
@@ -35,8 +34,8 @@ export function useMnemonicRestore({
   setShowDemographics,
   setShowTurnstileOverlay,
   setTurnstileVerified,
-  submitAnswersToAPI,
-  setQuizDataVersion,
+  setShowElectionIntro,
+  quizDataVersion,
 }) {
   const [restoredFromMnemonic, setRestoredFromMnemonic] = useState(false);
   const [restoredVersion, setRestoredVersion] = useState(null);
@@ -72,31 +71,31 @@ export function useMnemonicRestore({
     // Restore state
     dispatch({ type: "RESTORE_STATE", payload: decoded });
 
-    // Build user answers for results computation
-    const userAnswers = buildUserAnswers(state.questions, decoded.answers, decoded.weights);
-
     try {
       // Use computeAndDispatchResults to fetch and compute results
-      await computeAndDispatchResults({
+      const computeResult = await computeAndDispatchResults({
         questions: state.questions,
         answers: decoded.answers,
         weights: decoded.weights,
       });
 
+      // Use the version returned directly from the fetch — quizDataVersion prop
+      // is stale at this point because setQuizDataVersion is async
+      const currentVersion = computeResult?.version || quizDataVersion;
+
       // Capture version info
       const mnemonicVersion = decoded.version || null;
       setRestoredVersion(mnemonicVersion);
 
-      // TODO: Re-enable after modal adjustments
       // Reject mnemonics from future versions (version higher than current)
-      // if (isVersionGreaterThan(mnemonicVersion, currentQuizDataVersion)) {
-      //   console.warn("Mnemonic version is newer than current quiz version:", mnemonicVersion, ">", currentQuizDataVersion);
-      //   return false;
-      // }
+      if (isVersionGreaterThan(mnemonicVersion, currentVersion)) {
+        console.warn("Mnemonic version is newer than current quiz version:", mnemonicVersion, ">", currentVersion);
+        return false;
+      }
 
       // Determine version mismatch type
-      // const mismatchType = compareVersions(mnemonicVersion, currentQuizDataVersion);
-      // setVersionMismatchType(mismatchType);
+      const mismatchType = compareVersions(mnemonicVersion, currentVersion);
+      setVersionMismatchType(mismatchType);
     } catch (err) {
       console.error("Error computing results from restored state:", err);
       return false;
@@ -109,6 +108,7 @@ export function useMnemonicRestore({
     window.history.replaceState(null, "", newUrl);
 
     // Set UI state to show results
+    setShowElectionIntro?.(false);
     setShowTopicImportance(false);
     setShowDemographics(false);
     setShowTurnstileOverlay(false);

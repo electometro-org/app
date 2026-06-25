@@ -1,37 +1,25 @@
 import { useState } from "react";
 import { collectFingerprintPayload, useFingerprint } from "./useFingerprint";
-import { trackEvent, setAnalyticsConsent } from "../utils/analytics";
-import { buildSubmissionPayload, submitQuizAnswers } from "../services/submissionService";
+import { setAnalyticsConsent } from "../utils/analytics";
+import {
+  buildSubmissionPayload as _buildSubmissionPayload,
+  submitQuizAnswers as _submitQuizAnswers,
+} from "../services/submissionService";
 
-/**
- * useDemographicsAndSubmission
- * Manages: demographics form → captcha → submit pipeline
- *
- * Args:
- * - state: quiz state from useQuiz (for questions, answers, weights)
- * - quizDataVersion: version from useResultsComputation
- * - setShowTopicImportance: setter from useTopicImportance
- * - setGate: setter from useMinAnswersGate
- * - dispatch: quiz dispatch to set current question index
- *
- * Returns:
- * - showDemographics, setShowDemographics
- * - demographics, setDemographics
- * - showTurnstileOverlay, setShowTurnstileOverlay
- * - turnstileVerified, setTurnstileVerified
- * - submitAnswersToAPI(demographicsData, turnstileToken, captchaType, isResubmission, quizVersion)
- * - submitDemographicsAndComputeResults(demo)
- * - handleTurnstileSuccess(token, captchaType)
- * - handleBackToSurvey()
- * - reset()
- */
+const defaultServices = {
+  buildSubmissionPayload: _buildSubmissionPayload,
+  submitQuizAnswers: _submitQuizAnswers,
+};
+
 export function useDemographicsAndSubmission({
   state,
   quizDataVersion,
   setShowTopicImportance,
   setGate,
   dispatch,
+  services = defaultServices,
 }) {
+  const { buildSubmissionPayload, submitQuizAnswers } = services;
   const [showDemographics, setShowDemographics] = useState(false);
   const [demographics, setDemographics] = useState(null);
   const [showTurnstileOverlay, setShowTurnstileOverlay] = useState(false);
@@ -91,7 +79,7 @@ export function useDemographicsAndSubmission({
         window.sessionStorage.setItem("turnstile_verified_at", String(Date.now()));
         window.sessionStorage.setItem("captcha_type", captchaType);
       }
-    } catch (_) {}
+    } catch { /* ignore sessionStorage errors */ }
 
     try {
       await submitAnswersToAPI(demographics, token, captchaType, false, quizDataVersion);

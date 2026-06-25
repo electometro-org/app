@@ -329,6 +329,7 @@ read:
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — community standards
 - [SECURITY.md](SECURITY.md) — reporting vulnerabilities
 - [docs/SUBMODULES.md](docs/SUBMODULES.md) — exact contracts for the asset and Worker/API submodules
+- [AGENTS.md](AGENTS.md) — condensed, agent-facing guidance for AI coding tools
 
 Architecture and decisions are documented in [ARCHITECTURE.md](ARCHITECTURE.md) and
 [docs/DECISIONS/](docs/DECISIONS/). The roadmap lives in [ROADMAP.md](ROADMAP.md).

@@ -1,13 +1,10 @@
-import React, { createContext, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuiz } from "../hooks/useQuiz";
 import { trackEvent } from "../utils/analytics";
 import { USER_TO_NUM, MIN_COMPARED } from "../constants/answerMappings";
 import { getBranding, defaultBranding, useElectionBranding } from "../config/branding";
-import { preSelectedElectionId, shouldShowElectionIntro } from "../config/appConfig";
-import { electionConfigs } from "../elections";
 import { findNextUniqueIndex } from "../services/quizService";
 
-// Import the new focused hooks
 import { useElectionFlow } from "../hooks/useElectionFlow";
 import { useQuizNavigation } from "../hooks/useQuizNavigation";
 import { useMinAnswersGate } from "../hooks/useMinAnswersGate";
@@ -17,7 +14,10 @@ import { useDemographicsAndSubmission } from "../hooks/useDemographicsAndSubmiss
 import { useMnemonicRestore } from "../hooks/useMnemonicRestore";
 import { useThemeAndAssets } from "../hooks/useThemeAndAssets";
 
-const QuizContext = createContext(null);
+import { ElectionContext } from "./ElectionContext";
+import { QuizFlowContext } from "./QuizFlowContext";
+import { ResultsContext } from "./ResultsContext";
+import { UIContext } from "./UIContext";
 
 export function QuizProvider({ children }) {
   // 1. Election flow management (initialize first)
@@ -28,7 +28,6 @@ export function QuizProvider({ children }) {
     setShowGenericIntro,
     showElectionIntro,
     setShowElectionIntro,
-    electionIntroInitialized,
     handleGenericIntroContinue,
     handleSelectElection,
     handleStartQuiz,
@@ -41,9 +40,12 @@ export function QuizProvider({ children }) {
   // Round selection state (needed before useResultsComputation)
   const [selectedRoundId, setSelectedRoundId] = useState(null);
   const [selectedResultType, setSelectedResultType] = useState(null);
-  const rounds = config?.rounds || [];
-  const selectedRound = rounds.find(r => r.id === selectedRoundId) ?? rounds[rounds.length - 1] ?? null;
-  const resultTypes = config?.resultTypes || [];
+  const rounds = useMemo(() => config?.rounds || [], [config?.rounds]);
+  const selectedRound = useMemo(
+    () => rounds.find(r => r.id === selectedRoundId) ?? rounds[rounds.length - 1] ?? null,
+    [rounds, selectedRoundId]
+  );
+  const resultTypes = useMemo(() => config?.resultTypes || [], [config?.resultTypes]);
 
   // 2. Quiz navigation & UI chrome
   const {
@@ -74,15 +76,11 @@ export function QuizProvider({ children }) {
 
   // 4. Results computation (provides `computeAndDispatchResults` callback)
   const {
-    votesDataCacheRef,
-    getVotesData,
     quizDataVersion,
-    setQuizDataVersion,
     partyComplete,
     partyIncomplete,
     presComplete,
     presIncomplete,
-    sortByScoreDesc,
     handleEntityClick,
     computeAndDispatchResults,
     reset: resetResults,
@@ -94,7 +92,6 @@ export function QuizProvider({ children }) {
     showTopicImportance,
     setShowTopicImportance,
     handleToggleTopicImportance,
-    applyTopicImportanceToWeights,
     handleTopicImportanceContinue: _handleTopicImportanceContinue,
     reset: resetTopicImportance,
   } = useTopicImportance({ state, dispatch, computeAndDispatchResults });
@@ -109,7 +106,6 @@ export function QuizProvider({ children }) {
     setShowTurnstileOverlay,
     turnstileVerified,
     setTurnstileVerified,
-    submitAnswersToAPI,
     submitDemographicsAndComputeResults,
     handleTurnstileSuccess,
     handleBackToSurvey,
@@ -124,11 +120,10 @@ export function QuizProvider({ children }) {
     dispatch,
   });
 
-  // Wrap handleTopicImportanceContinue to also show demographics after topic importance
-  const handleTopicImportanceContinue = () => {
+  const handleTopicImportanceContinue = useCallback(() => {
     _handleTopicImportanceContinue();
     setShowDemographics(true);
-  };
+  }, [_handleTopicImportanceContinue, setShowDemographics]);
 
   // 7. Mnemonic restore (uses computeAndDispatchResults from step 4)
   const {
@@ -149,25 +144,23 @@ export function QuizProvider({ children }) {
     setShowDemographics,
     setShowTurnstileOverlay,
     setTurnstileVerified,
-    submitAnswersToAPI,
-    setQuizDataVersion,
+    setShowElectionIntro,
+    quizDataVersion,
   });
 
   // 8. Theme & assets (side-effect-only)
   useThemeAndAssets({ election, fingerprint, electionConfigs });
 
-  // Sync selectedResultType when resultTypes or selectedRound changes
   useEffect(() => {
     if (resultTypes.length) setSelectedResultType(selectedRound?.defaultResultType ?? resultTypes[0]);
   }, [resultTypes, selectedRound]);
 
-  // Reset selectedRoundId when election changes
   useEffect(() => {
     setSelectedRoundId(null);
   }, [election]);
 
-  // Handle answer click with mnemonic clearing
-  const handleAnswerClick = (option, { advance = true } = {}) => {
+  // Duplicate-question sync is handled in the reducer (ANSWER_SYNCED action).
+  const handleAnswerClick = useCallback((option, { advance = true } = {}) => {
     const currentIndex = state.currentQuestionIndex;
     const currentQuestion = state.questions[currentIndex] || {};
 
@@ -179,31 +172,24 @@ export function QuizProvider({ children }) {
       answer: option
     });
 
-    const text = currentQuestion.question;
-    state.questions.forEach((q, i) => {
-      if (q.question === text) {
-        dispatch({ type: "ANSWER", index: i, answer: option });
-      }
-    });
+    dispatch({ type: "ANSWER_SYNCED", questionText: currentQuestion.question, answer: option });
 
     if (advance) {
-      const next = findNextUniqueIndex(uniqueIndices, state.currentQuestionIndex);
+      const next = findNextUniqueIndex(uniqueIndices, currentIndex);
       if (next !== undefined) dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: next });
     }
-  };
+  }, [state.currentQuestionIndex, state.questions, uniqueIndices, dispatch, clearMnemonicFromUrl]);
 
-  // Handle mobile entity toggle
-  const handleMobileToggle = (entity, type) => {
+  const handleMobileToggle = useCallback((entity, type) => {
     const id = type === "party" ? entity.party : entity.name;
     setMobileOpen(prev => {
       const isSame = prev === id;
       if (!isSame) handleEntityClick(entity, type);
       return isSame ? null : id;
     });
-  };
+  }, [setMobileOpen, handleEntityClick]);
 
-  // Handle end quiz with gating
-  const handleEndQuiz = () => {
+  const handleEndQuiz = useCallback(() => {
     const stats = getMinAnswersStats();
 
     if (!stats.meetsThreshold) {
@@ -226,10 +212,9 @@ export function QuizProvider({ children }) {
     dispatch({ type: "SET_SELECTED_ENTITY", payload: null });
     dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: state.questions.length });
     window.scrollTo(0, 0);
-  };
+  }, [getMinAnswersStats, openMinAnswersGate, state.questions.length, setShowTopicImportance, dispatch]);
 
-  // Unified reset function
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     clearMnemonicFromUrl();
     resetElectionFlow();
     resetNavigation();
@@ -240,102 +225,137 @@ export function QuizProvider({ children }) {
     resetResults();
     dispatch({ type: "RESET" });
     window.scrollTo(0, 0);
-  };
+  }, [
+    clearMnemonicFromUrl, resetElectionFlow, resetNavigation, resetMinAnswersGate,
+    resetTopicImportance, resetDemographicsAndSubmission, resetMnemonicRestore,
+    resetResults, dispatch,
+  ]);
 
-  // Assemble context value
-  const value = {
-    // Core quiz state
+  const branding = useMemo(
+    () => (election && useElectionBranding) ? getBranding(config) : defaultBranding,
+    [election, config]
+  );
+
+  // --- ElectionContext value ---
+  const electionValue = useMemo(() => ({
     election,
     setElection,
-    state,
-    dispatch,
     config,
     electionConfigs,
     enabledElections,
-    resultTypes,
+    branding,
+    rounds,
+    selectedRound,
+    handleRoundChange: setSelectedRoundId,
+    handleSelectElection,
+    handleStartQuiz,
+    handleGenericIntroContinue,
+  }), [
+    election, setElection, config, electionConfigs, enabledElections, branding,
+    rounds, selectedRound, handleSelectElection, handleStartQuiz, handleGenericIntroContinue,
+  ]);
 
-    // UI state
-    showMenu,
-    setShowMenu,
-    isMobile,
-    selectedResultType,
-    setSelectedResultType,
-    mobileOpen,
-    setMobileOpen,
-    showTopicImportance,
-    setShowTopicImportance,
-    hasReachedLastQuestion,
-    minAnswersGate,
-    showDemographics,
-    setShowDemographics,
-    demographics,
-    setDemographics,
-    showGenericIntro,
-    setShowGenericIntro,
-    showElectionIntro,
-    setShowElectionIntro,
-    showTurnstileOverlay,
-    setShowTurnstileOverlay,
-    turnstileVerified,
-    setTurnstileVerified,
-    restoredFromMnemonic,
-    setRestoredFromMnemonic,
-
-    // Version tracking
-    quizDataVersion,
-    restoredVersion,
-    versionMismatchType,
-    setVersionMismatchType,
-
-    // Fingerprint
-    fingerprint,
-    fingerprintLoading,
-
-    // Computed values
+  // --- QuizFlowContext value ---
+  const canFinishQuizNow = hasReachedLastQuestion && getMinAnswersStats().meetsThreshold;
+  const quizFlowValue = useMemo(() => ({
+    state,
+    dispatch,
     uniqueIndices,
     totalQuestions,
     displayIndex,
-    canFinishQuizNow: hasReachedLastQuestion && getMinAnswersStats().meetsThreshold,
-    uniqueTopics,
+    hasReachedLastQuestion,
+    canFinishQuizNow,
+    handleSkip,
+    handleGoBack,
+    handleAnswerClick,
+    handleEndQuiz,
+    goToNextUnanswered,
+    handleReset,
+    restoreFromMnemonic,
+    quizDataVersion,
+    restoredVersion,
+    restoredFromMnemonic,
+    setRestoredFromMnemonic,
+    versionMismatchType,
+    setVersionMismatchType,
+  }), [
+    state, dispatch, uniqueIndices, totalQuestions, displayIndex,
+    hasReachedLastQuestion, canFinishQuizNow,
+    handleSkip, handleGoBack, handleAnswerClick, handleEndQuiz,
+    goToNextUnanswered, handleReset, restoreFromMnemonic,
+    quizDataVersion, restoredVersion, restoredFromMnemonic, setRestoredFromMnemonic,
+    versionMismatchType, setVersionMismatchType,
+  ]);
+
+  // --- ResultsContext value ---
+  const resultsValue = useMemo(() => ({
     partyComplete,
     partyIncomplete,
     presComplete,
     presIncomplete,
-
-    // Branding
-    branding: (election && useElectionBranding) ? getBranding(config) : defaultBranding,
-
-    // Handlers
-    handleSkip,
-    handleGoBack,
-    handleAnswerClick,
-    handleMobileToggle,
-    handleEndQuiz,
-    closeMinAnswersGate,
-    goToNextUnanswered,
-    handleTopicImportanceContinue,
-    handleToggleTopicImportance,
+    resultTypes,
+    selectedResultType,
+    setSelectedResultType,
+    isMobile,
+    mobileOpen,
+    setMobileOpen,
+    uniqueTopics,
     handleEntityClick,
-    handleBackToSurvey,
-    handleReset,
-    handleTurnstileSuccess,
-    submitDemographicsAndComputeResults,
-    handleGenericIntroContinue,
-    handleSelectElection,
-    handleStartQuiz,
-    restoreFromMnemonic,
-
-    // Round selection
-    rounds,
-    selectedRound,
-    handleRoundChange: setSelectedRoundId,
-
-    // Constants
+    handleMobileToggle,
     USER_TO_NUM,
     MIN_COMPARED,
-  };
+  }), [
+    partyComplete, partyIncomplete, presComplete, presIncomplete,
+    resultTypes, selectedResultType, isMobile, mobileOpen, setMobileOpen,
+    uniqueTopics, handleEntityClick, handleMobileToggle,
+  ]);
 
-  return <QuizContext.Provider value={value}>{children}</QuizContext.Provider>;
+  // --- UIContext value ---
+  const uiValue = useMemo(() => ({
+    showMenu,
+    setShowMenu,
+    showGenericIntro,
+    setShowGenericIntro,
+    showElectionIntro,
+    setShowElectionIntro,
+    showTopicImportance,
+    setShowTopicImportance,
+    minAnswersGate,
+    closeMinAnswersGate,
+    showDemographics,
+    setShowDemographics,
+    demographics,
+    setDemographics,
+    showTurnstileOverlay,
+    setShowTurnstileOverlay,
+    turnstileVerified,
+    setTurnstileVerified,
+    fingerprint,
+    fingerprintLoading,
+    handleToggleTopicImportance,
+    handleTopicImportanceContinue,
+    handleBackToSurvey,
+    handleTurnstileSuccess,
+    submitDemographicsAndComputeResults,
+  }), [
+    showMenu, setShowMenu, showGenericIntro, setShowGenericIntro,
+    showElectionIntro, setShowElectionIntro, showTopicImportance, setShowTopicImportance,
+    minAnswersGate, closeMinAnswersGate, showDemographics, setShowDemographics,
+    demographics, setDemographics, showTurnstileOverlay, setShowTurnstileOverlay,
+    turnstileVerified, setTurnstileVerified, fingerprint, fingerprintLoading,
+    handleToggleTopicImportance, handleTopicImportanceContinue,
+    handleBackToSurvey, handleTurnstileSuccess, submitDemographicsAndComputeResults,
+  ]);
+
+  return (
+    <ElectionContext.Provider value={electionValue}>
+      <QuizFlowContext.Provider value={quizFlowValue}>
+        <ResultsContext.Provider value={resultsValue}>
+          <UIContext.Provider value={uiValue}>
+            {children}
+          </UIContext.Provider>
+        </ResultsContext.Provider>
+      </QuizFlowContext.Provider>
+    </ElectionContext.Provider>
+  );
 }
-
-export { QuizContext };

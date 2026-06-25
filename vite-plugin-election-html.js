@@ -55,7 +55,7 @@ export default function electionHtmlPlugin() {
       resolvedBase = config.base || '/';
     },
 
-    transformIndexHtml(html, ctx) {
+    transformIndexHtml(html) {
       const electionId = process.env.VITE_ELECTION_ID || process.env.ELECTION_ID;
       const electionMeta = loadElectionConfig(electionId);
       const meta = { ...defaultMeta, ...electionMeta };

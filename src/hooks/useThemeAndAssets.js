@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { colors } from "../config/colors";
-import { electionConfigs } from "../elections";
 
 /**
  * useThemeAndAssets
@@ -38,6 +37,6 @@ export function useThemeAndAssets({ election, fingerprint, electionConfigs: conf
       if (typeof window !== "undefined" && fingerprint) {
         window.sessionStorage.setItem("fingerprint", fingerprint);
       }
-    } catch (_) {}
+    } catch { /* ignore sessionStorage errors */ }
   }, [fingerprint]);
 }

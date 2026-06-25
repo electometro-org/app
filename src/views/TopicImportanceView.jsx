@@ -95,6 +95,7 @@ export default function TopicImportanceView({
       // Show only when the entire last topic is in the visible zone above the continue bar.
       if (rect.bottom <= triggerLine) {
         setShowContinue(true);
+        clearInterval(pollId);
       }
     };
 
@@ -194,6 +195,9 @@ export default function TopicImportanceView({
       // Desktop-only: also hide when continue is already visible in viewport.
       const desktopContinueVisible = !isMobile && continueVisible;
       setShowScrollDownFab(!reachedLastTopic && !blockedByContinue && !desktopContinueVisible);
+      if (blockedByContinue) {
+        clearInterval(intervalId);
+      }
     };
 
     const onScroll = () => {

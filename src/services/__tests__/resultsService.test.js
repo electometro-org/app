@@ -7,6 +7,7 @@ import {
   filterCandidatesByRound,
   filterPartiesByRound,
   computeResultsFrom,
+  buildEntityDetails,
 } from '../resultsService';
 import { MIN_COMPARED } from '../../constants/answerMappings';
 
@@ -241,5 +242,180 @@ describe('computeResultsFrom', () => {
     const results = computeResultsFrom(legacyData, 'parties', userAnswers);
     expect(results[0].name).toBe('Alpha Party');
     expect(results[0].similarity_score).toBe(100);
+  });
+
+  it('returns displayName without party suffix for compact candidate format', () => {
+    const data = {
+      candidates: {
+        c1: {
+          id: 'c1',
+          name: 'Ana García (Partido Verde)',
+          party: { id: 'p1', name: 'Partido Verde' },
+          votes: { t1: { vote: 1 } },
+        },
+      },
+    };
+    const results = computeResultsFrom(data, 'candidates', { t1: { answer: 1, weight: 1 } });
+    expect(results[0].displayName).toBe('Ana García');
+    expect(results[0].name).toBe('Ana García (Partido Verde)');
+  });
+
+  it('extracts party name and id from object in compact candidate format', () => {
+    const data = {
+      candidates: {
+        c1: {
+          id: 'c1',
+          name: 'Luis Torres',
+          party: { id: 'p2', name: 'Alianza' },
+          votes: { t1: { vote: 0 } },
+        },
+      },
+    };
+    const results = computeResultsFrom(data, 'candidates', { t1: { answer: 0, weight: 1 } });
+    expect(results[0].party).toBe('Alianza');
+    expect(results[0].partyId).toBe('p2');
+  });
+
+  it('uses party as string for legacy candidate format', () => {
+    const data = {
+      candidates: {
+        'Rosa Paz (Frente Unido)': {
+          party: 'Frente Unido',
+          votes: { t1: { vote: 1 } },
+        },
+      },
+    };
+    const results = computeResultsFrom(data, 'candidates', { t1: { answer: 1, weight: 1 } });
+    expect(results[0].party).toBe('Frente Unido');
+    expect(results[0].partyId).toBeUndefined();
+    expect(results[0].id).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// buildEntityDetails
+// ---------------------------------------------------------------------------
+
+const compactVotesObj = {
+  id: 'c1',
+  name: 'Ana García',
+  party: { id: 'p1', name: 'Partido Verde' },
+  votes: {
+    t1: { vote: 1, comment: 'Supports it', source: 'speech' },
+    t2: { vote: 0.5 }, // no source → imputed neutral
+    t3: { vote: 'text', comment: null }, // non-numeric vote
+  },
+};
+
+const userAnswersMap = {
+  t1: { raw: 'answers.agreeCapitalized', numeric: 1, weight: 1 },
+};
+
+describe('buildEntityDetails', () => {
+  it('generates correct key patterns for compact format (presidential)', () => {
+    const result = buildEntityDetails(compactVotesObj, userAnswersMap, 'presidential');
+    const t1 = result.details.find(d => d.id === 't1');
+    expect(t1.question_key).toBe('quiz.questions.t1');
+    expect(t1.topic_key).toBe('quiz.topics.t1');
+    expect(t1.comment_key).toBe('explanations.candidates.c1.t1');
+  });
+
+  it('generates correct key patterns for compact format (party)', () => {
+    const partyVotesObj = { ...compactVotesObj, id: 'p1' };
+    const result = buildEntityDetails(partyVotesObj, userAnswersMap, 'party');
+    const t1 = result.details.find(d => d.id === 't1');
+    expect(t1.comment_key).toBe('explanations.parties.p1.t1');
+  });
+
+  it('sets candidate_meta for presidential type', () => {
+    const result = buildEntityDetails(compactVotesObj, userAnswersMap, 'presidential');
+    expect(result.candidate_meta).toEqual({ party: compactVotesObj.party });
+    expect(result.party_meta).toBeNull();
+  });
+
+  it('sets candidate_meta to null for party type', () => {
+    const partyVotesObj = { ...compactVotesObj, id: 'p1' };
+    const result = buildEntityDetails(partyVotesObj, userAnswersMap, 'party');
+    expect(result.candidate_meta).toBeNull();
+  });
+
+  it('marks detail as compared when user answered and vote is in analysis', () => {
+    const result = buildEntityDetails(compactVotesObj, userAnswersMap, 'presidential');
+    const t1 = result.details.find(d => d.id === 't1');
+    expect(t1.compared).toBe(true);
+    expect(t1.userAnswerRaw).toBe('answers.agreeCapitalized');
+    expect(t1.userAnswerNumeric).toBe(1);
+  });
+
+  it('marks detail as not compared when user did not answer', () => {
+    const result = buildEntityDetails(compactVotesObj, userAnswersMap, 'presidential');
+    const t2 = result.details.find(d => d.id === 't2');
+    expect(t2.compared).toBe(false);
+    expect(t2.userAnswerRaw).toBeNull();
+  });
+
+  it('excludes imputed neutral (0.5 without source) from analysis', () => {
+    const result = buildEntityDetails(compactVotesObj, {}, 'presidential');
+    const t2 = result.details.find(d => d.id === 't2');
+    expect(t2.includedInAnalysis).toBe(false);
+  });
+
+  it('includes 0.5 vote with source in analysis', () => {
+    const votesObj = {
+      id: 'c1',
+      votes: { t1: { vote: 0.5, source: 'documented' } },
+    };
+    const result = buildEntityDetails(votesObj, {}, 'presidential');
+    expect(result.details[0].includedInAnalysis).toBe(true);
+  });
+
+  it('handles non-numeric vote strings as null voteNumeric', () => {
+    const result = buildEntityDetails(compactVotesObj, userAnswersMap, 'presidential');
+    const t3 = result.details.find(d => d.id === 't3');
+    expect(t3.voteNumeric).toBeNull();
+    expect(t3.includedInAnalysis).toBe(false);
+  });
+
+  it('uses question text from quizData when provided (compact)', () => {
+    const quizData = { quiz: { t1: { question: '¿Apoya la reforma?' } } };
+    const result = buildEntityDetails(compactVotesObj, {}, 'presidential', quizData);
+    const t1 = result.details.find(d => d.id === 't1');
+    expect(t1.question).toBe('¿Apoya la reforma?');
+  });
+
+  it('handles legacy format with question_key / topic_key prefix transform', () => {
+    const legacyVotesObj = {
+      votes: {
+        q1: {
+          vote: 1,
+          question: 'Should we?',
+          question_key: 'questions.q1',
+          topic_key: 'topics.topic1',
+          comment_key: 'comments.c.q1',
+        },
+      },
+    };
+    const result = buildEntityDetails(legacyVotesObj, {}, 'presidential');
+    const q1 = result.details[0];
+    expect(q1.question_key).toBe('quiz.questions.q1');
+    expect(q1.topic_key).toBe('quiz.topics.topic1');
+    expect(q1.comment_key).toBe('comments.c.q1');
+    expect(q1.question).toBe('Should we?');
+  });
+
+  it('preserves legacy question_key that does not start with questions.', () => {
+    const legacyVotesObj = {
+      votes: {
+        q1: {
+          vote: 1,
+          question_key: 'custom.key',
+          topic_key: 'custom.topic',
+          comment_key: null,
+        },
+      },
+    };
+    const result = buildEntityDetails(legacyVotesObj, {}, 'presidential');
+    expect(result.details[0].question_key).toBe('custom.key');
+    expect(result.details[0].topic_key).toBe('custom.topic');
   });
 });

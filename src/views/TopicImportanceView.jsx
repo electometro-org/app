@@ -95,6 +95,7 @@ export default function TopicImportanceView({
       // Show only when the entire last topic is in the visible zone above the continue bar.
       if (rect.bottom <= triggerLine) {
         setShowContinue(true);
+        clearInterval(pollId);
       }
     };
 
@@ -194,6 +195,9 @@ export default function TopicImportanceView({
       // Desktop-only: also hide when continue is already visible in viewport.
       const desktopContinueVisible = !isMobile && continueVisible;
       setShowScrollDownFab(!reachedLastTopic && !blockedByContinue && !desktopContinueVisible);
+      if (blockedByContinue) {
+        clearInterval(intervalId);
+      }
     };
 
     const onScroll = () => {
@@ -226,10 +230,10 @@ export default function TopicImportanceView({
     const topicButtons = Array.from(grid.querySelectorAll('.topic-button'));
     if (topicButtons.length === 0) return;
     const lastTopic = lastTopicRef.current;
+    const triggerLine = (window.innerHeight || document.documentElement.clientHeight || 0) - MOBILE_CONTINUE_RESERVED_PX;
 
     const nudgeIntoContinueZoneIfNeeded = () => {
       if (!lastTopic || showContinueRef.current) return;
-      const triggerLine = (window.innerHeight || document.documentElement.clientHeight || 0) - MOBILE_CONTINUE_RESERVED_PX;
       const rect = lastTopic.getBoundingClientRect();
       const shortBy = rect.bottom - triggerLine;
       if (shortBy > 0) {
@@ -261,7 +265,6 @@ export default function TopicImportanceView({
     if (nextTopic) {
       // If target is the last topic, align it with the continue reveal zone.
       if (lastTopic && nextTopic === lastTopic) {
-        const triggerLine = (window.innerHeight || document.documentElement.clientHeight || 0) - MOBILE_CONTINUE_RESERVED_PX;
         const rect = lastTopic.getBoundingClientRect();
         const delta = Math.max(0, rect.bottom - triggerLine + CONTINUE_REVEAL_SAFETY_PX);
         if (delta > 0) {
@@ -290,7 +293,6 @@ export default function TopicImportanceView({
     }
 
     if (lastTopic) {
-      const triggerLine = (window.innerHeight || document.documentElement.clientHeight || 0) - MOBILE_CONTINUE_RESERVED_PX;
       const rect = lastTopic.getBoundingClientRect();
       const delta = Math.max(0, rect.bottom - triggerLine + CONTINUE_REVEAL_SAFETY_PX);
       if (delta > 0) {
@@ -428,7 +430,7 @@ export default function TopicImportanceView({
               })}
             </div>
             <button className="dialog-close-btn" onClick={closeInfoDialog}>
-              {t('common.close') || 'Cerrar'}
+              {t('common.close')}
             </button>
           </div>
         </div>,

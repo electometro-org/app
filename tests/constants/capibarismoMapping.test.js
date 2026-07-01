@@ -4,7 +4,7 @@ import {
   getCapibarismoSlug,
   buildCapibarismoUrl,
   CAPIBARISMO_CANDIDATE_MAP,
-} from '../capibarismoMapping';
+} from '../../src/constants/capibarismoMapping';
 
 describe('extractCandidateName', () => {
   it('strips party suffix in parentheses', () => {

@@ -3,7 +3,7 @@ import {
   computeUniqueIndices,
   findNextUniqueIndex,
   findPrevUniqueIndex,
-} from '../quizService';
+} from '../../src/services/quizService';
 
 const q = (text) => ({ question: text });
 

@@ -8,8 +8,8 @@ import {
   filterPartiesByRound,
   computeResultsFrom,
   buildEntityDetails,
-} from '../resultsService';
-import { MIN_COMPARED } from '../../constants/answerMappings';
+} from '../../src/services/resultsService';
+import { MIN_COMPARED } from '../../src/constants/answerMappings';
 
 describe('isImputedNeutral', () => {
   it('returns true for numeric 0.5 without source', () => {

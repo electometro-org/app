@@ -6,7 +6,7 @@ import {
   isValidMnemonic,
   getWordList,
   DEFAULT_WORD_LIST,
-} from '../mnemonicCodec';
+} from '../../src/utils/mnemonicCodec';
 
 const A = 'answers.agreeCapitalized';
 const N = 'answers.neutralCapitalized';

@@ -6,7 +6,7 @@ import {
   decodeVersionFromMnemonic,
   isVersionSuffix,
   isVersionGreaterThan,
-} from '../versionUtils';
+} from '../../src/utils/versionUtils';
 
 describe('parseVersion', () => {
   it('parses valid version strings', () => {

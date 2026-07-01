@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeAnswer, applyPolarity, MIN_COMPARED } from '../answerMappings';
+import { normalizeAnswer, applyPolarity, MIN_COMPARED } from '../../src/constants/answerMappings';
 
 describe('normalizeAnswer', () => {
   it('maps known agreement keys', () => {

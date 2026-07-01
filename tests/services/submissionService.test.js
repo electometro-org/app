@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildCompactResponses } from '../submissionService';
+import { buildCompactResponses } from '../../src/services/submissionService';
 
 const questions = [
   { id: 't1' },

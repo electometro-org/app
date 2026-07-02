@@ -42,16 +42,27 @@ inmuebles declarados.
 - Visualización de coincidencias por pregunta individual
 - **Gráficos de Tendencias Agregadas (TBA)** 
 
+### 💾 Guardar y Compartir
+- Codificación de resultados en una **frase mnemónica** (p.ej. `sol-luna-rio-...`)
+- Restauración vía URL (`#/?r=<frase>`) o ingreso manual
+- Detección de cambios de versión del cuestionario al restaurar
+
+### 🗳️ Multi-Vuelta
+- Soporte para elecciones con segunda vuelta (filtrado de candidatos/partidos por vuelta)
+- Selección de vuelta en la pantalla de introducción
+
 ### 🌍 Internacionalización (i18n)
 - Soporte multiidioma mediante [Tolgee](https://tolgee.io/)
 - Cambio de idioma dinámico sin recargar la página
 - Idiomas disponibles:
   - Español
   - Quechua
+  - Aymara
 
 ### 🔒 Seguridad y Anti-Fraude
-- Verificación CAPTCHA antes de enviar respuestas
-- Identificación única de dispositivos mediante FingerprintJS
+- Verificación CAPTCHA antes de enviar respuestas (Turnstile, con hCaptcha como
+  fallback para navegadores antiguos)
+- Identificación única de dispositivos mediante [fpscanner](https://www.npmjs.com/package/fpscanner)
 - Validación de cookies `cf_clearance` con fingerprints
 - **Rate limiting**: Protección contra envíos masivos automatizados
 
@@ -66,25 +77,42 @@ inmuebles declarados.
 ## 🏗️ Stack
 
 ### Frontend (SPA)
-- ⚛️ **React**
+- ⚛️ **React 18**
 - 🚀 **Vite** (build y dev server)
-- 🌐 **React Router** para navegación
+- 🌐 **React Router** (HashRouter) para navegación
 - 🗣️ **Tolgee** para internacionalización
+- 🧩 **react-grid-layout** para el sistema de widgets
 
 ### **Backend (Serverless)**:
-- ☁️ **Cloudflare Workers** (edge computing)
+- ☁️ **Cloudflare Workers** (sirve los assets estáticos de la SPA y la API)
 - 🗄️ **Supabase** (PostgreSQL) para almacenamiento
-- 📦 **Cloudflare R2** (S3 object storage) para traducciones
+- 📦 **Cloudflare R2** (S3 object storage) para traducciones y datos de votación
 - 🔑 **Cloudflare KV** para vinculación fingerprint-cookie
 
 ### **Seguridad**:
-- 🔐 **Cloudflare Turnstile** (CAPTCHA)
-- 🖐️ **FingerprintJS 5.0** (device fingerprinting)
+- 🔐 **Cloudflare Turnstile** (CAPTCHA) + **hCaptcha** (fallback navegadores antiguos)
+- 🖐️ **fpscanner** (device fingerprinting)
 - 🛡️ **Row Level Security** en Supabase
 
 ### **Análisis y Monitoreo**:
 - 📊 **Trench.js** (analytics con consentimiento)
 - 📈 Supabase Analytics (métricas del lado del servidor)
+
+---
+
+## 📚 Documentación
+
+Documentación técnica para desarrolladores en [`docs/`](docs/):
+
+| Documento | Contenido |
+|---|---|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Arquitectura general: flujo de fases, estado, cálculo de resultados, i18n, analytics |
+| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Setup, variables de entorno, scripts, pipeline de build, deploy |
+| [docs/ELECTIONS.md](docs/ELECTIONS.md) | Referencia de configuración de elecciones, formatos de datos, cómo agregar una elección |
+| [docs/WIDGETS.md](docs/WIDGETS.md) | Sistema de widgets (layout, docking, persistencia) |
+| [docs/BACKGROUNDS.md](docs/BACKGROUNDS.md) | Sistema de fondos configurables |
+| [docs/SUBMODULES.md](docs/SUBMODULES.md) | Submódulos, symlinks e interfaz de la API backend |
+| [CODE_DEBT_AUDIT.md](CODE_DEBT_AUDIT.md) | Deuda técnica conocida y hacks de compatibilidad intencionales |
 
 ---
 
@@ -117,6 +145,17 @@ npm install
 - Copiar `.env.development.example` a nuevo archivo `.env.development`
 - Copiar `.env.local.example` a nuevo archivo `.env.local`
 - Completar valores de variables necesarias
+
+> **Nota (equipo con acceso a los repos privados)**: los pasos 4 y 5 se resuelven con los
+> submódulos ya configurados en `.gitmodules` y tres symlinks:
+> ```bash
+> git submodule update --init
+> ln -s ./external/peru-assets/app/i18n   ./i18n
+> ln -s ./external/peru-assets/app/public ./public
+> ln -s ./external/cf-workers/peru_2026/wrangler ./wrangler
+> ```
+> Ver [docs/SUBMODULES.md](docs/SUBMODULES.md). Las opciones manuales siguen siendo válidas
+> para quien no tenga acceso.
 
 4. **Configurar carpeta `public`**:
 
@@ -199,14 +238,16 @@ npm run dev
 npm run dev              # Inicia Vite dev server
 
 # Build
-npm run build            # Build de producción
+npm run build            # Build de producción (incluye bundles legacy)
 npm run build-dev        # Build de desarrollo
 
 # Preview
-npm run preview          # Preview del build con Wrangler
+npm run preview          # Build dev + wrangler dev (Worker + SPA en local, HTTPS)
+npm run preview-qa       # Igual, con el entorno QA del Worker
 
 # Deploy
-npm run deploy           # Deploy a Cloudflare Pages + Worker
+npm run deploy           # Build + wrangler deploy (producción)
+npm run deploy-qa        # Build + wrangler deploy (entorno QA)
 
 # Linting
 npm run lint             # Ejecuta ESLint
@@ -216,26 +257,29 @@ npm run lint             # Ejecuta ESLint
 
 ## 🚀 Lanzamiento
 
-### Cloudflare Pages + Workers
+### Cloudflare Workers (assets estáticos + API)
 
-El proyecto usa **Cloudflare Pages** para el frontend estático y **Cloudflare Workers** para el backend.
+El proyecto se despliega como un único **Cloudflare Worker** que sirve tanto el frontend
+estático (assets binding con fallback SPA) como los endpoints de la API. Detalles del
+pipeline de build en [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 **Pasos de despliegue**:
 
-1. **Configurar secretos en Cloudflare**:
+1. **Configurar secretos en Cloudflare** (ver lista completa en el repo privado del Worker):
 ```bash
 wrangler secret put TURNSTILE_SECRET_KEY
-wrangler secret put VITE_SUPABASE_PUBLISHABLE_KEY
+wrangler secret put SUPABASE_ANON_KEY
 ```
 
-2. **Desplegar Worker**:
+2. **Desplegar Worker** (build + deploy):
 ```bash
-npm run deploy
+npm run deploy       # producción
+npm run deploy-qa    # entorno QA
 ```
 
 3. **Configurar dominio personalizado**:
-  - En Cloudflare Dashboard → Pages → Custom domains
-  - Agregar p.ej. `decide.pe`
+  - La ruta del Worker se define en `wrangler/wrangler.toml` (p.ej. `decide.pe/electometro*`)
+  - El `BASE_PATH` del Worker debe coincidir con el `base` de `vite.config.js`
 
 4. **Configurar R2 Bucket para traducciones**:
 ```bash
@@ -310,9 +354,10 @@ wrangler r2 object put electometro-i18n/qu.json --file=public/i18n/qu.json
 - 🔄 Migración completa de strings hardcodeados a translation keys
 
 ### Q1/2 2026
-- 🎨 **Fondos dinámicos por pregunta**
-- 📊 **Gráficos de tendencias agregadas**
-- 🏗️ **Refactorización OOP**: Modularización del código
+- ✅ **Fondos dinámicos por pregunta** (sistema de fondos: sólido, imagen, slideshow, gradiente)
+- ✅ **Guardar y compartir resultados** (frase mnemónica + URL)
+- ✅ **Soporte multi-vuelta** (segunda vuelta con filtrado de candidatos)
+- 🏗️ **Refactorización**: Modularización del código
   - Extracción de modelos de dominio
   - Servicios de negocio separados
   - Arquitectura en capas
@@ -320,14 +365,11 @@ wrangler r2 object put electometro-i18n/qu.json --file=public/i18n/qu.json
 
 ### Planificado
 - 🧪 Suite completa de tests (unit, integration, e2e)
-- 💾 Guardar y compartir resultados
 
 ### Futuro
-- 👤 Sistema de cuentas de usuario
-- 🔍 Búsqueda y filtrado avanzado de candidatos
+- 📊 **Gráficos de tendencias agregadas**
 - 📈 Dashboard de estadísticas en tiempo real
 - 📊 Visualizaciones demográficas (con privacidad)
-- 📱 Progressive Web App (PWA) con soporte offline
 - 🌐 Expansión a más países de Latinoamérica
 
 ---

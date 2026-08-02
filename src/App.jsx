@@ -18,6 +18,7 @@ import ElectionIntroView from "./views/ElectionIntroView";
 import QuizView from "./views/QuizView";
 import TopicImportanceView from "./views/TopicImportanceView";
 import ResultsView from "./views/ResultsView";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { useQuizContext } from "./contexts/useQuizContext";
 import { BackgroundLayer } from "./backgrounds";
 import { WidgetLayout } from "./widgets";
@@ -218,6 +219,18 @@ function AppContent() {
                 } : null}
               />
             ) : (
+              <ErrorBoundary
+                fallback={({ retry }) => (
+                  <div className="error-boundary-fallback" role="alert">
+                    <h2>{t("errors.boundary.title", "Algo salió mal")}</h2>
+                    <p>{t("errors.boundary.resultsDescription", "No pudimos mostrar tus resultados. Tus respuestas están guardadas: puedes reintentar o volver al cuestionario.")}</p>
+                    <div>
+                      <button onClick={retry}>{t("errors.boundary.retry", "Reintentar")}</button>
+                      <button onClick={handleBackToSurvey}>{t("errors.boundary.backToSurvey", "Volver al cuestionario")}</button>
+                    </div>
+                  </div>
+                )}
+              >
               <ResultsView
                 comparisonResults={state.comparisonResults}
                 selectedResultType={selectedResultType}
@@ -253,6 +266,7 @@ function AppContent() {
                 }}
                 onForceReset={handleReset}
               />
+              </ErrorBoundary>
             )}
           </>
         )}

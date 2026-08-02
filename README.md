@@ -112,7 +112,9 @@ Documentación técnica para desarrolladores en [`docs/`](docs/):
 | [docs/WIDGETS.md](docs/WIDGETS.md) | Sistema de widgets (layout, docking, persistencia) |
 | [docs/BACKGROUNDS.md](docs/BACKGROUNDS.md) | Sistema de fondos configurables |
 | [docs/SUBMODULES.md](docs/SUBMODULES.md) | Submódulos, symlinks e interfaz de la API backend |
-| [CODE_DEBT_AUDIT.md](CODE_DEBT_AUDIT.md) | Deuda técnica conocida y hacks de compatibilidad intencionales |
+| [COMPAT_AUDIT.md](COMPAT_AUDIT.md) | Auditoría de hacks de compatibilidad (Safari 12+) y efectos visuales móviles — alcance deliberadamente acotado |
+| [CODE_HEALTH_BACKLOG.md](CODE_HEALTH_BACKLOG.md) | Deuda fuera del alcance de la auditoría: tests, error boundary, dependencias, accesibilidad |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Guía de contribución y reglas de mantenimiento de la documentación |
 
 ---
 

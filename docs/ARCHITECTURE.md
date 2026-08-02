@@ -11,7 +11,7 @@ This document describes how the frontend codebase is put together. Related docs:
 - [WIDGETS.md](WIDGETS.md) — the widget layout/docking system
 - [BACKGROUNDS.md](BACKGROUNDS.md) — the background plugin system
 - [SUBMODULES.md](SUBMODULES.md) — git submodules, symlinks, and the backend API interface
-- [../CODE_DEBT_AUDIT.md](../CODE_DEBT_AUDIT.md) — known debt and intentional compat hacks
+- [../COMPAT_AUDIT.md](../COMPAT_AUDIT.md) — known debt and intentional compat hacks
 
 ## System overview
 
@@ -140,7 +140,7 @@ results          ResultsView           (rankings, per-question comparison, save/
 |---|---|
 | `views/QuizView.jsx` | Question card, answer buttons, skip/back, finish gate modal; mobile font-fitting logic |
 | `views/TopicImportanceView.jsx` | Topic importance toggles + scroll FAB handling |
-| `views/ResultsView.jsx` | **God component (~2,660 lines — see CODE_DEBT_AUDIT §1)**: ranking list, analysis panel, entity details, save/share modal, Capictive/Battle-mode CTAs, captcha script loading, asset resolution |
+| `views/ResultsView.jsx` | **God component (~2,660 lines — see COMPAT_AUDIT §1)**: ranking list, analysis panel, entity details, save/share modal, Capictive/Battle-mode CTAs, captcha script loading, asset resolution |
 | `components/EntityDetails.jsx` | Per-question vote comparison with source links |
 | `components/TurnstileOverlay.jsx` | Loads Turnstile, falls back to hCaptcha on old browsers |
 | `components/demographicsForm.jsx` | Optional demographics + analytics consent |
@@ -176,7 +176,7 @@ from the `i18n/` symlink. `VITE_TOLGEE_QA_TRANSLATIONS=true` switches to `*-qa` 
 the `/qa/` data path. `LanguageSwitcher.jsx` changes language at runtime without reload.
 
 Many components still use the `t(key) === key ? "fallback" : t(key)` missing-key pattern —
-known debt (CODE_DEBT_AUDIT §5).
+known debt (COMPAT_AUDIT §5).
 
 ## Analytics
 
@@ -203,5 +203,5 @@ Deliberate target: **Safari ≥ 12 / iOS ≥ 12, Chrome ≥ 70, Firefox ≥ 68, 
 (`browserslist` in package.json, `@vitejs/plugin-legacy` in production builds, `es2018`
 transpilation also in dev). Consequences: hand-written `color-mix()` / flex-`gap` / `dvh`
 CSS fallbacks, the hCaptcha fallback path, `execCommand("copy")` clipboard fallback, and the
-widget `legacyLayouts` variants. These are intentional — see CODE_DEBT_AUDIT §0/§2 before
+widget `legacyLayouts` variants. These are intentional — see COMPAT_AUDIT §0/§2 before
 "cleaning them up".

@@ -124,4 +124,4 @@ Other notable settings:
 
 There is no test suite yet (roadmap item). Verification is manual:
 `npm run lint`, then walk the flow (intro → quiz → topics → demographics → results) on desktop
-and a mobile viewport, ideally also on an old-Safari-class browser (see CODE_DEBT_AUDIT §8).
+and a mobile viewport, ideally also on an old-Safari-class browser (see COMPAT_AUDIT §8).

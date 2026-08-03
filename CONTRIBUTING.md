@@ -133,7 +133,7 @@ pre-commit:
 ## Testing expectations
 
 The project has a **Vitest** suite under `tests/`, covering the pure modules (`src/services/`,
-`src/utils/`, `src/constants/`) — see [docs/TEST_SUMMARY.md](docs/TEST_SUMMARY.md) for what exists.
+`src/utils/`, `src/constants/`).
 Views, hooks, and contexts are not yet covered.
 
 - `npm test` must pass before every PR (`npm run test:watch` during development).
@@ -142,8 +142,6 @@ Views, hooks, and contexts are not yet covered.
 - UI changes still need manual verification: walk the flows your change touches (intro → quiz →
   topic importance → demographics → results, plus mnemonic restore via `?r=`), run `npm run lint`,
   and ensure a production build succeeds with `npm run build`.
-
-See [ROADMAP.md](ROADMAP.md) for the longer-term testing plan (component and E2E coverage).
 
 ---
 
@@ -171,7 +169,6 @@ turning doc maintenance into a chore:
    | Env vars, npm scripts, build pipeline | [README](README.md) Configuration section + *Development Guide* discussion |
    | File naming / folder layout | *Conventions* discussion |
    | Widget/background options | *Widget System* / *Background System* discussions |
-   | Test suite structure or coverage | [docs/TEST_SUMMARY.md](docs/TEST_SUMMARY.md) |
    | A significant architectural decision | a new ADR in [docs/DECISIONS/](docs/DECISIONS/) |
 
    Reviewers treat a missing doc update like a missing test: ask for it (or a flagged follow-up for
@@ -191,7 +188,7 @@ the change there (or flag it in the PR so a maintainer can).
 
 1. Fork the repo and create a topic branch off `v1` (see [Branch naming](#branch-naming)).
 2. Make your change; keep the diff focused.
-3. Run `npm run lint` and `npm test`, and verify a build for your deploy target.
+3. Run `npm run lint` and `npm test`, and verify a build for your deployment target.
 4. Push and open a PR against `v1` with:
    - a clear title (Conventional Commit style),
    - a description of **what** changed and **why**,

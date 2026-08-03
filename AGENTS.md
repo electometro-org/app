@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Guidance for AI coding agents working in this repository. Humans should read [README.md](README.md),
-[CONTRIBUTING.md](CONTRIBUTING.md), and [ARCHITECTURE.md](ARCHITECTURE.md) first; this file is the
+[CONTRIBUTING.md](CONTRIBUTING.md), and the [Architecture discussion](https://github.com/electometro-org/app/discussions/categories/docs) first; this file is the
 condensed, agent-facing version.
 
 ## What this is
@@ -43,7 +43,7 @@ npm run deploy   # build + wrangler deploy
 
 Put **pure logic in `services/`/`utils/`** (testable); keep UI in `components/`/`views/`.
 
-## Conventions (enforced by review — see docs/CONVENTIONS.md)
+## Conventions (enforced by review — see the Conventions discussion in https://github.com/electometro-org/app/discussions/categories/docs)
 
 - React components/views → `PascalCase.jsx`; hooks → `useSomething.js`; services → `somethingService.js`;
   contexts → `SomethingContext.jsx`; utils/config/constants → `camelCase.js`; CSS paired by name.
@@ -63,7 +63,7 @@ Put **pure logic in `services/`/`utils/`** (testable); keep UI in `components/`/
 - Vote data is **external compact JSON** from `VITE_ELECTIONS_DATA_URL` (keys like `t1`/`c1`/`p1`;
   `version` field drives mnemonic compatibility). The frontend never generates it.
 - Frontend talks to the backend only over HTTP: `POST /electometro/api/form` and `/api/feedback`
-  (with `credentials: 'include'`). The request/response interface is in [docs/SUBMODULES.md](docs/SUBMODULES.md).
+  (with `credentials: 'include'`). The request/response interface is in the [Submodules discussion](https://github.com/electometro-org/app/discussions/categories/docs).
 - **Do not edit `external/*` from this repo's tasks** — they are independent (private) submodules. Do not
   copy backend internals (anti-fraud logic, infra identifiers, secret values, schema internals) into this
   public repo. Backend internals are documented inside the private `cf-workers` repo.

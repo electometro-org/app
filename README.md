@@ -102,7 +102,7 @@ parameter) so a voter can save or share their result without an account.
 ### Backend (serverless)
 - ☁️ **Cloudflare Workers** (edge compute) — the API/Worker lives in a separate repository, included
   here as the `external/cf-workers` git submodule. The exact API, asset, and data contracts are
-  documented in [docs/SUBMODULES.md](docs/SUBMODULES.md).
+  documented in the [Submodules discussion](https://github.com/electometro-org/app/discussions/categories/docs).
 - 🗄️ **Supabase** (PostgreSQL) for response storage
 - 📦 **Cloudflare R2** for translation assets
 - 🔑 **Cloudflare KV** for fingerprint ↔ cookie binding
@@ -117,7 +117,7 @@ parameter) so a voter can save or share their result without an account.
 
 > **Note on dependencies:** `express`, `mongoose`, `cors`, and `body-parser` appear in
 > `package.json` but are not used by the frontend SPA in this repository; they relate to the
-> standalone Worker/API. See [ARCHITECTURE.md](ARCHITECTURE.md) for dependency boundaries.
+> standalone Worker/API. See the [Architecture discussion](https://github.com/electometro-org/app/discussions/categories/docs) for dependency boundaries.
 
 ---
 
@@ -241,10 +241,10 @@ in this checkout, so Cloudflare is the documented deployment path here.
 ```
 electometro/
 ├── db/                         # Supabase SQL: schema (migration.sql) + hardening (security.sql)
-├── docs/                       # Project documentation
+├── docs/                       # Versioned project documentation
 │   ├── DECISIONS/              # Architecture Decision Records (ADRs)
 │   ├── es/                     # Spanish translations of community-facing docs
-│   ├── CONVENTIONS.md          # Naming & folder conventions
+│   ├── TEST_SUMMARY.md         # Test suite coverage summary
 │   └── assets/                 # Documentation images
 ├── src/
 │   ├── App.jsx                 # Root component, routes, view switching
@@ -253,7 +253,7 @@ electometro/
 │   ├── components/             # Reusable UI components (modals, CTAs, forms, menu, static pages)
 │   ├── config/                 # appConfig, branding, env, background defaults
 │   ├── constants/              # answerMappings, capibarismoMapping
-│   ├── contexts/               # QuizContext (global quiz/UI state provider)
+│   ├── contexts/               # Split state providers (Election/QuizFlow/Results/UI + QuizContext)
 │   ├── elections/              # Per-election config registry (peru_2026, chile_2025) + widgets
 │   ├── hooks/                  # useQuiz reducer + focused quiz hooks (flow, results, submission, …)
 │   ├── services/               # quizService, resultsService, submissionService (logic layer)
@@ -265,7 +265,8 @@ electometro/
 └── wrangler.toml.example       # Template for Cloudflare deployment config
 ```
 
-> The naming and folder conventions are documented in [docs/CONVENTIONS.md](docs/CONVENTIONS.md).
+> The naming and folder conventions are documented in the
+> [Conventions discussion](https://github.com/electometro-org/app/discussions/categories/docs).
 
 ---
 
@@ -291,7 +292,7 @@ Environment variables are read by Vite (`import.meta.env`). Copy from `.env.exam
 Application flow flags are resolved in [`src/config/appConfig.js`](src/config/appConfig.js); branding
 in [`src/config/branding.js`](src/config/branding.js). Adding a new election is a matter of dropping a
 config file into [`src/elections/`](src/elections/) and registering it in
-[`src/elections/index.js`](src/elections/index.js) — see [ARCHITECTURE.md](ARCHITECTURE.md).
+[`src/elections/index.js`](src/elections/index.js) — see the [Architecture discussion](https://github.com/electometro-org/app/discussions/categories/docs).
 
 ---
 
@@ -312,11 +313,11 @@ From external compact-format JSON files (keys like `t1`, `c1`, `p1`) served from
 
 **Can I add a new election or country?**
 Yes — that's a core design goal. Add an election config and assets; see
-[ARCHITECTURE.md](ARCHITECTURE.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
+the [Architecture discussion](https://github.com/electometro-org/app/discussions/categories/docs) and [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **Are there automated tests?**
-Not yet. The pure logic modules (`services/`, `utils/`, `constants/`) are designed to be testable and
-are the recommended starting point — see [ROADMAP.md](ROADMAP.md).
+Yes — a Vitest suite under `tests/` covers the pure logic modules (`services/`, `utils/`,
+`constants/`); run it with `npm test`. See ROADMAP for the longer-term plan (views and hooks are not yet covered).
 
 ---
 
@@ -325,14 +326,15 @@ are the recommended starting point — see [ROADMAP.md](ROADMAP.md).
 Contributions are welcome — this project aims to strengthen democracy through open technology. Please
 read:
 - [CONTRIBUTING.md](CONTRIBUTING.md) — setup, branch/commit conventions, PR & review process
-- [docs/CONVENTIONS.md](docs/CONVENTIONS.md) — naming and folder conventions
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — community standards
 - [SECURITY.md](SECURITY.md) — reporting vulnerabilities
-- [docs/SUBMODULES.md](docs/SUBMODULES.md) — exact contracts for the asset and Worker/API submodules
 - [AGENTS.md](AGENTS.md) — condensed, agent-facing guidance for AI coding tools
+- [📖 Docs discussions](https://github.com/electometro-org/app/discussions/categories/docs) —
+  reference documentation: Architecture, Conventions, Submodules (asset & Worker/API contracts),
+  Elections System, Widget System, Background System, and the Development Guide
 
-Architecture and decisions are documented in [ARCHITECTURE.md](ARCHITECTURE.md) and
-[docs/DECISIONS/](docs/DECISIONS/). The roadmap lives in [ROADMAP.md](ROADMAP.md).
+Architecture decisions (ADRs) are versioned in [docs/DECISIONS/](docs/DECISIONS/). The roadmap
+lives in ROADMAP.
 
 ---
 

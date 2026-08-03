@@ -11,33 +11,25 @@ uses Conventional Commit-style change descriptions.
 
 - Open-source governance documentation: contributing guide, security policy, architecture notes,
   roadmap, conventions, code of conduct, and ADRs.
-- React error boundaries: an app-level boundary with a translated retry fallback, plus a
-  results-scoped boundary that preserves quiz answers and offers "back to survey"
-  (`src/components/ErrorBoundary.jsx`).
-- Accessibility floor: `eslint-plugin-jsx-a11y` (recommended rules as warnings) and a first
-  static audit with findings and next steps in `docs/A11Y_AUDIT.md`.
-
-### Fixed
-
-- Tracked `public` symlink pointed at a nonexistent `external/assets/` path; now points at
-  `external/peru-assets/app/public` (matching `i18n`).
-- ESLint no longer sweeps the `external/` submodules (their apps have their own lint setups);
-  removed an unused import that made `npm run lint` fail.
-
-### Security
-
-- Removed unused runtime dependencies (`express`, `mongoose`, `cors`, `body-parser`, `dotenv`).
-- Cleared the `fpscanner → javascript-obfuscator` transitive advisories via scoped npm
-  `overrides`: `undici@^7.29.0` (under `@vercel/blob`), plus `brace-expansion`, `minimatch`,
-  and `fast-uri` patch pins (under `fpscanner`). Production `npm audit` drops from 11 to 2
-  advisories.
-- Updated `react-router-dom` to 7.18.2. The 2 remaining high advisories target React Router's
-  RSC/server features (turbo-stream deserialization, server redirect handling), which this
-  client-only `HashRouter` SPA does not use; a real fix requires migrating to `react-router`
-  v8 (no fixed `react-router-dom` release exists) — tracked as follow-up work.
+- Subsystem deep-dive docs ported from the legacy docs branch and re-verified against this
+  branch's refactored layout: Elections (config reference, rounds, adding an election), Widgets
+  (grid/docking/persistence), Backgrounds, and a Development guide (build pipeline internals,
+  dev-only env vars). Stale README claims fixed along the way (tests FAQ, contexts description).
 
 ### Changed
 
+- Reference documentation moved from tracked markdown to
+  [GitHub Discussions → Docs](https://github.com/electometro-org/app/discussions/categories/docs):
+  Architecture, Conventions, Submodules, Elections System, Widget System, Background System, and
+  the Development Guide. In-repo docs are now README, CONTRIBUTING, SECURITY, AGENTS,
+  `docs/TEST_SUMMARY.md`, and the ADRs; all cross-references updated. The CONTRIBUTING lockstep
+  rule now distinguishes in-repo docs (same PR) from discussion docs (at merge time).
+
+- CONTRIBUTING (EN + ES): added documentation-maintenance rules (lockstep: interface changes update
+  their doc in the same PR; altitude: docs describe structure/contracts, not volatile detail);
+  updated testing expectations to reflect the existing Vitest suite (`npm test` required, new pure
+  logic ships with tests); topic branches and PRs now target `v1` (`main` is legacy). Reviewer
+  checklist now includes docs-in-lockstep. Fixed stale test-file paths in `docs/TEST_SUMMARY.md`.
 - README is now English canonical, with Spanish documentation linked under `docs/es/`.
 - Project license changed to Apache-2.0 in `LICENSE`, `package.json`, and `package-lock.json`.
 - Architecture refactor: decomposed `QuizContext` into eight focused hooks; normalized file naming and
@@ -45,6 +37,12 @@ uses Conventional Commit-style change descriptions.
   duplicate quiz hook and loose root modules.
 - Build simplified to a single platform (Cloudflare); removed the multi-target (`DEPLOY_TARGET`) build
   matrix and Vercel/microfrontends configuration.
+
+### Removed
+
+- `ARCHITECTURE.md`, `docs/CONVENTIONS.md`, `docs/SUBMODULES.md`, `docs/ELECTIONS.md`,
+  `docs/WIDGETS.md`, `docs/BACKGROUNDS.md`, `docs/DEVELOPMENT.md` — content now lives in the
+  Docs discussions (see Changed).
 
 ## [0.2.1]
 

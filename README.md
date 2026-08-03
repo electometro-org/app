@@ -317,8 +317,7 @@ the [Architecture discussion](https://github.com/electometro-org/app/discussions
 
 **Are there automated tests?**
 Yes — a Vitest suite under `tests/` covers the pure logic modules (`services/`, `utils/`,
-`constants/`); run it with `npm test`. See [docs/TEST_SUMMARY.md](docs/TEST_SUMMARY.md) for coverage
-and [ROADMAP.md](ROADMAP.md) for the longer-term plan (views and hooks are not yet covered).
+`constants/`); run it with `npm test`. See ROADMAP for the longer-term plan (views and hooks are not yet covered).
 
 ---
 
@@ -335,7 +334,7 @@ read:
   Elections System, Widget System, Background System, and the Development Guide
 
 Architecture decisions (ADRs) are versioned in [docs/DECISIONS/](docs/DECISIONS/). The roadmap
-lives in [ROADMAP.md](ROADMAP.md).
+lives in ROADMAP.
 
 ---
 

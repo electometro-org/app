@@ -68,8 +68,7 @@ Tipos comunes: `feat`, `fix`, `docs`, `refactor`, `style`, `test`, `chore`.
 ## Pruebas
 
 El proyecto tiene una suite de **Vitest** en `tests/` que cubre los modulos puros (`src/services/`,
-`src/utils/`, `src/constants/`); ver [docs/TEST_SUMMARY.md](../TEST_SUMMARY.md). Vistas, hooks y
-contextos aun no estan cubiertos.
+`src/utils/`, `src/constants/`); Vistas, hooks y contextos aún no están cubiertos.
 
 - `npm test` debe pasar antes de cada PR (`npm run test:watch` durante el desarrollo).
 - **La logica pura nueva o modificada incluye sus tests en el mismo PR.**

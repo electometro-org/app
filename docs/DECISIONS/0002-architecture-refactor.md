@@ -47,7 +47,7 @@ Tradeoffs / open items:
 - Dropping the Vercel target means any future Vercel migration must reintroduce that configuration
   (and must keep build secrets out of tracked files — see [SECURITY.md](../../SECURITY.md)).
 - `useResultsComputation` remains the largest hook; embedded `fetch` calls are still not behind an
-  adapter (tracked in [ROADMAP.md](../../ROADMAP.md)).
+  adapter (tracked in ROADMAP).
 
 ## Follow-up Work
 

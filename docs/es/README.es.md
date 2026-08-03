@@ -81,7 +81,7 @@ Las variables principales viven en `.env.example`: analytics, Turnstile, hCaptch
 
 ## Hoja de Ruta
 
-La hoja de ruta vive en [ROADMAP.es.md](ROADMAP.es.md).
+La hoja de ruta vive en ROADMAP.
 
 ## Contribuir
 

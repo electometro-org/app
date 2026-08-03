@@ -8,6 +8,7 @@ import { QuizProvider } from './contexts/QuizContext.jsx'
 import { BackgroundProvider } from './backgrounds'
 import { WidgetProvider } from './widgets'
 import LoadingScreen, { LoadingWrapper } from './components/LoadingScreen.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 
 createRoot(document.getElementById('root')).render(
   <TolgeeProvider
@@ -16,13 +17,15 @@ createRoot(document.getElementById('root')).render(
   >
     <LoadingWrapper minDelay={500}>
       <StrictMode>
-        <QuizProvider>
-          <BackgroundProvider>
-            <WidgetProvider>
-              <App />
-            </WidgetProvider>
-          </BackgroundProvider>
-        </QuizProvider>
+        <ErrorBoundary onRetry={() => window.location.reload()}>
+          <QuizProvider>
+            <BackgroundProvider>
+              <WidgetProvider>
+                <App />
+              </WidgetProvider>
+            </BackgroundProvider>
+          </QuizProvider>
+        </ErrorBoundary>
       </StrictMode>
     </LoadingWrapper>
   </TolgeeProvider>,

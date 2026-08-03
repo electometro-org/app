@@ -11,6 +11,30 @@ uses Conventional Commit-style change descriptions.
 
 - Open-source governance documentation: contributing guide, security policy, architecture notes,
   roadmap, conventions, code of conduct, and ADRs.
+- React error boundaries: an app-level boundary with a translated retry fallback, plus a
+  results-scoped boundary that preserves quiz answers and offers "back to survey"
+  (`src/components/ErrorBoundary.jsx`).
+- Accessibility floor: `eslint-plugin-jsx-a11y` (recommended rules as warnings) and a first
+  static audit with findings and next steps in `docs/A11Y_AUDIT.md`.
+
+### Fixed
+
+- Tracked `public` symlink pointed at a nonexistent `external/assets/` path; now points at
+  `external/peru-assets/app/public` (matching `i18n`).
+- ESLint no longer sweeps the `external/` submodules (their apps have their own lint setups);
+  removed an unused import that made `npm run lint` fail.
+
+### Security
+
+- Removed unused runtime dependencies (`express`, `mongoose`, `cors`, `body-parser`, `dotenv`).
+- Cleared the `fpscanner → javascript-obfuscator` transitive advisories via scoped npm
+  `overrides`: `undici@^7.29.0` (under `@vercel/blob`), plus `brace-expansion`, `minimatch`,
+  and `fast-uri` patch pins (under `fpscanner`). Production `npm audit` drops from 11 to 2
+  advisories.
+- Updated `react-router-dom` to 7.18.2. The 2 remaining high advisories target React Router's
+  RSC/server features (turbo-stream deserialization, server redirect handling), which this
+  client-only `HashRouter` SPA does not use; a real fix requires migrating to `react-router`
+  v8 (no fixed `react-router-dom` release exists) — tracked as follow-up work.
 
 ### Changed
 

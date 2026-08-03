@@ -26,10 +26,12 @@ Antes de abrir un PR:
 
 ```bash
 npm run lint
+npm test
 ```
 
 ## Ramas
 
+Crea tu rama a partir de **`v1`** (la rama de desarrollo activa — `main` es legado y sera retirada).
 Usa ramas del tipo `tipo/descripcion-corta`:
 
 | Prefijo | Uso |
@@ -53,7 +55,7 @@ Tipos comunes: `feat`, `fix`, `docs`, `refactor`, `style`, `test`, `chore`.
 ## Estandares de Codigo
 
 - Sigue ESLint: `npm run lint`.
-- Sigue `docs/CONVENTIONS.md` para nombres y carpetas.
+- Sigue la discusion *Conventions* ([GitHub Discussions → Docs](https://github.com/electometro-org/app/discussions/categories/docs)) para nombres y carpetas.
 - Componentes React: `PascalCase.jsx`.
 - Hooks: `useSomething.js`.
 - Servicios: `somethingService.js`.
@@ -65,16 +67,31 @@ Tipos comunes: `feat`, `fix`, `docs`, `refactor`, `style`, `test`, `chore`.
 
 ## Pruebas
 
-Todavia no hay suite automatizada. Mientras tanto, verifica manualmente el flujo que cambias:
-intro, quiz, importancia de temas, demografia, resultados y restauracion con `?r=`.
+El proyecto tiene una suite de **Vitest** en `tests/` que cubre los modulos puros (`src/services/`,
+`src/utils/`, `src/constants/`); ver [docs/TEST_SUMMARY.md](../TEST_SUMMARY.md). Vistas, hooks y
+contextos aun no estan cubiertos.
 
-Los primeros tests recomendados son para `src/services/`, `src/utils/` y
-`src/constants/answerMappings.js`.
+- `npm test` debe pasar antes de cada PR (`npm run test:watch` durante el desarrollo).
+- **La logica pura nueva o modificada incluye sus tests en el mismo PR.**
+- Los cambios de UI se verifican manualmente: intro, quiz, importancia de temas, demografia,
+  resultados y restauracion con `?r=`.
+
+## Documentacion
+
+1. **Regla de lockstep.** Si tu PR cambia una *interfaz* (config de eleccion, formato de datos,
+   API, variables de entorno, convenciones, estructura de tests), actualiza el documento que la
+   describe **en el mismo PR**. Los reviewers lo exigen igual que un test faltante. La tabla de
+   correspondencias esta en la [version canonica en ingles](../../CONTRIBUTING.md#documentation).
+2. **Regla de altitud.** Los docs describen estructura y contratos, no detalle volatil (nada de
+   conteos de lineas ni valores exactos que cambian con cada refactor — enlaza al codigo).
+
+El ingles es canonico; si cambias un doc con contraparte en `docs/es/`, refleja el cambio aqui
+(o indicalo en el PR para que un maintainer lo haga).
 
 ## Pull Requests
 
-1. Crea una rama enfocada.
+1. Crea una rama enfocada a partir de `v1`.
 2. Haz cambios pequenos y revisables.
-3. Ejecuta lint y un build para tu target.
-4. Abre un PR con titulo claro, descripcion, capturas si hay UI y notas de configuracion.
+3. Ejecuta lint, tests y un build para tu target.
+4. Abre un PR contra `v1` con titulo claro, descripcion, capturas si hay UI y notas de configuracion.
 5. Para problemas de seguridad, usa `SECURITY.md`; no abras issues publicos.

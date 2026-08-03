@@ -72,7 +72,7 @@ SQL en Supabase: `db/migration.sql` y luego `db/security.sql`.
 - `db/`: migraciones y seguridad de Supabase.
 - `docs/`: documentacion del proyecto.
 
-Consulta `docs/CONVENTIONS.md` para convenciones de nombres y carpetas.
+Consulta la discusion *Conventions* en [GitHub Discussions → Docs](https://github.com/electometro-org/app/discussions/categories/docs) para convenciones de nombres y carpetas.
 
 ## Configuracion
 

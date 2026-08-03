@@ -16,7 +16,7 @@ ADR 0001 noted two tradeoffs as explicit follow-up work:
 
 In addition, the source tree had grown inconsistent: loose modules at the root of `src/`, a duplicate
 quiz hook (`src/useQuiz.js` and `src/hooks/useQuiz.js`), and mixed component filename casing — all in
-conflict with the rules later written down in [docs/CONVENTIONS.md](../CONVENTIONS.md).
+conflict with the rules later written down in the Conventions doc (now in [GitHub Discussions](https://github.com/electometro-org/app/discussions/categories/docs)).
 
 ## Decision
 
@@ -24,7 +24,7 @@ conflict with the rules later written down in [docs/CONVENTIONS.md](../CONVENTIO
    eight focused, single-responsibility hooks (`useQuiz`, `useElectionFlow`, `useQuizNavigation`,
    `useMinAnswersGate`, `useTopicImportance`, `useResultsComputation`, `useDemographicsAndSubmission`,
    `useMnemonicRestore`, `useThemeAndAssets`) and exposes one context value via `useQuizContext`.
-2. **Normalize structure** per `docs/CONVENTIONS.md`: PascalCase components, loose modules moved into
+2. **Normalize structure** per the Conventions doc: PascalCase components, loose modules moved into
    `hooks/`, `utils/`, and `config/`, and the duplicate quiz hook removed in favor of
    `src/hooks/useQuiz.js`.
 3. **Single-platform build.** Remove the multi-target (`DEPLOY_TARGET`) matrix and Vercel/microfrontends

@@ -8,7 +8,8 @@ vulnerabilities, our disclosure process, and security expectations for contribut
 
 ## Supported versions
 
-The project is pre-1.0 and ships from `main`. Only the latest release line receives security fixes.
+The project is pre-1.0 and ships from **`v1`**, the active development branch (`main` is legacy and
+will be retired). Only the latest release line receives security fixes.
 
 | Version | Supported |
 | --- | --- |
@@ -70,7 +71,7 @@ The following controls exist today and are areas where security reports are espe
   cannot run Turnstile (`src/components/TurnstileOverlay.jsx`, `src/services/submissionService.js`).
 - **Device fingerprinting:** via `fpscanner` / FingerprintJS to deter automated mass submissions.
 - **Honeypot:** a hidden `#website-url` field; non-empty values short-circuit submission
-  (`src/App.jsx`, `src/contexts/QuizContext.jsx`).
+  (`src/App.jsx`, `src/hooks/useDemographicsAndSubmission.js`).
 - **Database hardening:** Supabase Row-Level Security, a restrictive insert policy, check constraints,
   and validation triggers (vote ∈ [0,1], weight ∈ [1,3], ≤ 100 questions, payload-size limits) — see
   [`db/migration.sql`](db/migration.sql) and [`db/security.sql`](db/security.sql).
@@ -95,6 +96,10 @@ The following controls exist today and are areas where security reports are espe
 - **Validate new data formats.** When extending the vote/response schema, update both the Worker
   validation and the database constraints/triggers.
 - **Dependencies.** Prefer well-maintained packages; run `npm audit` and remove unused dependencies.
+  Vulnerable transitives are pinned via npm `overrides` in `package.json` — don't remove those pins
+  without re-auditing. Known accepted residual: two high `react-router` advisories on RSC/server
+  code paths this client-only SPA does not execute (see CHANGELOG; fixed by the planned v8
+  migration).
 - **CAPTCHA & fingerprint changes** are security-sensitive — flag them explicitly in your PR so they
   get extra review.
 

@@ -19,12 +19,7 @@
   },
   "dependencies": {
     "@tolgee/react": "^6.2.7",
-    "body-parser": "^1.20.3",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
     "fpscanner": "^1.0.1",
-    "mongoose": "^8.12.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-grid-layout": "^2.2.2",
@@ -41,6 +36,7 @@
     "@vitejs/plugin-legacy": "^6.1.1",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.21.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "gh-pages": "^6.3.0",
@@ -51,6 +47,16 @@
     "vite-plugin-terminal": "^1.4.0",
     "vitest": "^4.1.9",
     "wrangler": "^4.58.0"
+  },
+  "overrides": {
+    "@vercel/blob": {
+      "undici": "^7.29.0"
+    },
+    "fpscanner": {
+      "brace-expansion": "^1.1.18",
+      "minimatch": "^3.1.5",
+      "fast-uri": "^3.1.5"
+    }
   },
   "description": "Electómetro: Voting Alignment WebApp, using Vite HMR and some ESLint rules.",
   "main": "eslint.config.js",

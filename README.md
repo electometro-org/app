@@ -103,8 +103,7 @@ parameter) so a voter can save or share their result without an account.
 - 🗄️ **Supabase** (PostgreSQL) for response storage
 - 📦 **Cloudflare R2** for translation assets
 - 🔑 **Cloudflare KV** for fingerprint ↔ cookie binding
-> The Cloudflare health-check workflow mentions a possible DNS migration to Vercel, but this checkout
-> does not currently track `vercel.json`, `microfrontends.json`, or Vercel-specific npm scripts.
+> Vercel might be used on a fallback scenario
 
 ### Security & monitoring
 - 🔐 Cloudflare Turnstile (+ hCaptcha fallback)
@@ -112,8 +111,7 @@ parameter) so a voter can save or share their result without an account.
 - 🛡️ Supabase Row-Level Security + validation triggers
 - 📊 Trench.js (consent-gated analytics)
 
-> **Note on dependencies:** `express`, `mongoose`, `cors`, and `body-parser` appear in
-> `package.json` but are not used by the frontend SPA in this repository; they relate to the
+> **Note on dependencies:** Some dependencies are not used by the frontend SPA in this repository; they relate to the
 > standalone Worker/API. See the [Architecture discussion](https://github.com/electometro-org/app/discussions/categories/docs) for dependency boundaries.
 
 ---

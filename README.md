@@ -65,7 +65,7 @@ parameter) so a voter can save or share their result without an account.
 ### 🌍 Internationalization (i18n)
 - Multi-language support via [Tolgee](https://tolgee.io/).
 - Dynamic language switching without page reload.
-- Languages currently wired: Spanish (`es`), Quechua (`qu`).
+- Languages currently wired: Spanish (`es`), Quechua (`qu`), Aymara (`ay`).
 
 ### 🔒 Security & anti-fraud
 - CAPTCHA verification before submission (Cloudflare Turnstile, with an hCaptcha fallback for older
@@ -81,8 +81,6 @@ parameter) so a voter can save or share their result without an account.
 ---
 
 ## Screenshots
-
-> 📸 _Screenshots are placeholders — replace with real captures._
 
 | Intro                                                                                    | Quiz                                          | Results                                             |
 |------------------------------------------------------------------------------------------|-----------------------------------------------|-----------------------------------------------------|

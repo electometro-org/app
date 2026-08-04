@@ -145,12 +145,13 @@ parameter) so a voter can save or share their result without an account.
    ```
    See [Configuration](#configuration) for what each variable does.
 
-4. **Provide the `public/` assets.** The app needs a `public/` directory with the election assets and
-   an `index.html`. It is **not committed** to this repo. Either create it manually following the
-   structure below, or symlink the assets submodule:
+4. **Provide the `public/` and `i18n/` assets.** The app needs a `public/` directory with the election
+   assets and an `index.html`, plus an `i18n/` directory of translations. Neither is **committed** to
+   this repo. Either create them manually following the structure below, or symlink the assets submodule:
    ```bash
    git submodule add <assets-repo-url> external/peru-assets
    ln -s ./external/peru-assets/app/public ./public
+   ln -s ./external/peru-assets/app/i18n ./i18n
    ```
    Expected layout:
    ```
@@ -169,6 +170,8 @@ parameter) so a voter can save or share their result without an account.
    ```bash
    mkdir -p wrangler
    cp wrangler.toml.example wrangler/wrangler.toml   # then edit values
+   # …or, with submodule access:
+   ln -s ./external/cf-workers/peru_2026/wrangler ./wrangler
    ```
    See the [Wrangler configuration docs](https://developers.cloudflare.com/workers/wrangler/configuration/).
 

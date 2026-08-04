@@ -5,7 +5,7 @@ node_modules/
 
 # Cloudflare
 .wrangler/
-wrangler/
+/wrangler
 **/wrangler.toml
 **/.dev.vars
 **/.dev.vars.*
@@ -20,9 +20,9 @@ dist/
 !.env.development.example
 !.env.local.example
 
-# Public dir (handled externally)
-public/
-!public/static/favicon.svg
+# Assets provided externally (real dirs or symlinks into external/)
+/public
+/i18n
 
 # Ignore local scripts
 scripts/

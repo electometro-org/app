@@ -22,8 +22,9 @@ npm run lint     # ESLint
 npm run deploy   # build + wrangler deploy
 ```
 
-- The app needs `public/` assets and (for Cloudflare) `wrangler/` config. These come from submodules via
-  symlinks: `public → external/peru-assets/app/public`, `wrangler → external/cf-workers/peru_2026/wrangler`.
+- The app needs `public/` + `i18n/` assets and (for Cloudflare) `wrangler/` config. None are tracked in git;
+  they come from submodules via symlinks: `public → external/peru-assets/app/public`,
+  `i18n → external/peru-assets/app/i18n`, `wrangler → external/cf-workers/peru_2026/wrangler`.
   Without submodule access you can still run the quiz UI (it only needs vote data); submissions need the Worker.
 - There is **no Vercel build path** anymore — do not reintroduce `vercel.json`, `microfrontends.json`,
   `DEPLOY_TARGET`, or `build:vercel`/`dev:cloudflare`-style scripts.

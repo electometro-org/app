@@ -11,7 +11,6 @@ The goal is simple: empower citizens with clear, accessible information so they 
 vote, make political platforms more visible, and strengthen the legitimacy of the democratic process.
 
 Live deployments: [electometro.org](https://electometro.org) ·
-[electometro.decide.pe](https://electometro.decide.pe) (Perú 2026).
 
 ---
 

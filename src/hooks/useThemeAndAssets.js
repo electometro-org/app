@@ -21,15 +21,16 @@ export function useThemeAndAssets({ election, fingerprint, electionConfigs: conf
     });
   }, [election, configs]);
 
-  // Load election-specific CSS
+  // Load election-specific CSS (a config can reuse another election's styles via styleId)
   useEffect(() => {
     if (election) {
-      document.documentElement.dataset.election = election;
-      import(`../elections/${election}.css`).catch(() => {});
+      const styleId = configs[election]?.styleId ?? election;
+      document.documentElement.dataset.election = styleId;
+      import(`../elections/${styleId}.css`).catch(() => {});
     } else {
       delete document.documentElement.dataset.election;
     }
-  }, [election]);
+  }, [election, configs]);
 
   // Sync fingerprint to sessionStorage
   useEffect(() => {

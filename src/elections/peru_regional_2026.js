@@ -11,6 +11,8 @@ export default {
   defaultLabel: "Perú 2026 - Elecciones Regionales",
   // Opt-in via VITE_ELECTION_ID so it never appears in multi-election builds by accident
   enabled: false,
+  // Reuse the national stylesheet (its rules are scoped by [data-election="peru_2026"])
+  styleId: "peru_2026",
 
   meta: {
     title: "Electómetro - Regionales Perú 2026",

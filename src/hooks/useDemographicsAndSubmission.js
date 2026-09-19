@@ -14,6 +14,7 @@ const defaultServices = {
 export function useDemographicsAndSubmission({
   state,
   quizDataVersion,
+  regionId = null,
   setShowTopicImportance,
   setGate,
   dispatch,
@@ -52,7 +53,8 @@ export function useDemographicsAndSubmission({
         turnstileToken,
         captchaType,
         isResubmission,
-        quizVersion
+        quizVersion,
+        regionId
       );
       const data = await submitQuizAnswers(payload);
       console.log("Form submitted successfully:", data);

@@ -190,7 +190,16 @@ export function buildEntityDetails(votesObj, userAnswersMap, type, quizData = nu
 
     let questionKey, topicKey, commentKey, question;
 
-    if (isCompact) {
+    let tema;
+
+    if (quizData?.inlineText) {
+      // Regional format: question/topic/comment texts are inline (no translation keys)
+      questionKey = null;
+      topicKey = null;
+      commentKey = null;
+      question = quizData.quiz?.[qid]?.question ?? null;
+      tema = quizData.quiz?.[qid]?.topic;
+    } else if (isCompact) {
       // Compact format: generate keys from qid (e.g., "t1")
       questionKey = `quiz.questions.${qid}`;
       topicKey = `quiz.topics.${qid}`;
@@ -212,6 +221,7 @@ export function buildEntityDetails(votesObj, userAnswersMap, type, quizData = nu
     return {
       id: qid,
       question,
+      tema,
       question_key: questionKey,
       topic_key: topicKey,
       vote: qobj.vote,

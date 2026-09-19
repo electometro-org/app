@@ -15,13 +15,13 @@ export function buildCompactResponses(questions, answers, weights) {
   }, {});
 }
 
-export function buildSubmissionPayload(questions, answers, weights, demographics, fingerprint, captchaToken, captchaType = 'turnstile', isResubmission = false, quizVersion = null) {
+export function buildSubmissionPayload(questions, answers, weights, demographics, fingerprint, captchaToken, captchaType = 'turnstile', isResubmission = false, quizVersion = null, regionId = null) {
   const compactResponses = buildCompactResponses(questions, answers, weights);
 
   const userId = localStorage.getItem("userId") || Date.now().toString();
   localStorage.setItem("userId", userId);
 
-  return {
+  const payload = {
     user_id: userId,
     stats_id: getAnalyticsConsent() ? statsUserId() : null,
     responses: compactResponses,
@@ -32,6 +32,11 @@ export function buildSubmissionPayload(questions, answers, weights, demographics
     is_resubmission: isResubmission,
     quiz_version: quizVersion || null,
   };
+
+  // Regional elections only: quiz ids are region-specific, so the region must travel with them
+  if (regionId) payload.region_id = regionId;
+
+  return payload;
 }
 
 export async function submitQuizAnswers(payload) {

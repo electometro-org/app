@@ -1,11 +1,13 @@
 // useQuiz.js - Enhanced quiz state management hook
 import { useReducer, useMemo, useEffect } from "react";
 import { electionConfigs, enabledElections } from "../elections";
+import { loadRegionalData, getRegion, buildRegionalQuestions } from "../services/regionalService";
 import { computeUniqueIndices, findNextUniqueIndex, findPrevUniqueIndex } from "../services/quizService";
 
 const initialState = {
   questions: [],
   questionDetails: [],
+  loadedRegionId: null, // Regional elections: region the current questions belong to
   currentQuestionIndex: 0,
   answers: [],
   weights: [],
@@ -24,6 +26,7 @@ function reducer(state, action) {
         ...state,
         questions: action.payload,
         questionDetails: action.payload,
+        loadedRegionId: action.regionId ?? null,
         answers: Array(action.payload.length).fill(null),
         weights: Array(action.payload.length).fill(1),
       };
@@ -100,6 +103,7 @@ function reducer(state, action) {
         ...initialState,
         questions: state.questions,
         questionDetails: state.questionDetails,
+        loadedRegionId: state.loadedRegionId,
         answers: Array(state.questions.length).fill(null),
         weights: Array(state.questions.length).fill(1),
         seenQuestions: [],
@@ -110,13 +114,13 @@ function reducer(state, action) {
   }
 }
 
-export function useQuiz(election) {
+export function useQuiz(election, regionId = null) {
   const config = useMemo(() => (election ? electionConfigs[election] : {}), [election]);
   const [state, dispatch] = useReducer(reducer, initialState);
 
   // Load questions when election changes
   useEffect(() => {
-    if (!election) return;
+    if (!election || config.regional) return;
 
     const loadPresQs = config.questionTypes?.includes("presidential")
       ? fetch(config.presVotesUrl)
@@ -174,7 +178,25 @@ export function useQuiz(election) {
     loadPresQs
       .then(presQs => dispatch({ type: "SET_QUESTIONS", payload: presQs }))
       .catch(err => console.error("Error loading questions:", err));
-  }, [election, config.presVotesUrl, config.questionTypes]);
+  }, [election, config.regional, config.presVotesUrl, config.questionTypes]);
+
+  // Regional elections: questions depend on the selected region.
+  // Skipped when a restore already loaded them (loadedRegionId matches).
+  const loadedRegionId = state.loadedRegionId;
+  useEffect(() => {
+    if (!election || !config.regional || !regionId || loadedRegionId === regionId) return;
+
+    let cancelled = false;
+    loadRegionalData(config.regionalVotesUrl)
+      .then(data => {
+        if (cancelled) return;
+        const region = getRegion(data, regionId);
+        if (!region) throw new Error(`Unknown region ${regionId}`);
+        dispatch({ type: "SET_QUESTIONS", payload: buildRegionalQuestions(region), regionId });
+      })
+      .catch(err => console.error("Error loading regional questions:", err));
+    return () => { cancelled = true; };
+  }, [election, regionId, loadedRegionId, config.regional, config.regionalVotesUrl]);
 
   // Computed: unique question indices
   const uniqueIndices = useMemo(() => computeUniqueIndices(state.questions), [state.questions]);

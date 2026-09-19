@@ -14,6 +14,7 @@ import {
  * - showGenericIntro, setShowGenericIntro
  * - showElectionIntro, setShowElectionIntro
  * - electionIntroInitialized
+ * - regionId, setRegionId, handleSelectRegion (regional elections)
  * - handleGenericIntroContinue, handleSelectElection, handleStartQuiz
  * - reset()
  */
@@ -31,6 +32,9 @@ export function useElectionFlow() {
   // Initial state is false; will be set via effect when config loads (for pre-selected election)
   const [showElectionIntro, setShowElectionIntro] = useState(false);
   const [electionIntroInitialized, setElectionIntroInitialized] = useState(false);
+
+  // Regional elections: region picked before the quiz starts (e.g. "r1")
+  const [regionId, setRegionId] = useState(null);
 
   // Initialize election intro for pre-selected election (if config is available)
   useEffect(() => {
@@ -51,12 +55,18 @@ export function useElectionFlow() {
     window.scrollTo(0, 0);
   }, []);
 
+  const handleSelectRegion = useCallback((id) => {
+    setRegionId(id);
+    window.scrollTo(0, 0);
+  }, []);
+
   const handleStartQuiz = useCallback(() => {
     setShowElectionIntro(false);
     window.scrollTo(0, 0);
   }, []);
 
   const reset = useCallback(() => {
+    setRegionId(null);
     if (preSelectedElectionId) {
       setShowElectionIntro(shouldShowElectionIntro({}));
     } else {
@@ -75,6 +85,9 @@ export function useElectionFlow() {
     showElectionIntro,
     setShowElectionIntro,
     electionIntroInitialized,
+    regionId,
+    setRegionId,
+    handleSelectRegion,
     handleGenericIntroContinue,
     handleSelectElection,
     handleStartQuiz,

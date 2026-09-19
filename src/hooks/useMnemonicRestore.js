@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { decodeFromMnemonic, isValidMnemonic } from "../utils/mnemonicCodec";
+import { loadRegionalData, getRegion, buildRegionalQuestions } from "../services/regionalService";
 import { isVersionGreaterThan, compareVersions } from "../utils/versionUtils";
 
 /**
@@ -35,6 +36,7 @@ export function useMnemonicRestore({
   setShowTurnstileOverlay,
   setTurnstileVerified,
   setShowElectionIntro,
+  setRegionId,
   quizDataVersion,
 }) {
   const [restoredFromMnemonic, setRestoredFromMnemonic] = useState(false);
@@ -56,14 +58,32 @@ export function useMnemonicRestore({
       return false;
     }
 
-    const decoded = decodeFromMnemonic(phrase, wordList);
+    const isRegional = !!config?.regional;
+    const decoded = decodeFromMnemonic(phrase, wordList, { withRegion: isRegional });
     if (!decoded) {
       console.warn("Failed to decode mnemonic:", phrase);
       return false;
     }
 
-    // Wait for questions to be loaded if not yet available
-    if (state.questions.length === 0) {
+    // Regional: the phrase carries the region, so load that region's questions first
+    let questions = state.questions;
+    if (isRegional) {
+      try {
+        const region = getRegion(await loadRegionalData(config.regionalVotesUrl), decoded.regionId);
+        if (!region) {
+          console.warn("Unknown region in mnemonic:", decoded.regionId);
+          return false;
+        }
+        questions = buildRegionalQuestions(region);
+      } catch (err) {
+        console.error("Error loading region for mnemonic:", err);
+        return false;
+      }
+      // regionId in the action lets useQuiz skip its own (state-resetting) load
+      dispatch({ type: "SET_QUESTIONS", payload: questions, regionId: decoded.regionId });
+      setRegionId?.(decoded.regionId);
+    } else if (state.questions.length === 0) {
+      // Wait for questions to be loaded if not yet available
       console.warn("Questions not loaded yet, cannot restore");
       return false;
     }
@@ -74,9 +94,10 @@ export function useMnemonicRestore({
     try {
       // Use computeAndDispatchResults to fetch and compute results
       const computeResult = await computeAndDispatchResults({
-        questions: state.questions,
+        questions,
         answers: decoded.answers,
         weights: decoded.weights,
+        regionId: decoded.regionId,
       });
 
       // Use the version returned directly from the fetch — quizDataVersion prop

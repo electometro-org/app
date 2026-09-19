@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { buildCompactResponses } from '../../src/services/submissionService';
+import { describe, it, expect, vi } from 'vitest';
+import { buildCompactResponses, buildSubmissionPayload } from '../../src/services/submissionService';
 
 const questions = [
   { id: 't1' },
@@ -53,5 +53,18 @@ describe('buildCompactResponses', () => {
       [1]
     );
     expect(result).toHaveProperty('custom_q');
+  });
+});
+
+describe('buildSubmissionPayload region', () => {
+  vi.stubGlobal('localStorage', { getItem: () => 'u1', setItem: () => {} });
+
+  const build = (...extra) => buildSubmissionPayload(
+    questions, ['answers.agreeCapitalized', null, null], [1, 1, 1], null, 'fp', 'tok', 'turnstile', false, '1.0.0', ...extra
+  );
+
+  it('adds region_id only for regional submissions', () => {
+    expect(build('r2').region_id).toBe('r2');
+    expect('region_id' in build()).toBe(false);
   });
 });

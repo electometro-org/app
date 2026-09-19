@@ -38,6 +38,7 @@ export function useTopicImportance({ state, dispatch, computeAndDispatchResults 
         topicMap.set(q.topic_key, {
           label: q.tema || q.topic_key,
           topic_key: q.topic_key,
+          inlineText: !!q.inlineText,
           questions: [],
         });
       }

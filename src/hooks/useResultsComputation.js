@@ -10,6 +10,7 @@ import {
   filterPartiesByRound as _filterPartiesByRound,
 } from "../services/resultsService";
 import { fetchJsonSafe as _fetchJsonSafe } from "../services/quizService";
+import { loadRegionalData, toVotesData } from "../services/regionalService";
 
 const defaultServices = {
   fetchJsonSafe: _fetchJsonSafe,
@@ -23,7 +24,7 @@ const defaultServices = {
   filterPartiesByRound: _filterPartiesByRound,
 };
 
-export function useResultsComputation({ state, dispatch, config, selectedRound, services = defaultServices }) {
+export function useResultsComputation({ state, dispatch, config, selectedRound, regionId = null, services = defaultServices }) {
   const {
     fetchJsonSafe,
     isImputedNeutral,
@@ -47,7 +48,13 @@ export function useResultsComputation({ state, dispatch, config, selectedRound, 
   // Clear cache when election/config changes
   useEffect(() => {
     votesDataCacheRef.current = {};
-  }, [config?.partyVotesUrl, config?.presVotesUrl]);
+  }, [config?.partyVotesUrl, config?.presVotesUrl, config?.regionalVotesUrl]);
+
+  // Regional elections: the selected region's data, shaped like the presidential votes file
+  const getRegionalVotes = async (overrideRegionId = regionId) => {
+    const data = await loadRegionalData(config.regionalVotesUrl);
+    return toVotesData(data, overrideRegionId);
+  };
 
   const getVotesData = async (url) => {
     if (!url) return null;
@@ -96,6 +103,21 @@ export function useResultsComputation({ state, dispatch, config, selectedRound, 
         .catch(err => console.error("Error fetching votes:", err));
     };
 
+    if (type === "presidential" && config.regional) {
+      getRegionalVotes()
+        .then(data => {
+          const obj = data?.candidates?.[entity.id];
+          if (!obj) {
+            console.error("No data for", entity);
+            return;
+          }
+          const userAnswersMap = buildUserAnswersWithRaw(state.questions, state.answers, state.weights);
+          dispatch({ type: "SET_ENTITY_DETAILS", payload: buildEntityDetails(obj, userAnswersMap, type, data) });
+        })
+        .catch(err => console.error("Error fetching regional votes:", err));
+      return;
+    }
+
     if (type === "presidential") {
       // Compact format: entity.id is "c1"; Legacy: entity.name is "Full Name (Party)"
       fetchAndDispatchDetails(config.presVotesUrl, data =>
@@ -137,13 +159,15 @@ export function useResultsComputation({ state, dispatch, config, selectedRound, 
    * Extract shared logic: build user answers, fetch votes, compute and dispatch results
    * Used by: topic-importance continue, mnemonic restore, and other entry points
    */
-  const computeAndDispatchResults = async ({ questions, answers, weights }) => {
+  const computeAndDispatchResults = async ({ questions, answers, weights, regionId: overrideRegionId }) => {
     const userAnswers = buildUserAnswers(questions, answers, weights);
 
     const partyPromise = config.partyVotesUrl ? fetchJsonSafe(config.partyVotesUrl) : Promise.resolve(null);
-    const presPromise = (config.questionTypes?.includes("presidential") && config.presVotesUrl)
-      ? fetchJsonSafe(config.presVotesUrl)
-      : Promise.resolve(null);
+    const presPromise = config.regional
+      ? getRegionalVotes(overrideRegionId ?? regionId)
+      : (config.questionTypes?.includes("presidential") && config.presVotesUrl)
+        ? fetchJsonSafe(config.presVotesUrl)
+        : Promise.resolve(null);
 
     try {
       const [partyData, presData] = await Promise.all([partyPromise, presPromise]);

@@ -29,13 +29,16 @@ export function QuizProvider({ children }) {
     showElectionIntro,
     setShowElectionIntro,
     handleGenericIntroContinue,
+    regionId,
+    setRegionId,
+    handleSelectRegion,
     handleSelectElection,
     handleStartQuiz,
     reset: resetElectionFlow,
   } = useElectionFlow();
 
   // Core quiz state management (depends on election)
-  const { state, dispatch, config, electionConfigs, enabledElections } = useQuiz(election);
+  const { state, dispatch, config, electionConfigs, enabledElections } = useQuiz(election, regionId);
 
   // Round selection state (needed before useResultsComputation)
   const [selectedRoundId, setSelectedRoundId] = useState(null);
@@ -84,7 +87,7 @@ export function QuizProvider({ children }) {
     handleEntityClick,
     computeAndDispatchResults,
     reset: resetResults,
-  } = useResultsComputation({ state, dispatch, config, selectedRound });
+  } = useResultsComputation({ state, dispatch, config, selectedRound, regionId });
 
   // 5. Topic importance (uses computeAndDispatchResults from step 4)
   const {
@@ -115,6 +118,7 @@ export function QuizProvider({ children }) {
   } = useDemographicsAndSubmission({
     state,
     quizDataVersion,
+    regionId,
     setShowTopicImportance,
     setGate,
     dispatch,
@@ -145,6 +149,7 @@ export function QuizProvider({ children }) {
     setShowTurnstileOverlay,
     setTurnstileVerified,
     setShowElectionIntro,
+    setRegionId,
     quizDataVersion,
   });
 
@@ -247,12 +252,14 @@ export function QuizProvider({ children }) {
     rounds,
     selectedRound,
     handleRoundChange: setSelectedRoundId,
+    regionId,
+    handleSelectRegion,
     handleSelectElection,
     handleStartQuiz,
     handleGenericIntroContinue,
   }), [
     election, setElection, config, electionConfigs, enabledElections, branding,
-    rounds, selectedRound, handleSelectElection, handleStartQuiz, handleGenericIntroContinue,
+    rounds, selectedRound, regionId, handleSelectRegion, handleSelectElection, handleStartQuiz, handleGenericIntroContinue,
   ]);
 
   // --- QuizFlowContext value ---

@@ -30,3 +30,9 @@ COMMENT ON TABLE quiz_answers IS 'Stores user responses from the political quiz'
 COMMENT ON COLUMN quiz_answers.user_id IS 'Client-generated user identifier stored in localStorage';
 COMMENT ON COLUMN quiz_answers.responses IS 'Map of question_id to [vote_numeric, weight]';
 COMMENT ON COLUMN quiz_answers.demographics IS 'Optional demographic information provided by user';
+
+-- Regional elections: region the answers belong to (quiz ids are region-specific).
+-- Only sent by regional submissions; NULL for national quizzes.
+ALTER TABLE quiz_answers ADD COLUMN IF NOT EXISTS region_id TEXT;
+CREATE INDEX IF NOT EXISTS idx_quiz_answers_region_id ON quiz_answers(region_id);
+COMMENT ON COLUMN quiz_answers.region_id IS 'Region id (e.g. r1) for regional elections';

@@ -32,9 +32,11 @@ const VALID_SLOTS = ['top', 'bottom', 'left', 'right'];
 /**
  * Determine current quiz phase
  */
-function getQuizPhase(state, showGenericIntro, showElectionIntro, showTopicImportance, showDemographics, turnstileVerified) {
+function getQuizPhase(state, showGenericIntro, showElectionIntro, showTopicImportance, showDemographics, turnstileVerified, awaitingRegion = false) {
   if (showGenericIntro) return 'intro';
   if (showElectionIntro) return 'election-intro';
+  // Regional elections: the region picker shows while questions from a previous run may still be in state
+  if (awaitingRegion) return 'region-select';
   if (!state.questions || state.questions.length === 0) return 'loading';
   if (showTopicImportance) return 'topic-importance';
   if (showDemographics && !turnstileVerified) return 'demographics';
@@ -49,7 +51,7 @@ function getQuizPhase(state, showGenericIntro, showElectionIntro, showTopicImpor
  * Provides widget configuration and layout state to all widgets.
  */
 export function WidgetProvider({ children }) {
-  const { config, election } = useElectionContext();
+  const { config, election, regionId } = useElectionContext();
   const { state, displayIndex, totalQuestions } = useQuizFlowContext();
   const { showGenericIntro, showElectionIntro, showTopicImportance, showDemographics, turnstileVerified } = useUIContext();
 
@@ -514,7 +516,7 @@ export function WidgetProvider({ children }) {
     currentQuestionIndex: state.currentQuestionIndex,
     totalQuestions: state.questions?.length || totalQuestions || 0,
     displayIndex: displayIndex || state.currentQuestionIndex + 1,
-    phase: getQuizPhase(state, showGenericIntro, showElectionIntro, showTopicImportance, showDemographics, turnstileVerified),
+    phase: getQuizPhase(state, showGenericIntro, showElectionIntro, showTopicImportance, showDemographics, turnstileVerified, !!config?.regional && !regionId),
     election,
     answers: state.answers,
     weights: state.weights,
@@ -534,6 +536,8 @@ export function WidgetProvider({ children }) {
     showDemographics,
     turnstileVerified,
     election,
+    config?.regional,
+    regionId,
   ]);
 
   // Get widgets from config with defaults (excluding deleted ones)

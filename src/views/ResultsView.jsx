@@ -1961,7 +1961,9 @@ function ResultsAnalysisPanel({
       const text = d.question_key ? t(d.question_key) : (baseQuestion?.question || d.question || "");
       const topicKey = baseQuestion?.topic_key || null;
       const topicFallback = baseQuestion?.tema || d.tema || text;
-      const topicLabel = topicKey ? (t(topicKey) === topicKey ? topicFallback : t(topicKey)) : topicFallback;
+      const topicLabel = (topicKey && !baseQuestion?.inlineText)
+        ? (t(topicKey) === topicKey ? topicFallback : t(topicKey))
+        : topicFallback;
       const userVoteKey = numericToVoteKey[String(userVal)] || null;
       const candidateVoteKey = numericToVoteKey[String(candidateVal)] || null;
 

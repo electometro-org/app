@@ -34,7 +34,9 @@ ALLOWED_ORIGIN= "CHANGE.ME"
 SUPABASE_URL = "CHANGE.ME"
 
 # Secrets
-# Development: See file ".dev.vars" in project root (Use TEST key:values!!!)
+# Development: See file ".env.local" in project root (Use TEST key:values!!!)
+# Values in .env.local also override [vars] above for local dev (e.g. ENVIRONMENT=qa).
+# (If a ".dev.vars" file exists, Wrangler uses it instead and ignores .env* files.)
 # QA/PROD: Set these secrets using Wrangler CLI
 # wrangler secret put TURNSTILE_SECRET_KEY
 # wrangler secret put SUPABASE_ANON_KEY

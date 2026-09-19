@@ -287,6 +287,25 @@ Environment variables are read by Vite (`import.meta.env`). Copy from `.env.exam
 | `VITE_SHOW_ELECTION_INTRO` | Toggle the election-specific intro before the quiz. |
 | `VITE_TOLGEE_QA_TRANSLATIONS` | Use the `/qa` data/translation prefix. |
 
+### Env files and overrides
+
+Vite loads these files in order; **later files override earlier ones** for the same key:
+
+1. `.env` — always loaded.
+2. `.env.local` — always loaded, gitignored, for machine-specific values.
+3. `.env.[mode]` — e.g. `.env.development` (`npm run dev`); skipped for other modes.
+4. `.env.[mode].local` — mode-specific and local-only (highest priority of the files).
+
+Real shell variables beat every file (`VITE_FOO=x npm run dev`). Only `VITE_`-prefixed keys reach client code.
+
+**Wrangler reads `.env.local` too.** For local Worker development (`wrangler dev`, or the Cloudflare
+Vite plugin used by `npm run dev`), Wrangler loads the same `.env*` files, and their values **override
+the `[vars]` in `wrangler.toml`**. Put TEST secrets there, and use it to override non-secret vars on demand,
+e.g. `ENVIRONMENT=qa` to exercise the QA-only paths (such as the SEO short-circuit) locally.
+If a `.dev.vars` file exists, Wrangler uses it and ignores the `.env*` files. On deployed Workers only
+`wrangler.toml` / secrets apply; to override a var for one deploy use
+`wrangler deploy --var ENVIRONMENT:qa`.
+
 Application flow flags are resolved in [`src/config/appConfig.js`](src/config/appConfig.js); branding
 in [`src/config/branding.js`](src/config/branding.js). Adding a new election is a matter of dropping a
 config file into [`src/elections/`](src/elections/) and registering it in

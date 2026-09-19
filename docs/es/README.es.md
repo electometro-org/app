@@ -79,6 +79,12 @@ Consulta la discusion *Conventions* en [GitHub Discussions → Docs](https://git
 Las variables principales viven en `.env.example`: analytics, Turnstile, hCaptcha,
 `VITE_I18N_URL`, `VITE_ELECTIONS_DATA_URL`, `VITE_ELECTION_ID` y flags de branding/intro.
 
+Orden de carga de Vite (los ultimos sobrescriben a los primeros): `.env` → `.env.local` →
+`.env.[modo]` (p. ej. `.env.development`) → `.env.[modo].local`. Las variables reales del shell
+tienen prioridad sobre todos los archivos. Wrangler tambien lee `.env.local` en desarrollo local y sus
+valores **sobrescriben los `[vars]` de `wrangler.toml`** (p. ej. `ENVIRONMENT=qa`). Si existe
+`.dev.vars`, Wrangler usa ese archivo e ignora los `.env*`.
+
 ## Hoja de Ruta
 
 La hoja de ruta vive en ROADMAP.

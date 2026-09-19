@@ -12,11 +12,15 @@
  *
  * Elections can provide a custom 256-word list via config.mnemonicWordList
  *
+ * Regional elections: an optional leading word encodes the region number (r<N> -> word N),
+ * so a phrase restores both the region and its region-specific question set.
+ *
  * Version suffix support:
  * - Encoding with version appends "-v1_2_3" suffix to the mnemonic phrase
  * - Decoding extracts version from suffix if present
  */
 
+import { regionIdFromNumber, regionNumber } from "../services/regionalService";
 import {
   encodeVersionForMnemonic,
   decodeVersionFromMnemonic,
@@ -119,9 +123,10 @@ export function isValidWordList(wordList) {
  * @param {Array} weights - Array of weights (1 = normal, 2 = important)
  * @param {string[]} [wordList] - Optional custom 256-word list (defaults to DEFAULT_WORD_LIST)
  * @param {string} [version] - Optional version string (e.g., "1.2.3") to append as suffix
+ * @param {{ regionId?: string }} [options] - Regional elections: region id to prepend as a word
  * @returns {string} Hyphen-separated mnemonic phrase, optionally with version suffix
  */
-export function encodeToMnemonic(answers, weights, wordList = DEFAULT_WORD_LIST, version = null) {
+export function encodeToMnemonic(answers, weights, wordList = DEFAULT_WORD_LIST, version = null, options = {}) {
   if (!Array.isArray(answers) || answers.length === 0) {
     return "";
   }
@@ -159,6 +164,12 @@ export function encodeToMnemonic(answers, weights, wordList = DEFAULT_WORD_LIST,
     result.push(words[byte]);
   }
 
+  if (options.regionId) {
+    const n = regionNumber(options.regionId);
+    if (n === null || n > 255) return "";
+    result.unshift(words[n]);
+  }
+
   let mnemonic = result.join("-");
 
   // Append version suffix if provided
@@ -176,9 +187,10 @@ export function encodeToMnemonic(answers, weights, wordList = DEFAULT_WORD_LIST,
  * Decode mnemonic phrase to quiz state
  * @param {string} phrase - Hyphen-separated mnemonic phrase (optionally with version suffix)
  * @param {string[]} [wordList] - Optional custom 256-word list (defaults to DEFAULT_WORD_LIST)
- * @returns {{ answers: Array, weights: Array, version: string | null } | null} Decoded state or null if invalid
+ * @param {{ withRegion?: boolean }} [options] - Regional elections: first word is the region
+ * @returns {{ answers: Array, weights: Array, version: string | null, regionId?: string } | null} Decoded state or null if invalid
  */
-export function decodeFromMnemonic(phrase, wordList = DEFAULT_WORD_LIST) {
+export function decodeFromMnemonic(phrase, wordList = DEFAULT_WORD_LIST, options = {}) {
   if (!phrase || typeof phrase !== "string") {
     return null;
   }
@@ -220,7 +232,12 @@ export function decodeFromMnemonic(phrase, wordList = DEFAULT_WORD_LIST) {
     bytes.push(index);
   }
 
-  if (bytes.length === 0) {
+  let regionId = null;
+  if (options.withRegion) {
+    regionId = regionIdFromNumber(bytes.shift());
+  }
+
+  if (bytes.length === 0 || (options.withRegion && !regionId)) {
     return null;
   }
 
@@ -256,7 +273,7 @@ export function decodeFromMnemonic(phrase, wordList = DEFAULT_WORD_LIST) {
     i += 3;
   }
 
-  return { answers, weights, version };
+  return options.withRegion ? { answers, weights, version, regionId } : { answers, weights, version };
 }
 
 /**

@@ -162,3 +162,31 @@ describe('getWordList', () => {
     expect(getWordList()).not.toBe(DEFAULT_WORD_LIST);
   });
 });
+
+describe('regional mnemonics', () => {
+  const answers = [A, N, 'answers.disagreeCapitalized', null, A];
+  const weights = [1, 2, 1, 1, 2];
+
+  it('round-trips region, answers, weights and version', () => {
+    const phrase = encodeToMnemonic(answers, weights, DEFAULT_WORD_LIST, '1.0.0', { regionId: 'r3' });
+    expect(phrase.split('-')[0]).toBe(DEFAULT_WORD_LIST[3]);
+    expect(isValidMnemonic(phrase)).toBe(true);
+
+    const decoded = decodeFromMnemonic(phrase, DEFAULT_WORD_LIST, { withRegion: true });
+    expect(decoded.regionId).toBe('r3');
+    expect(decoded.version).toBe('1.0.0');
+    expect(decoded.answers.slice(0, 5)).toEqual(answers);
+    expect(decoded.weights.slice(0, 5)).toEqual([1, 2, 1, 1, 1].map((w, i) => (i === 4 ? 2 : w)));
+  });
+
+  it('keeps the national format unchanged when no region is given', () => {
+    const plain = encodeToMnemonic(answers, weights);
+    const decoded = decodeFromMnemonic(plain);
+    expect(decoded.regionId).toBeUndefined();
+    expect(decoded.answers.slice(0, 5)).toEqual(answers);
+  });
+
+  it('refuses to encode an invalid region id', () => {
+    expect(encodeToMnemonic(answers, weights, DEFAULT_WORD_LIST, null, { regionId: 'abc' })).toBe('');
+  });
+});

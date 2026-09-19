@@ -15,11 +15,13 @@ import LanguageSwitcher from "./components/LanguageSwitcher.jsx";
 import GenericIntroView from "./views/GenericIntroView";
 import ElectionSelector from "./views/ElectionSelector";
 import ElectionIntroView from "./views/ElectionIntroView";
+import RegionSelectorView from "./views/RegionSelectorView";
 import QuizView from "./views/QuizView";
 import TopicImportanceView from "./views/TopicImportanceView";
 import ResultsView from "./views/ResultsView";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { useQuizContext } from "./contexts/useQuizContext";
+import { useRegionalData } from "./hooks/useRegionalData";
 import { BackgroundLayer } from "./backgrounds";
 import { WidgetLayout } from "./widgets";
 import "./App.css";
@@ -89,7 +91,11 @@ function AppContent() {
     handleGenericIntroContinue,
     handleSelectElection,
     handleStartQuiz,
+    handleSelectRegion,
     restoreFromMnemonic,
+
+    // Regional elections
+    regionId,
 
     // Round selection
     rounds,
@@ -97,13 +103,18 @@ function AppContent() {
     handleRoundChange,
   } = useQuizContext();
 
+  // Regional elections: name of the selected region (for the badge and demographics prefill)
+  const { regions: regionList } = useRegionalData(config?.regional ? config.regionalVotesUrl : null);
+  const regionName = regionList.find(r => r.id === regionId)?.name ?? null;
+
   // Handle URL mnemonic restore
   const hasAttemptedRestore = useRef(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     // Only attempt restore once and when questions are loaded
-    if (hasAttemptedRestore.current || state.questions.length === 0) return;
+    // (regional restores load their own region's questions, so they don't wait)
+    if (hasAttemptedRestore.current || (!config?.regional && state.questions.length === 0)) return;
 
     const mnemonicParam = searchParams.get("r");
     if (!mnemonicParam) return;
@@ -126,7 +137,7 @@ function AppContent() {
         setSearchParams(searchParams, { replace: true });
       }
     });
-  }, [searchParams, setSearchParams, state.questions.length, restoreFromMnemonic, config?.mnemonicWordList]);
+  }, [searchParams, setSearchParams, state.questions.length, restoreFromMnemonic, config?.mnemonicWordList, config?.regional]);
 
   // Determine which view to show
   const renderMainContent = () => {
@@ -160,14 +171,36 @@ function AppContent() {
           rounds={rounds}
           selectedRound={selectedRound}
           onRoundChange={handleRoundChange}
+          fallbackIntro={config?.intro}
         />
       );
     }
 
+    // Step 3b: Region picker (regional elections only, before the quiz starts)
+    if (config?.regional && !regionId) {
+      return (
+        <RegionSelectorView
+          branding={branding}
+          regionalVotesUrl={config.regionalVotesUrl}
+          onSelectRegion={handleSelectRegion}
+        />
+      );
+    }
+
+    // Regional questions are per region: wait until the selected region's set is loaded
+    const questionsReady = state.questions.length > 0
+      && (!config?.regional || state.loadedRegionId === regionId);
+
     // Step 4+: Quiz flow (questions, demographics, results)
     return (
       <div className="election-content-area">
-        {state.questions.length === 0 ? (
+        {config?.regional && regionName && (
+          <div className="region-badge" title={regionName}>
+            <span className="region-badge__dot" aria-hidden="true" />
+            {regionName}
+          </div>
+        )}
+        {!questionsReady ? (
           <h2>{t('common.loading')}</h2>
         ) : state.currentQuestionIndex < state.questions.length ? (
           <QuizView
@@ -216,7 +249,7 @@ function AppContent() {
                   region: demographics.region,
                   city: demographics.city,
                   analyticsConsent: demographics.analyticsConsent
-                } : null}
+                } : regionName ? { region: regionName } : null}
               />
             ) : (
               <ErrorBoundary
@@ -253,6 +286,7 @@ function AppContent() {
                 branding={branding}
                 restoredFromMnemonic={restoredFromMnemonic}
                 quizDataVersion={quizDataVersion}
+                regionId={regionId}
                 restoredVersion={restoredVersion}
                 versionMismatchType={versionMismatchType}
                 onResultTypeChange={setSelectedResultType}

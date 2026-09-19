@@ -84,6 +84,7 @@ export default function ResultsView({
   branding,
   restoredFromMnemonic,
   quizDataVersion,
+  regionId,
   restoredVersion,
   versionMismatchType,
   onResultTypeChange,
@@ -264,7 +265,10 @@ export default function ResultsView({
   const handleSaveResults = () => {
     const wordList = config?.mnemonicWordList;
     // Include quizDataVersion in the mnemonic
-    const mnemonic = encodeToMnemonic(answers, weights, wordList, quizDataVersion);
+    const mnemonic = encodeToMnemonic(
+      answers, weights, wordList, quizDataVersion,
+      config?.regional ? { regionId } : {}
+    );
     if (!mnemonic) return;
 
     // Update URL hash with mnemonic

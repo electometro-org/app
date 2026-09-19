@@ -23,7 +23,7 @@ export default function ElectionSelector({ onSelectElection, branding }) {
           key={election.id}
           onClick={() => handleSelect(election.id)}
         >
-          {t(election.label)}
+          {t(election.label, election.defaultLabel)}
         </button>
       ))}
     </div>

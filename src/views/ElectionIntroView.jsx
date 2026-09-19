@@ -4,10 +4,15 @@ import { useTranslate } from "@tolgee/react";
 import { BrandLogoAlt } from "../components/BrandImage";
 import { isValidMnemonic } from "../utils/mnemonicCodec";
 
-export default function ElectionIntroView({ branding, electionId, electionLabel, onStart, onRestore, mnemonicWordList, rounds, selectedRound, onRoundChange }) {
+export default function ElectionIntroView({ branding, electionId, electionLabel, onStart, onRestore, mnemonicWordList, rounds, selectedRound, onRoundChange, fallbackIntro }) {
   const { t } = useTranslate();
-  const description1 = t(`welcome.${electionId}.description1`);
-  const description2 = t(`welcome.${electionId}.description2`);
+  // Elections without Tolgee copy yet can ship fallback text in their config (config.intro)
+  const translateOr = (key, fallback, params) => {
+    const value = t(key, params);
+    return fallback && value === key ? fallback : value;
+  };
+  const description1 = translateOr(`welcome.${electionId}.description1`, fallbackIntro?.description1);
+  const description2 = translateOr(`welcome.${electionId}.description2`, fallbackIntro?.description2);
   const [showFirstDescription, setShowFirstDescription] = useState(false);
   const [showSecondDescription, setShowSecondDescription] = useState(false);
   const secondDescriptionRef = useRef(null);
@@ -104,7 +109,7 @@ export default function ElectionIntroView({ branding, electionId, electionLabel,
   return (
     <div className="intro-container">
       <BrandLogoAlt branding={branding} />
-      <h2>{t(`welcome.${electionId}.title`, { election: t(electionLabel) })}</h2>
+      <h2>{translateOr(`welcome.${electionId}.title`, fallbackIntro?.title, { election: t(electionLabel) })}</h2>
       <p className="election-intro-pitch-inline">
         <span
           className={`election-intro-line election-intro-line--first ${showFirstDescription ? 'is-visible' : ''}`}

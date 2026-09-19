@@ -35,6 +35,24 @@ export default {
   presVotesUrl: null,
   isPresidentialElection: false,
 
+  // Same widgets as peru_2026, except where overridden below
+  widgets: peru2026.widgets.map(widget => {
+    if (widget.type === "progress-indicator") {
+      return {
+        ...widget,
+        // Edit these positions independently of peru_2026 (currently copied from it)
+        layouts: {
+          lg:  { x: 34, y: 10, w: 28, h: 4 },
+          md:  { x: 20, y: 10, w: 32, h: 6 },
+          sm:  { x: 1, y: 18, w: 46, h: 6 },
+          xs:  { x: 2, y: 18, w: 28, h: 4 },
+          xxs: { x: 3, y: 12, w: 18, h: 5 },
+        },
+      };
+    }
+    return widget;
+  }),
+
   rounds: [],
   questionTypes: ["regional"],
   // Regional candidates reuse the candidate ranking pipeline

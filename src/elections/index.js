@@ -2,12 +2,14 @@
 // Add new elections by importing them here
 
 import peru2026 from "./peru_2026";
+import peruRegional2026 from "./peru_regional_2026";
 import chile2025 from "./chile_2025";
 import { configuredElectionIds } from "../config/appConfig";
 
 // All available elections
 const allElections = [
   peru2026,
+  peruRegional2026,
   chile2025,
 ];
 

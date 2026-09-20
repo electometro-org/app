@@ -2,8 +2,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 8px;
-  line-height: 0;
+  gap: 8px;
+  padding: 6px 12px;
+  line-height: 1;
+}
+
+.hamburger-label {
+  font-size: 18px;
 }
 
 .hamburger-actions {

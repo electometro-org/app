@@ -42,14 +42,14 @@
      --q-question-scale  the question text
      --q-header-scale    the red band ([k/n] topic + decide.pe)
      --q-option-scale    answer buttons and Back/Skip
-     --q-option-width    width of the answer buttons (1 = the old, wider size)
+     --q-option-width    width of the answer buttons (1 = the old, widest size)
    Try them live: document.documentElement.style.setProperty('--q-text-scale', 0.92) */
 [data-election="peru_2026"] {
   --q-text-scale: 1;
-  --q-question-scale: 1;
+  --q-question-scale: 0.8;
   --q-header-scale: 1;
   --q-option-scale: 1;
-  --q-option-width: 0.85;
+  --q-option-width: 0.6;
 }
 
 /* Question box. Sizes are fluid (clamp on viewport height/width): compact on short screens so the
@@ -123,14 +123,18 @@
 }
 
 [data-election="peru_2026"] .question-options {
+  --q-option-fs: calc(clamp(0.95rem, 0.1rem + 1.75vh, 1.25rem) * var(--q-text-scale, 1) * var(--q-option-scale, 1));
+  font-size: var(--q-option-fs);
   width: 100%;
   max-width: calc(clamp(360px, 30vw, 520px) * var(--q-option-width, 1));
+  /* Never narrower than the longest label ("No estoy de acuerdo") needs, whatever the width knob says */
+  min-width: min(100%, calc(20ch + 52px));
 }
 
 [data-election="peru_2026"] .option-button {
   margin: clamp(6px, 1vh, 12px) 0;
   padding: clamp(10px, 1.5vh, 18px) 24px;
-  font-size: calc(clamp(0.95rem, 0.1rem + 1.75vh, 1.25rem) * var(--q-text-scale, 1) * var(--q-option-scale, 1));
+  font-size: var(--q-option-fs);
 }
 
 [data-election="peru_2026"] .back-and-skip-buttons {
@@ -179,13 +183,13 @@
   }
 
   [data-election="peru_2026"] .question-options {
+    --q-option-fs: calc(clamp(0.95rem, 2.3vh - 2.5px, 1.6rem) * var(--q-text-scale, 1) * var(--q-option-scale, 1));
     max-width: calc(clamp(360px, 32vw, 640px) * var(--q-option-width, 1));
   }
 
   [data-election="peru_2026"] .option-button {
     margin: clamp(6px, 2.35vh - 10.3px, 16px) 0;
     padding: clamp(10px, 4.2vh - 21px, 20px) 24px;
-    font-size: calc(clamp(0.95rem, 2.3vh - 2.5px, 1.6rem) * var(--q-text-scale, 1) * var(--q-option-scale, 1));
   }
 
   [data-election="peru_2026"] .back-and-skip-buttons {

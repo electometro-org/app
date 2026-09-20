@@ -165,20 +165,30 @@ export default function QuizView({
 
   return (
     <>
-      <div className={`quiz-header ${branding?.title ? 'quiz-header--branded' : ''}`}>
-        {branding?.title && <span className="quiz-header__title">{branding.title}</span>}
-        <h3 id={"questions-progress-counter"}>{displayIndex} / {totalQuestions}</h3>
-        <BrandLogo
-          branding={branding}
-          {...(branding?.title ? { width: 44, height: 44, className: "quiz-header__logo" } : {})}
-        />
-      </div>
+      {!showTopicHeader && (
+        <div className={`quiz-header ${branding?.title ? 'quiz-header--branded' : ''}`}>
+          {branding?.title && <span className="quiz-header__title">{branding.title}</span>}
+          <h3 id={"questions-progress-counter"}>{displayIndex} / {totalQuestions}</h3>
+          <BrandLogo
+            branding={branding}
+            {...(branding?.title ? { width: 44, height: 44, className: "quiz-header__logo" } : {})}
+          />
+        </div>
+      )}
 
       <DockingZone id="above-question" />
 
       <div className="question-content" key={question.id || displayIndex}>
         <div className="question-text-container">
-          {topicHeader && <div className="question-topic-header">{topicHeader}</div>}
+          {showTopicHeader && (
+            <div className="question-topic-header">
+              <span className="question-topic-header__topic">{topicHeader}</span>
+              <span className="question-topic-header__brand">
+                {branding?.title && <span className="question-topic-header__title">{branding.title}</span>}
+                <BrandLogo branding={branding} width={26} height={26} className="question-topic-header__logo" />
+              </span>
+            </div>
+          )}
           <h2 ref={questionTitleRef}>{questionText}</h2>
         </div>
       </div>

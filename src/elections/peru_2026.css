@@ -59,6 +59,9 @@
 }
 
 [data-election="peru_2026"] .question-topic-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin: 0 0 8px;
   padding-bottom: 6px;
   border-bottom: 1px solid var(--buttonShadow);
@@ -66,7 +69,29 @@
   font-weight: 700;
   letter-spacing: 0.02em;
   text-align: left;
+}
+
+/* [k/n] Topic on the left, in the accent color */
+[data-election="peru_2026"] .question-topic-header__topic {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-right: 10px;
   color: var(--accent);
+  overflow-wrap: anywhere;
+}
+
+/* decide.pe + logo on the right */
+[data-election="peru_2026"] .question-topic-header__brand {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+}
+
+[data-election="peru_2026"] .question-topic-header__logo {
+  width: 26px;
+  height: 26px;
+  margin-left: 6px;
+  object-fit: contain;
 }
 
 [data-election="peru_2026"] .question-text-container h2 {
@@ -436,16 +461,11 @@
     padding: 10px 14px;
   }
 
-  [data-election="peru_2026"] .quiz-header--branded,
   [data-election="peru_2026"] .quiz-progress,
   [data-election="peru_2026"] .question-options {
     width: calc(100% - 24px);
     padding-left: 0;
     padding-right: 0;
-  }
-
-  [data-election="peru_2026"] .quiz-header--branded {
-    padding: 0 4px;
   }
 
   [data-election="peru_2026"] .option-button {

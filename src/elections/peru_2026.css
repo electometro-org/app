@@ -42,12 +42,14 @@
      --q-question-scale  the question text
      --q-header-scale    the red band ([k/n] topic + decide.pe)
      --q-option-scale    answer buttons and Back/Skip
+     --q-option-width    width of the answer buttons (1 = the old, wider size)
    Try them live: document.documentElement.style.setProperty('--q-text-scale', 0.92) */
 [data-election="peru_2026"] {
   --q-text-scale: 1;
   --q-question-scale: 1;
   --q-header-scale: 1;
   --q-option-scale: 1;
+  --q-option-width: 0.85;
 }
 
 /* Question box. Sizes are fluid (clamp on viewport height/width): compact on short screens so the
@@ -122,7 +124,7 @@
 
 [data-election="peru_2026"] .question-options {
   width: 100%;
-  max-width: clamp(360px, 30vw, 520px);
+  max-width: calc(clamp(360px, 30vw, 520px) * var(--q-option-width, 1));
 }
 
 [data-election="peru_2026"] .option-button {
@@ -177,7 +179,7 @@
   }
 
   [data-election="peru_2026"] .question-options {
-    max-width: clamp(360px, 32vw, 640px);
+    max-width: calc(clamp(360px, 32vw, 640px) * var(--q-option-width, 1));
   }
 
   [data-election="peru_2026"] .option-button {
@@ -550,9 +552,15 @@
     max-height: none;
   }
 
-  [data-election="peru_2026"] .quiz-progress,
-  [data-election="peru_2026"] .question-options {
+  [data-election="peru_2026"] .quiz-progress {
     width: calc(100% - 24px);
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  [data-election="peru_2026"] .question-options {
+    width: calc((100% - 24px) * var(--q-option-width, 1));
     max-width: none;
     padding-left: 0;
     padding-right: 0;

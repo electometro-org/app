@@ -43,6 +43,7 @@
      --q-header-scale    the red band ([k/n] topic + decide.pe)
      --q-option-scale    answer buttons and Back/Skip
      --q-option-width    width of the answer buttons (1 = the old, widest size)
+     --q-top-offset      space above the quiz-flow screens (quiz, topics, demographics, results)
    Try them live: document.documentElement.style.setProperty('--q-text-scale', 0.92) */
 [data-election="peru_2026"] {
   --q-text-scale: 1;
@@ -50,6 +51,13 @@
   --q-header-scale: 1;
   --q-option-scale: 1;
   --q-option-width: 0.6;
+  /* Full 40px on tall screens, shrinking on short ones so long questions still fit without scrolling */
+  --q-top-offset: clamp(0px, 8vh - 40px, 40px);
+}
+
+/* One element (not .quiz-widget, which exists twice) and only the quiz-flow screens */
+[data-election="peru_2026"] .election-content-area {
+  margin-top: var(--q-top-offset);
 }
 
 /* Question box. Sizes are fluid (clamp on viewport height/width): compact on short screens so the

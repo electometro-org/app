@@ -15,21 +15,66 @@
 
 /* Links-style entries inside the dark dropdown (overrides the global button look) */
 .menu-panel .hamburger-action {
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
-  padding: 10px;
+  padding: 10px 14px 10px 10px;
   font-size: 20px;
   text-align: left;
   color: inherit;
   background: transparent;
   box-shadow: none;
   border: 0 !important;
+  border-radius: 4px;
   cursor: pointer;
+  -webkit-transition: background-color 0.15s;
+  transition: background-color 0.15s;
+}
+
+/* Triangle pointing at the label, in the election accent color */
+.menu-panel .hamburger-action::before {
+  content: "";
+  flex: none;
+  width: 0;
+  height: 0;
+  margin-right: 10px;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 9px solid var(--accent);
+  -webkit-transition: -webkit-transform 0.15s;
+  transition: transform 0.15s;
+}
+
+/* Feedback for pointer hover, keyboard focus and touch (:active covers tap-hover) */
+.menu-panel .hamburger-action:focus,
+.menu-panel .hamburger-action:active {
+  outline: none;
+  background: rgba(255, 255, 255, 0.14);
+  text-decoration: underline;
+}
+
+.menu-panel .hamburger-action:focus::before,
+.menu-panel .hamburger-action:active::before {
+  -webkit-transform: translateX(4px);
+  transform: translateX(4px);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .menu-panel .hamburger-action:hover {
-    color: #a9a9a9;
+    background: rgba(255, 255, 255, 0.14);
     text-decoration: underline;
+  }
+
+  .menu-panel .hamburger-action:hover::before {
+    -webkit-transform: translateX(4px);
+    transform: translateX(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-panel .hamburger-action,
+  .menu-panel .hamburger-action::before {
+    -webkit-transition: none;
+    transition: none;
   }
 }

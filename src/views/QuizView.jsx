@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useTranslate } from "@tolgee/react";
 import { BrandLogo } from "../components/BrandImage";
 import { DockingZone } from "../widgets";
+import ProgressSegments from "../components/ProgressSegments";
 
 export default function QuizView({
   question,
@@ -23,6 +24,7 @@ export default function QuizView({
   minAnswersGate,
   onCloseMinAnswersGate,
   onGoToNextUnanswered,
+  inlineProgress = false,
 }) {
   const { t } = useTranslate();
   const [buttonsBlocked, setButtonsBlocked] = useState(!hasSeenQuestion);
@@ -91,7 +93,7 @@ export default function QuizView({
         return;
       }
 
-      const START_FONT_REM = 1.28;
+      const START_FONT_REM = 1.05;
       const MIN_FONT_REM = 0.78;
       const STEP_REM = 0.02;
       const LINE_HEIGHT = 1.26;
@@ -100,7 +102,10 @@ export default function QuizView({
       el.style.lineHeight = String(LINE_HEIGHT);
 
       let fontSize = START_FONT_REM;
-      while (fontSize > MIN_FONT_REM && el.scrollHeight > container.clientHeight) {
+      // Compare against the content box: the container can have padding (question box)
+      const cs = window.getComputedStyle(container);
+      const availableHeight = container.clientHeight - parseFloat(cs.paddingTop || 0) - parseFloat(cs.paddingBottom || 0);
+      while (fontSize > MIN_FONT_REM && el.scrollHeight > availableHeight) {
         fontSize -= STEP_REM;
         el.style.fontSize = `${fontSize}rem`;
       }
@@ -149,9 +154,13 @@ export default function QuizView({
 
   return (
     <>
-      <div className="quiz-header">
+      <div className={`quiz-header ${branding?.title ? 'quiz-header--branded' : ''}`}>
+        {branding?.title && <span className="quiz-header__title">{branding.title}</span>}
         <h3 id={"questions-progress-counter"}>{displayIndex} / {totalQuestions}</h3>
-        <BrandLogo branding={branding} />
+        <BrandLogo
+          branding={branding}
+          {...(branding?.title ? { width: 44, height: 44, className: "quiz-header__logo" } : {})}
+        />
       </div>
 
       <DockingZone id="above-question" />
@@ -266,6 +275,10 @@ export default function QuizView({
           </div>
         </div>,
         document.body
+      )}
+
+      {inlineProgress && (
+        <ProgressSegments className="quiz-progress" current={displayIndex - 1} total={totalQuestions} />
       )}
 
       <DockingZone id="below-buttons" />

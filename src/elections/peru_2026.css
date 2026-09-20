@@ -37,10 +37,36 @@
   font-size: 1.5em;
 }
 
+/* Question in a box; compact type so the whole quiz fits without scrolling */
 [data-election="peru_2026"] .question-text-container {
-  min-height: 8em;
-  max-width: 90%;
-  font-size: 0.8rem;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 640px;
+  min-height: 6.5em;
+  margin: 10px 0 6px;
+  padding: 14px 18px;
+  justify-content: center;
+  background: var(--buttonColor);
+  border: 1px solid var(--buttonShadow);
+  border-radius: 15px;
+  box-shadow: 2px 4px 4px var(--buttonShadow);
+}
+
+[data-election="peru_2026"] .question-text-container h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+[data-election="peru_2026"] .question-options {
+  width: 100%;
+  max-width: 360px;
+}
+
+[data-election="peru_2026"] .option-button {
+  margin: 6px 0;
+  padding: 10px 24px;
+  font-size: 0.95rem;
 }
 
 /* Style the opinion buttons widget to match election theme */
@@ -235,6 +261,11 @@
   background: #c31e1e;
 }
 
+[data-election="peru_2026"] .progress-segment.completed,
+[data-election="peru_2026"] .progress-segment.current {
+  background: #c31e1e;
+}
+
 [data-election="peru_2026"] .progress-dots-strip {
   background: rgb(186 186 186);
 }
@@ -378,8 +409,31 @@
     padding: 0;
   }
 
-  [data-election="peru_2026"] .question-text-container h2 {
-    font-size: 1.3rem;
+  [data-election="peru_2026"] .question-text-container {
+    /* Grows with the question instead of clipping long ones on small phones */
+    min-height: 96px;
+    width: calc(100% - 24px);
+    margin: 8px auto 6px;
+    height: auto;
+    max-height: none;
+    padding: 10px 14px;
+  }
+
+  [data-election="peru_2026"] .quiz-header--branded,
+  [data-election="peru_2026"] .quiz-progress,
+  [data-election="peru_2026"] .question-options {
+    width: calc(100% - 24px);
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  [data-election="peru_2026"] .quiz-header--branded {
+    padding: 0 4px;
+  }
+
+  [data-election="peru_2026"] .option-button {
+    padding: 10px 20px;
+    font-size: 0.95rem;
   }
 }
 

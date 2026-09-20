@@ -37,6 +37,7 @@ export function getBranding(electionConfig) {
   const electionBranding = electionConfig.branding;
 
   return {
+    title: electionBranding.title ?? null,
     logo: resolveAssetPath(electionBranding.logo) || defaultBranding.logo,
     logoAlt: resolveAssetPath(electionBranding.logoAlt) || defaultBranding.logoAlt,
     favicon: resolveAssetPath(electionBranding.favicon) || defaultBranding.favicon,

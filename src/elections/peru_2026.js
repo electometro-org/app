@@ -56,6 +56,7 @@ export default {
 
   // Election-specific branding (logos used in components)
   branding: {
+    title: "decide.pe",
     logo: "peru_2026/simple_logo.png",
     logoAlt: "peru_2026/reverse_logo.svg",
     favicon: "peru_2026/favicon.svg",
@@ -131,6 +132,8 @@ export default {
 
   processCandidateVote: v => v,
   showLawInfo: true,
+  // Single-line progress bar at the bottom of the quiz (instead of the floating progress-indicator widget)
+  inlineProgress: true,
   questionTypes:   ["presidential"],
   resultTypes:     ["party",
                     // "parliamentaryCandidates",
@@ -218,12 +221,14 @@ export default {
       legacyLayoutsOnPhases: ["results"],
       keepLegacySize: true,
       keepLegacyPosition: true,
+      // Slot heights are small on purpose: the slot sets the minimum page height, and the
+      // compact quiz must not force scrolling on short screens (content still overflows visibly).
       layouts: {
-        lg:  { x: 24, y: 0, w: 48, h: 40 },
-        md:  { x: 12, y: 0, w: 48, h: 35 },
-        sm:  { x: 4, y: 8, w: 40, h: 35 },
-        xs:  { x: 0, y: 8, w: 32, h: 35 },
-        xxs: { x: 0, y: 3, w: 24, h: 40 },
+        lg:  { x: 24, y: 0, w: 48, h: 24 },
+        md:  { x: 12, y: 0, w: 48, h: 24 },
+        sm:  { x: 4, y: 8, w: 40, h: 24 },
+        xs:  { x: 0, y: 8, w: 32, h: 26 },
+        xxs: { x: 0, y: 3, w: 24, h: 28 },
       },
       legacyLayouts: {
         // iOS 12 fallback: extra height avoids compact-results clipping inside quiz widget.
@@ -232,31 +237,6 @@ export default {
         sm:  { x: 4, y: 8, w: 40, h: 65 },
         xs:  { x: 0, y: 4, w: 32, h: 70 },
         xxs: { x: 0, y: 3, w: 24, h: 80 },
-      }
-    },
-    { type: "progress-indicator",
-      defaultSlot: "top",
-      resizable: false,
-      style: "dots",
-      showOnPhase: ["quiz"],
-      layouts: {
-        lg:  { x: 34, y: 10, w: 28, h: 4 },
-        md:  { x: 20, y: 10, w: 32, h: 6 },
-        sm: { x: 1, y: 18, w: 46, h: 6 },
-        xs:  { x: 2, y: 18, w: 28, h: 4 },
-        xxs: { x: 3, y: 12, w: 18, h: 5 }
-      },
-      dockedTo: "above-question",
-      dockTransition: {
-        duration: 300,      // milliseconds
-        easing: "ease-out",  // CSS easing function
-
-        // Widget animation (reveals widget)
-        widget: {
-          effect: "fadeDown",  // Reveals from top to bottom
-          duration: 400,
-          easing: "ease-out"
-        }
       }
     },
     // { type: "countdown-timer", defaultSlot: "right", duration: 30 },

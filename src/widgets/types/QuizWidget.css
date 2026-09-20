@@ -16,3 +16,27 @@
   width: 100%; /* Full width ensures consistent horizontal centering */
   margin-top: 15px;
 }
+
+/* Branded header: title on the left, logo on the right */
+.quiz-header--branded {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  max-width: 640px;
+  padding: 0 4px;
+  margin-top: 6px;
+}
+
+.quiz-header__title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.quiz-header__logo {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { registerWidget } from '../registry';
+import ProgressSegments from '../../components/ProgressSegments';
 import './ProgressIndicator.css';
 
 /**
@@ -8,7 +9,8 @@ import './ProgressIndicator.css';
  * Shows quiz progress in various styles.
  *
  * Config options:
- * - style: 'bar' | 'dots' | 'percentage' | 'fraction' (default: 'bar')
+ * - style: 'bar' | 'dots' | 'segments' | 'percentage' | 'fraction' (default: 'bar')
+ *   'segments' is a single-row bar that always fits the available width
  */
 function ProgressIndicator({ config, quizState }) {
   const { style = 'bar' } = config;
@@ -54,6 +56,9 @@ function ProgressIndicator({ config, quizState }) {
           </div>
         );
       }
+
+      case 'segments':
+        return <ProgressSegments current={currentQuestionIndex} total={totalQuestions} />;
 
       case 'percentage':
         return (

@@ -1,0 +1,41 @@
+/* One row, segments shrink to fit any width */
+.progress-segments {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  width: 100%;
+  max-width: 520px;
+}
+
+.progress-segment {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 6px;
+  margin: 0 1.5px;
+  border-radius: 3px;
+  background: rgba(127, 127, 127, 0.3);
+  -webkit-transition: background-color 0.25s ease, -webkit-transform 0.25s ease;
+  transition: background-color 0.25s ease, transform 0.25s ease;
+}
+
+.progress-segment.completed,
+.progress-segment.current {
+  background: var(--accent, #c32e2e);
+}
+
+.progress-segment.current {
+  -webkit-transform: scaleY(1.8);
+  transform: scaleY(1.8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-segment {
+    -webkit-transition: none;
+    transition: none;
+  }
+}
+
+/* Inline placement under the quiz buttons */
+.quiz-progress {
+  margin: 14px auto 8px;
+}

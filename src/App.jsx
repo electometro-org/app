@@ -224,6 +224,7 @@ function AppContent() {
             minAnswersGate={minAnswersGate}
             onCloseMinAnswersGate={closeMinAnswersGate}
             onGoToNextUnanswered={goToNextUnanswered}
+            inlineProgress={!!config?.inlineProgress}
           />
         ) : showTopicImportance ? (
           <TopicImportanceView

@@ -7,10 +7,9 @@ import { isValidMnemonic } from "../utils/mnemonicCodec";
 export default function ElectionIntroView({ branding, electionId, electionLabel, onStart, onRestore, mnemonicWordList, rounds, selectedRound, onRoundChange, fallbackIntro }) {
   const { t } = useTranslate();
   // Elections without Tolgee copy yet can ship fallback text in their config (config.intro)
-  const translateOr = (key, fallback, params) => {
-    const value = t(key, params);
-    return fallback && value === key ? fallback : value;
-  };
+  const translateOr = (key, fallback, params) => (
+    fallback ? t(key, fallback, params) : t(key, params)
+  );
   const description1 = translateOr(`welcome.${electionId}.description1`, fallbackIntro?.description1);
   const description2 = translateOr(`welcome.${electionId}.description2`, fallbackIntro?.description2);
   const [showFirstDescription, setShowFirstDescription] = useState(false);

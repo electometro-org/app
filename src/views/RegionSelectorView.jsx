@@ -28,13 +28,10 @@ function initials(name) {
   return (words.length > 1 ? words[0][0] + words[1][0] : name.slice(0, 2)).toUpperCase();
 }
 
-// Translations fall back to Spanish copy until Tolgee has the keys
+// Spanish fallback copy is shown until Tolgee has the keys (Tolgee's default value argument)
 function useLabel() {
   const { t } = useTranslate();
-  return (key, fallback, params) => {
-    const value = t(key, params);
-    return value === key ? fallback : value;
-  };
+  return (key, fallback, params) => t(key, fallback, params);
 }
 
 export default function RegionSelectorView({ branding, regionalVotesUrl, onSelectRegion }) {

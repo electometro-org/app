@@ -37,27 +37,26 @@
   font-size: 1.5em;
 }
 
-/* Question in a box; compact type so the whole quiz fits without scrolling */
+/* Question box. Sizes are fluid (clamp on viewport height/width): compact on short screens so the
+   quiz never needs scrolling, and growing to use the space on taller/wider ones.
+   The base values suit phones; the steeper scale is applied from 768px up (see the media query below). */
 [data-election="peru_2026"] .question-text-container {
+  --qbox-pad-x: clamp(18px, 2.4vw, 34px);
+  --qbox-pad-y: clamp(14px, 1.9vh, 26px);
   box-sizing: border-box;
-  width: 100%;
-  max-width: 640px;
-  --qbox-pad-x: 18px;
-  --qbox-pad-y: 14px;
-  min-height: 6.5em;
-  margin: 10px 0 6px;
-  padding: var(--qbox-pad-y) var(--qbox-pad-x);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   justify-content: center;
+  width: 100%;
+  max-width: clamp(560px, 62vw, 1000px);
+  min-height: clamp(96px, 15vh, 170px);
+  margin: clamp(10px, 1.6vh, 22px) 0 clamp(6px, 1vh, 14px);
+  padding: var(--qbox-pad-y) var(--qbox-pad-x);
   background: var(--buttonColor);
   border: 1px solid var(--buttonShadow);
   border-radius: 15px;
   box-shadow: 2px 4px 4px var(--buttonShadow);
-}
-
-/* Stack the topic header above the question text inside the box */
-[data-election="peru_2026"] .question-text-container {
-  flex-direction: column;
-  align-items: stretch;
 }
 
 /* Header band: election accent background, light text, bleeding to the box edges */
@@ -65,12 +64,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: calc(var(--qbox-pad-y) * -1) calc(var(--qbox-pad-x) * -1) 10px;
-  padding: 8px var(--qbox-pad-x);
+  margin: calc(var(--qbox-pad-y) * -1) calc(var(--qbox-pad-x) * -1) clamp(10px, 1.6vh, 20px);
+  padding: clamp(8px, 1.1vh, 14px) var(--qbox-pad-x);
   background: var(--accent);
   color: var(--fontColorLight);
   border-radius: 14px 14px 0 0;
-  font-size: 0.8rem;
+  font-size: clamp(0.8rem, 0.15rem + 1.1vh, 1rem);
   font-weight: 700;
   letter-spacing: 0.02em;
   text-align: left;
@@ -92,9 +91,9 @@
 }
 
 [data-election="peru_2026"] .question-topic-header__logo {
-  width: 26px;
-  height: 26px;
-  margin-left: 6px;
+  width: clamp(26px, 3.4vh, 38px);
+  height: clamp(26px, 3.4vh, 38px);
+  margin-left: 8px;
   object-fit: contain;
   /* The logo is red: turn it into a light silhouette so it reads on the accent band */
   -webkit-filter: brightness(0) invert(1);
@@ -103,19 +102,89 @@
 
 [data-election="peru_2026"] .question-text-container h2 {
   margin: 0;
-  font-size: 1.05rem;
+  /* Height-driven, capped by width so portrait phones keep a readable line length */
+  font-size: clamp(1.05rem, min(0.1rem + 2.38vh, 4.6vw + 3.5px), 1.6rem);
   line-height: 1.35;
 }
 
 [data-election="peru_2026"] .question-options {
   width: 100%;
-  max-width: 360px;
+  max-width: clamp(360px, 30vw, 520px);
 }
 
 [data-election="peru_2026"] .option-button {
-  margin: 6px 0;
-  padding: 10px 24px;
-  font-size: 0.95rem;
+  margin: clamp(6px, 1vh, 12px) 0;
+  padding: clamp(10px, 1.5vh, 18px) 24px;
+  font-size: clamp(0.95rem, 0.1rem + 1.75vh, 1.25rem);
+}
+
+[data-election="peru_2026"] .back-and-skip-buttons {
+  margin-top: clamp(14px, 2.4vh, 30px);
+  padding: clamp(10px, 1.4vh, 16px) clamp(20px, 2vw, 32px);
+  font-size: clamp(1rem, 0.3rem + 1.6vh, 1.2rem);
+}
+
+/* One-row progress bar under the buttons, as wide as the question box */
+[data-election="peru_2026"] .quiz-progress {
+  max-width: clamp(560px, 62vw, 1000px);
+  margin: clamp(14px, 2.4vh, 30px) auto clamp(8px, 1.2vh, 16px);
+}
+
+[data-election="peru_2026"] .quiz-progress .progress-segment {
+  height: clamp(6px, 0.8vh, 10px);
+  border-radius: 999px;
+}
+
+/* Tablets and desktops: more room in both directions, so scale up faster with the viewport.
+   Every ramp below equals the phone-friendly base value at 768px viewport height and grows
+   from there, so short landscape screens (e.g. 1024x768) are not squeezed. */
+@media (min-width: 768px) {
+  [data-election="peru_2026"] .question-text-container {
+    --qbox-pad-x: clamp(18px, 2.6vw, 44px);
+    --qbox-pad-y: clamp(14px, 5.3vh - 26px, 30px);
+    min-height: clamp(96px, 15vh, 190px);
+    margin: clamp(10px, 5.7vh - 31.5px, 26px) 0 clamp(6px, 2.7vh - 13.2px, 16px);
+  }
+
+  [data-election="peru_2026"] .question-topic-header {
+    margin-bottom: clamp(10px, 4.3vh - 20.7px, 28px);
+    padding-top: clamp(8px, 2.05vh - 7.4px, 18px);
+    padding-bottom: clamp(8px, 2.05vh - 7.4px, 18px);
+    font-size: clamp(0.8rem, 2.3vh - 4.9px, 1.25rem);
+  }
+
+  [data-election="peru_2026"] .question-topic-header__logo {
+    width: clamp(26px, 8.9vh - 42.3px, 46px);
+    height: clamp(26px, 8.9vh - 42.3px, 46px);
+  }
+
+  /* Second term keeps the line length sensible for the box width at each screen width */
+  [data-election="peru_2026"] .question-text-container h2 {
+    font-size: clamp(1.05rem, min(5.45vh - 22px, max(22.8px, 2.9vw - 4px)), 2.2rem);
+  }
+
+  [data-election="peru_2026"] .question-options {
+    max-width: clamp(360px, 32vw, 640px);
+  }
+
+  [data-election="peru_2026"] .option-button {
+    margin: clamp(6px, 2.35vh - 10.3px, 16px) 0;
+    padding: clamp(10px, 4.2vh - 21px, 20px) 24px;
+    font-size: clamp(0.95rem, 2.3vh - 2.5px, 1.6rem);
+  }
+
+  [data-election="peru_2026"] .back-and-skip-buttons {
+    margin-top: clamp(14px, 6.5vh - 31.5px, 30px);
+    padding: clamp(10px, 3.4vh - 15.3px, 20px) clamp(20px, 2.4vw, 40px);
+  }
+
+  [data-election="peru_2026"] .quiz-progress {
+    margin: clamp(14px, 6.5vh - 31.5px, 30px) auto clamp(8px, 3.9vh - 21px, 20px);
+  }
+
+  [data-election="peru_2026"] .quiz-progress .progress-segment {
+    height: clamp(6px, 2.2vh - 10.8px, 14px);
+  }
 }
 
 /* Style the opinion buttons widget to match election theme */
@@ -459,12 +528,11 @@
   }
 
   [data-election="peru_2026"] .question-text-container {
-    /* Grows with the question instead of clipping long ones on small phones */
-    --qbox-pad-x: 14px;
-    --qbox-pad-y: 10px;
-    min-height: 96px;
+    --qbox-pad-x: clamp(14px, 4vw, 22px);
     width: calc(100% - 24px);
-    margin: 8px auto 6px;
+    max-width: none;
+    margin-left: auto;
+    margin-right: auto;
     height: auto;
     max-height: none;
   }
@@ -472,13 +540,14 @@
   [data-election="peru_2026"] .quiz-progress,
   [data-election="peru_2026"] .question-options {
     width: calc(100% - 24px);
+    max-width: none;
     padding-left: 0;
     padding-right: 0;
   }
 
   [data-election="peru_2026"] .option-button {
-    padding: 10px 20px;
-    font-size: 0.95rem;
+    padding-left: 20px;
+    padding-right: 20px;
   }
 }
 

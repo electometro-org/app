@@ -88,14 +88,14 @@ export default function QuizView({
       const container = el?.parentElement;
       if (!el || !container) return;
 
-      // Keep desktop typography unchanged.
-      if (window.innerWidth >= 768) {
+      // Keep desktop typography unchanged; fluid layouts size their text with CSS.
+      if (window.innerWidth >= 768 || container.dataset.fluid) {
         el.style.fontSize = "";
         el.style.lineHeight = "";
         return;
       }
 
-      const START_FONT_REM = 1.05;
+      const START_FONT_REM = 1.28;
       const MIN_FONT_REM = 0.78;
       const STEP_REM = 0.02;
       const LINE_HEIGHT = 1.26;
@@ -179,7 +179,7 @@ export default function QuizView({
       <DockingZone id="above-question" />
 
       <div className="question-content" key={question.id || displayIndex}>
-        <div className="question-text-container">
+        <div className="question-text-container" data-fluid={showTopicHeader ? "true" : undefined}>
           {showTopicHeader && (
             <div className="question-topic-header">
               <span className="question-topic-header__topic">{topicHeader}</span>

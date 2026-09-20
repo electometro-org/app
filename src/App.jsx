@@ -340,10 +340,13 @@ function AppContent() {
           <Route
             path="/"
             element={
-              <WidgetLayout>
+              <>
+                {/* Outside WidgetLayout: its transform would break position: fixed */}
                 <LanguageSwitcher />
-                {renderMainContent()}
-              </WidgetLayout>
+                <WidgetLayout>
+                  {renderMainContent()}
+                </WidgetLayout>
+              </>
             }
           />
           <Route path="/metodologia" element={<div className="static-page-shell"><Methodology /></div>} />

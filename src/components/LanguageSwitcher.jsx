@@ -1,58 +1,32 @@
 import React from 'react';
 import { useTranslate, useTolgee } from '@tolgee/react';
 import { esLang, quLang, ayLang } from '../config/tolgee';
+import './LanguageSwitcher.css';
 
 export default function LanguageSwitcher() {
   const { t } = useTranslate();
   const tolgee = useTolgee(['language']);
+  const current = tolgee.getLanguage();
 
-  const changeLanguage = (lang) => {
-    tolgee.changeLanguage(lang);
-  };
+  const languages = [
+    { code: esLang, label: t('languages.spanish') },
+    { code: quLang, label: t('languages.quechua') },
+    { code: ayLang, label: t('languages.aymara') },
+  ];
 
   return (
-    <div style={{ display: 'flex', gap: '10px', padding: '10px' }}>
-      <button
-        onClick={() => changeLanguage(esLang)}
-        style={{
-          fontWeight: tolgee.getLanguage() === esLang ? 'bold' : 'normal',
-          padding: '5px 10px'
-        }}
-      >
-        {t('languages.spanish')}
-      </button>
-      <button
-        onClick={() => changeLanguage(quLang)}
-        style={{
-          fontWeight: tolgee.getLanguage() === quLang ? 'bold' : 'normal',
-          padding: '5px 10px'
-        }}
-      >
-        {t('languages.quechua')}
-      </button>
-      <button
-        onClick={() => changeLanguage(ayLang)}
-        style={{
-          fontWeight: tolgee.getLanguage() === ayLang ? 'bold' : 'normal',
-          padding: '5px 10px'
-        }}
-      >
-        {t('languages.aymara')}
-      </button>
+    <div className="language-switcher">
+      {languages.map(({ code, label }) => (
+        <button
+          key={code}
+          type="button"
+          className={`language-switcher__btn ${current === code ? 'is-active' : ''}`}
+          aria-pressed={current === code}
+          onClick={() => tolgee.changeLanguage(code)}
+        >
+          {label}
+        </button>
+      ))}
     </div>
   );
 }
-
-// Example usage in your components:
-// import { useTranslate } from '@tolgee/react';
-//
-// function MyComponent() {
-//   const { t } = useTranslate();
-//
-//   return (
-//     <div>
-//       <h1>{t('common.loading')}</h1>
-//       <button>{t('common.submit')}</button>
-//     </div>
-//   );
-// }

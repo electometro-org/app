@@ -1,0 +1,35 @@
+/* Pinned to the top-left corner of the viewport (mirrors the hamburger button on the right) */
+.language-switcher {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  display: flex;
+}
+
+.language-switcher__btn {
+  margin-right: 6px;
+  padding: 4px 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.language-switcher__btn:last-child {
+  margin-right: 0;
+}
+
+.language-switcher__btn.is-active {
+  font-weight: bold;
+}
+
+@media (max-width: 400px) {
+  .language-switcher {
+    left: 12px;
+  }
+
+  .language-switcher__btn {
+    margin-right: 4px;
+    padding: 4px 6px;
+    font-size: 13px;
+  }
+}

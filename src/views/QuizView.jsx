@@ -25,6 +25,8 @@ export default function QuizView({
   onCloseMinAnswersGate,
   onGoToNextUnanswered,
   inlineProgress = false,
+  topics = [],
+  showTopicHeader = false,
 }) {
   const { t } = useTranslate();
   const [buttonsBlocked, setButtonsBlocked] = useState(!hasSeenQuestion);
@@ -104,7 +106,9 @@ export default function QuizView({
       let fontSize = START_FONT_REM;
       // Compare against the content box: the container can have padding (question box)
       const cs = window.getComputedStyle(container);
-      const availableHeight = container.clientHeight - parseFloat(cs.paddingTop || 0) - parseFloat(cs.paddingBottom || 0);
+      const headerEl = container.querySelector(".question-topic-header");
+      const availableHeight = container.clientHeight - parseFloat(cs.paddingTop || 0) - parseFloat(cs.paddingBottom || 0)
+        - (headerEl ? headerEl.offsetHeight : 0);
       while (fontSize > MIN_FONT_REM && el.scrollHeight > availableHeight) {
         fontSize -= STEP_REM;
         el.style.fontSize = `${fontSize}rem`;
@@ -152,6 +156,13 @@ export default function QuizView({
     .replace("[new]", pendingChangedOption ? t(pendingChangedOption) : "");
   const questionText = question.question_key ? t(question.question_key) : question.question;
 
+  // "[k/n] Topic": position of this question's topic among all topics
+  const topicIndex = topics.findIndex(topic => topic.topic_key === question.topic_key);
+  const topicLabel = question.inlineText ? question.tema : t(question.topic_key, question.tema);
+  const topicHeader = showTopicHeader && topicIndex >= 0 && topicLabel
+    ? `[${topicIndex + 1}/${topics.length}] ${topicLabel}`
+    : null;
+
   return (
     <>
       <div className={`quiz-header ${branding?.title ? 'quiz-header--branded' : ''}`}>
@@ -167,6 +178,7 @@ export default function QuizView({
 
       <div className="question-content" key={question.id || displayIndex}>
         <div className="question-text-container">
+          {topicHeader && <div className="question-topic-header">{topicHeader}</div>}
           <h2 ref={questionTitleRef}>{questionText}</h2>
         </div>
       </div>

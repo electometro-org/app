@@ -52,6 +52,23 @@
   box-shadow: 2px 4px 4px var(--buttonShadow);
 }
 
+/* Stack the topic header above the question text inside the box */
+[data-election="peru_2026"] .question-text-container {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+[data-election="peru_2026"] .question-topic-header {
+  margin: 0 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--buttonShadow);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: left;
+  color: var(--accent);
+}
+
 [data-election="peru_2026"] .question-text-container h2 {
   margin: 0;
   font-size: 1.05rem;

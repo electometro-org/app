@@ -134,6 +134,8 @@ export default {
   showLawInfo: true,
   // Single-line progress bar at the bottom of the quiz (instead of the floating progress-indicator widget)
   inlineProgress: true,
+  // "[k/n] Topic" header at the top of the question box
+  topicHeader: true,
   questionTypes:   ["presidential"],
   resultTypes:     ["party",
                     // "parliamentaryCandidates",

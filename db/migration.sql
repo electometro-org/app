@@ -33,6 +33,15 @@ COMMENT ON COLUMN quiz_answers.demographics IS 'Optional demographic information
 
 -- Regional elections: region the answers belong to (quiz ids are region-specific).
 -- Only sent by regional submissions; NULL for national quizzes.
-ALTER TABLE quiz_answers ADD COLUMN IF NOT EXISTS region_id TEXT;
-CREATE INDEX IF NOT EXISTS idx_quiz_answers_region_id ON quiz_answers(region_id);
+ALTER TABLE quiz_answers
+    ADD COLUMN IF NOT EXISTS region_id TEXT;
+
+-- Mirror the Worker's validation (defense in depth)
+ALTER TABLE quiz_answers
+    ADD CONSTRAINT valid_region_id CHECK (region_id IS NULL OR region_id ~ '^r[0-9]{1,3}$');
+
+CREATE INDEX IF NOT EXISTS idx_quiz_answers_region_id
+    ON quiz_answers (region_id)
+    WHERE region_id IS NOT NULL;
+
 COMMENT ON COLUMN quiz_answers.region_id IS 'Region id (e.g. r1) for regional elections';

@@ -51,8 +51,15 @@
   --q-header-scale: 1;
   --q-option-scale: 1;
   --q-option-width: 0.6;
-  /* Full 40px on tall screens, shrinking on short ones so long questions still fit without scrolling */
-  --q-top-offset: clamp(0px, 8vh - 40px, 40px);
+  /* 100px from ~900px viewport height up, shrinking on shorter screens so long questions still fit without scrolling */
+  --q-top-offset: clamp(0px, 20vh - 80px, 100px);
+}
+
+/* Portrait tablets are tall but narrow (long questions wrap to more lines), so cap the offset lower */
+@media (min-width: 768px) and (max-width: 1023px) {
+  [data-election="peru_2026"] {
+    --q-top-offset: clamp(0px, 20vh - 80px, 60px);
+  }
 }
 
 /* One element (not .quiz-widget, which exists twice) and only the quiz-flow screens */

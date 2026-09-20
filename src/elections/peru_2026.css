@@ -37,6 +37,19 @@
   font-size: 1.5em;
 }
 
+/* Quiz text size knobs (1 = default). All of them apply at every breakpoint and multiply together:
+     --q-text-scale      everything below
+     --q-question-scale  the question text
+     --q-header-scale    the red band ([k/n] topic + decide.pe)
+     --q-option-scale    answer buttons and Back/Skip
+   Try them live: document.documentElement.style.setProperty('--q-text-scale', 0.92) */
+[data-election="peru_2026"] {
+  --q-text-scale: 1;
+  --q-question-scale: 1;
+  --q-header-scale: 1;
+  --q-option-scale: 1;
+}
+
 /* Question box. Sizes are fluid (clamp on viewport height/width): compact on short screens so the
    quiz never needs scrolling, and growing to use the space on taller/wider ones.
    The base values suit phones; the steeper scale is applied from 768px up (see the media query below). */
@@ -69,7 +82,7 @@
   background: var(--accent);
   color: var(--fontColorLight);
   border-radius: 14px 14px 0 0;
-  font-size: clamp(0.95rem, 0.3rem + 1.4vh, 1.1rem);
+  font-size: calc(clamp(0.95rem, 0.3rem + 1.4vh, 1.1rem) * var(--q-text-scale, 1) * var(--q-header-scale, 1));
   font-weight: 700;
   letter-spacing: 0.02em;
   text-align: left;
@@ -103,7 +116,7 @@
 [data-election="peru_2026"] .question-text-container h2 {
   margin: 0;
   /* Height-driven, capped by width so portrait phones keep a readable line length */
-  font-size: clamp(1.05rem, min(0.1rem + 2.38vh, 4.6vw + 3.5px), 1.6rem);
+  font-size: calc(clamp(1.05rem, min(0.1rem + 2.38vh, 4.6vw + 3.5px), 1.6rem) * var(--q-text-scale, 1) * var(--q-question-scale, 1));
   line-height: 1.35;
 }
 
@@ -115,13 +128,13 @@
 [data-election="peru_2026"] .option-button {
   margin: clamp(6px, 1vh, 12px) 0;
   padding: clamp(10px, 1.5vh, 18px) 24px;
-  font-size: clamp(0.95rem, 0.1rem + 1.75vh, 1.25rem);
+  font-size: calc(clamp(0.95rem, 0.1rem + 1.75vh, 1.25rem) * var(--q-text-scale, 1) * var(--q-option-scale, 1));
 }
 
 [data-election="peru_2026"] .back-and-skip-buttons {
   margin-top: clamp(14px, 2.4vh, 30px);
   padding: clamp(10px, 1.4vh, 16px) clamp(20px, 2vw, 32px);
-  font-size: clamp(1rem, 0.3rem + 1.6vh, 1.2rem);
+  font-size: calc(clamp(1rem, 0.3rem + 1.6vh, 1.2rem) * var(--q-text-scale, 1) * var(--q-option-scale, 1));
 }
 
 /* One-row progress bar under the buttons, as wide as the question box */
@@ -150,7 +163,7 @@
     margin-bottom: clamp(10px, 4.3vh - 20.7px, 28px);
     padding-top: clamp(8px, 2.05vh - 7.4px, 18px);
     padding-bottom: clamp(8px, 2.05vh - 7.4px, 18px);
-    font-size: clamp(0.95rem, min(3.4vh - 10px, 2.3vw + 2px), 1.5rem);
+    font-size: calc(clamp(0.95rem, min(3.4vh - 10px, 2.3vw + 2px), 1.5rem) * var(--q-text-scale, 1) * var(--q-header-scale, 1));
   }
 
   [data-election="peru_2026"] .question-topic-header__logo {
@@ -160,7 +173,7 @@
 
   /* Second term keeps the line length sensible for the box width at each screen width */
   [data-election="peru_2026"] .question-text-container h2 {
-    font-size: clamp(1.05rem, min(5.45vh - 22px, max(22.8px, 2.9vw - 4px)), 2.2rem);
+    font-size: calc(clamp(1.05rem, min(5.45vh - 22px, max(22.8px, 2.9vw - 4px)), 2.2rem) * var(--q-text-scale, 1) * var(--q-question-scale, 1));
   }
 
   [data-election="peru_2026"] .question-options {
@@ -170,7 +183,7 @@
   [data-election="peru_2026"] .option-button {
     margin: clamp(6px, 2.35vh - 10.3px, 16px) 0;
     padding: clamp(10px, 4.2vh - 21px, 20px) 24px;
-    font-size: clamp(0.95rem, 2.3vh - 2.5px, 1.6rem);
+    font-size: calc(clamp(0.95rem, 2.3vh - 2.5px, 1.6rem) * var(--q-text-scale, 1) * var(--q-option-scale, 1));
   }
 
   [data-election="peru_2026"] .back-and-skip-buttons {

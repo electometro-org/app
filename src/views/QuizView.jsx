@@ -156,12 +156,10 @@ export default function QuizView({
     .replace("[new]", pendingChangedOption ? t(pendingChangedOption) : "");
   const questionText = question.question_key ? t(question.question_key) : question.question;
 
-  // "[k/n] Topic": position of this question's topic among all topics
+  // Header band: topic on the left, logo + title in the middle, "k/n" (position among topics) on the right
   const topicIndex = topics.findIndex(topic => topic.topic_key === question.topic_key);
   const topicLabel = question.inlineText ? question.tema : t(question.topic_key, question.tema);
-  const topicHeader = showTopicHeader && topicIndex >= 0 && topicLabel
-    ? `[${topicIndex + 1}/${topics.length}] ${topicLabel}`
-    : null;
+  const topicCount = topicIndex >= 0 ? `${topicIndex + 1}/${topics.length}` : null;
 
   return (
     <>
@@ -182,11 +180,12 @@ export default function QuizView({
         <div className="question-text-container" data-fluid={showTopicHeader ? "true" : undefined}>
           {showTopicHeader && (
             <div className="question-topic-header">
-              <span className="question-topic-header__topic">{topicHeader}</span>
+              <span className="question-topic-header__topic">{topicLabel}</span>
               <span className="question-topic-header__brand">
-                {branding?.title && <span className="question-topic-header__title">{branding.title}</span>}
                 <BrandLogo branding={branding} width={26} height={26} className="question-topic-header__logo" />
+                {branding?.title && <span className="question-topic-header__title">{branding.title}</span>}
               </span>
+              <span className="question-topic-header__count">{topicCount}</span>
             </div>
           )}
           <h2 ref={questionTitleRef}>{questionText}</h2>

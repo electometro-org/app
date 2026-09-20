@@ -84,9 +84,10 @@
 
 /* Header band: election accent background, light text, bleeding to the box edges */
 [data-election="peru_2026"] .question-topic-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
+  column-gap: 10px;
   margin: calc(var(--qbox-pad-y) * -1) calc(var(--qbox-pad-x) * -1) clamp(10px, 1.6vh, 20px);
   padding: clamp(8px, 1.1vh, 14px) var(--qbox-pad-x);
   background: var(--accent);
@@ -98,25 +99,49 @@
   text-align: left;
 }
 
-/* [k/n] Topic on the left */
+/* Topic on the left */
 [data-election="peru_2026"] .question-topic-header__topic {
-  flex: 1 1 auto;
   min-width: 0;
-  padding-right: 10px;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  -webkit-hyphens: auto;
+  hyphens: auto;
 }
 
-/* decide.pe + logo on the right */
+/* Narrow phones: the topic only gets the space beside the centered logo */
+@media (max-width: 400px) {
+  [data-election="peru_2026"] .question-topic-header {
+    column-gap: 6px;
+  }
+
+  [data-election="peru_2026"] .question-topic-header__topic {
+    font-size: 0.88em;
+    line-height: 1.2;
+  }
+}
+
+/* Logo in the middle with decide.pe right below it */
 [data-election="peru_2026"] .question-topic-header__brand {
-  display: inline-flex;
-  flex: none;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  text-align: center;
+}
+
+[data-election="peru_2026"] .question-topic-header__title {
+  margin-top: 2px;
+  font-size: 0.75em;
+  line-height: 1.1;
+}
+
+/* k/n on the right */
+[data-election="peru_2026"] .question-topic-header__count {
+  text-align: right;
+  white-space: nowrap;
 }
 
 [data-election="peru_2026"] .question-topic-header__logo {
   width: clamp(30px, 3.9vh, 40px);
   height: clamp(30px, 3.9vh, 40px);
-  margin-left: 8px;
   object-fit: contain;
   /* The logo is red: turn it into a light silhouette so it reads on the accent band */
   -webkit-filter: brightness(0) invert(1);

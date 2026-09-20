@@ -171,15 +171,17 @@ export function QuizProvider({ children }) {
 
     clearMnemonicFromUrl();
 
-    trackEvent("answer_selected", {
+    // option === null means the user deselected their answer
+    const cleared = option == null;
+    trackEvent(cleared ? "answer_cleared" : "answer_selected", {
       question_id: currentQuestion.id ?? null,
       question_index: currentIndex,
-      answer: option
+      ...(cleared ? {} : { answer: option })
     });
 
-    dispatch({ type: "ANSWER_SYNCED", questionText: currentQuestion.question, answer: option });
+    dispatch({ type: "ANSWER_SYNCED", questionText: currentQuestion.question, answer: cleared ? null : option });
 
-    if (advance) {
+    if (advance && !cleared) {
       const next = findNextUniqueIndex(uniqueIndices, currentIndex);
       if (next !== undefined) dispatch({ type: "SET_CURRENT_QUESTION_INDEX", payload: next });
     }

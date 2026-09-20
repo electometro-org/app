@@ -31,6 +31,7 @@ export default function QuizView({
   const [pendingChangedOption, setPendingChangedOption] = useState(null);
   const [navPulseAfterChange, setNavPulseAfterChange] = useState(false);
   const questionTitleRef = useRef(null);
+  const justClearedRef = useRef(false);
   const minAnswersTitle = t("quiz.minAnswersRequiredTitle");
   const minAnswersActionClose = t("quiz.minAnswersRequiredClose");
   const minAnswersActionNextUnanswered = t("quiz.minAnswersRequiredNextUnanswered");
@@ -64,7 +65,9 @@ export default function QuizView({
     setShowChangeAnswerModal(false);
     setPendingChangedOption(null);
     setNavPulseAfterChange(false);
-    if (hasSeenQuestion) {
+    // Clearing an answer makes the question look unseen again; don't re-block the buttons for that
+    if (hasSeenQuestion || justClearedRef.current) {
+      justClearedRef.current = false;
       setButtonsBlocked(false);
       return;
     }
@@ -173,6 +176,9 @@ export default function QuizView({
                 return;
               }
               if (hasSeenQuestion && selectedAnswer && option === selectedAnswer) {
+                // Clicking the selected answer again deselects it (no auto-advance)
+                justClearedRef.current = true;
+                onAnswer(null, { advance: false });
                 return;
               }
               setClickedOption(option);

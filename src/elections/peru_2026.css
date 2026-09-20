@@ -69,7 +69,7 @@
   background: var(--accent);
   color: var(--fontColorLight);
   border-radius: 14px 14px 0 0;
-  font-size: clamp(0.8rem, 0.15rem + 1.1vh, 1rem);
+  font-size: clamp(0.95rem, 0.3rem + 1.4vh, 1.1rem);
   font-weight: 700;
   letter-spacing: 0.02em;
   text-align: left;
@@ -91,8 +91,8 @@
 }
 
 [data-election="peru_2026"] .question-topic-header__logo {
-  width: clamp(26px, 3.4vh, 38px);
-  height: clamp(26px, 3.4vh, 38px);
+  width: clamp(30px, 3.9vh, 40px);
+  height: clamp(30px, 3.9vh, 40px);
   margin-left: 8px;
   object-fit: contain;
   /* The logo is red: turn it into a light silhouette so it reads on the accent band */
@@ -150,12 +150,12 @@
     margin-bottom: clamp(10px, 4.3vh - 20.7px, 28px);
     padding-top: clamp(8px, 2.05vh - 7.4px, 18px);
     padding-bottom: clamp(8px, 2.05vh - 7.4px, 18px);
-    font-size: clamp(0.8rem, 2.3vh - 4.9px, 1.25rem);
+    font-size: clamp(0.95rem, min(3.4vh - 10px, 2.3vw + 2px), 1.5rem);
   }
 
   [data-election="peru_2026"] .question-topic-header__logo {
-    width: clamp(26px, 8.9vh - 42.3px, 46px);
-    height: clamp(26px, 8.9vh - 42.3px, 46px);
+    width: clamp(30px, min(10vh - 46px, 5.2vw), 52px);
+    height: clamp(30px, min(10vh - 46px, 5.2vw), 52px);
   }
 
   /* Second term keeps the line length sensible for the box width at each screen width */

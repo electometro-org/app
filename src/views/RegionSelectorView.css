@@ -60,9 +60,18 @@
   margin: 0;
   padding: 0;
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Fixed-width cells so partial rows stay centered (margins instead of gap for old Safari) */
+.region-selector__grid > li,
+.region-selector__grid > .region-card--skeleton {
+  box-sizing: border-box;
+  width: 200px;
+  max-width: 100%;
+  margin: 7px;
 }
 
 .region-card {
@@ -160,9 +169,10 @@
 }
 
 @media (max-width: 480px) {
-  .region-selector__grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+  .region-selector__grid > li,
+  .region-selector__grid > .region-card--skeleton {
+    width: calc(50% - 10px);
+    margin: 5px;
   }
   .region-card {
     min-height: 130px;

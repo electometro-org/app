@@ -1,0 +1,35 @@
+.hamburger-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 8px;
+  line-height: 0;
+}
+
+.hamburger-actions {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  min-width: 140px;
+}
+
+/* Links-style entries inside the dark dropdown (overrides the global button look) */
+.menu-panel .hamburger-action {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  font-size: 20px;
+  text-align: left;
+  color: inherit;
+  background: transparent;
+  box-shadow: none;
+  border: 0 !important;
+  cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .menu-panel .hamburger-action:hover {
+    color: #a9a9a9;
+    text-decoration: underline;
+  }
+}

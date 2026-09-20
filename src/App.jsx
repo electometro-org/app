@@ -5,6 +5,7 @@ import { isValidMnemonic } from "./utils/mnemonicCodec";
 import Methodology from "./components/Methodology.jsx";
 import Contact from "./components/Contact.jsx";
 import Menu from "./components/Menu";
+import HamburgerMenu from "./components/HamburgerMenu";
 import AnalyticsTracker from "./components/AnalyticsTracker";
 import DemographicsForm from "./components/DemographicsForm";
 import TurnstileOverlay from "./components/TurnstileOverlay";
@@ -318,9 +319,6 @@ function AppContent() {
         branding={branding}
       />
       <>
-        {election && !showGenericIntro && !showElectionIntro && (
-            <button onClick={handleReset} className="reset-button">{t('common.restart')}</button>
-        )}
         <input
           type="text"
           id="website-url"
@@ -330,7 +328,12 @@ function AppContent() {
           autoComplete="off"
           aria-hidden="true"
         />
-        <button className="menu-button" onClick={() => setShowMenu(!showMenu)}>{t('common.menu')}</button>
+        <HamburgerMenu
+          showRestart={!!election && !showGenericIntro && !showElectionIntro}
+          onRestart={handleReset}
+          onOpenMenu={() => setShowMenu(!showMenu)}
+          menuOpen={showMenu}
+        />
         <Menu open={showMenu} onClose={() => setShowMenu(false)} />
 
         <Routes>

@@ -48,8 +48,9 @@ uses Conventional Commit-style change descriptions.
 - **Analytics moved from Trench to a self-hosted Rybbit instance.** `trench-js` and `AnalyticsTracker` are
   removed (Rybbit tracks navigation itself); `VITE_TRENCH_*` became `VITE_RYBBIT_ENABLED/HOST/SITE_ID`.
   `answer_selected` no longer sends the answer, saved-result links are masked out of page paths, and
-  `stats_id` is now an app-generated anonymous id. **Deploy notes:** update the `APP_ENV_FILE` secret and
-  allow the Rybbit origin in the CSP.
+  `stats_id` is now an app-generated anonymous id. **Deploy notes:** the Rybbit settings are appended to
+  the build `.env` from `app/env/<environment>.env` in the assets repo (no change to the `APP_ENV_FILE`
+  secret is needed), and the CSP now allows the Rybbit origin.
 - Top-right "Menú" is now a hamburger button. Elections without `quizTopLine` get a small dropdown
   ("Conocer más" for the section list, plus Restart, which replaces the old top-left Restart button);
   with `quizTopLine` it opens the section list directly and Restart returns to the top-left corner.

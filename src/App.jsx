@@ -6,7 +6,6 @@ import Methodology from "./components/Methodology.jsx";
 import Contact from "./components/Contact.jsx";
 import Menu from "./components/Menu";
 import HamburgerMenu from "./components/HamburgerMenu";
-import AnalyticsTracker from "./components/AnalyticsTracker";
 import DemographicsForm from "./components/DemographicsForm";
 import TurnstileOverlay from "./components/TurnstileOverlay";
 import PrivacyNotice from "./components/PrivacyNotice";
@@ -327,7 +326,6 @@ function AppContent() {
   return (
     <>
       <BackgroundLayer />
-      <AnalyticsTracker />
       <TurnstileOverlay
         show={showTurnstileOverlay}
         onSuccess={handleTurnstileSuccess}

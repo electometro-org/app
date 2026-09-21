@@ -173,10 +173,10 @@ export function QuizProvider({ children }) {
 
     // option === null means the user deselected their answer
     const cleared = option == null;
+    // The answer itself is not sent: with an identified visitor it would tie political opinions to them
     trackEvent(cleared ? "answer_cleared" : "answer_selected", {
       question_id: currentQuestion.id ?? null,
       question_index: currentIndex,
-      ...(cleared ? {} : { answer: option })
     });
 
     dispatch({ type: "ANSWER_SYNCED", questionText: currentQuestion.question, answer: cleared ? null : option });
@@ -222,6 +222,7 @@ export function QuizProvider({ children }) {
   }, [getMinAnswersStats, openMinAnswersGate, state.questions.length, setShowTopicImportance, dispatch]);
 
   const handleReset = useCallback(() => {
+    trackEvent("quiz_restarted");
     clearMnemonicFromUrl();
     resetElectionFlow();
     resetNavigation();

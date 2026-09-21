@@ -1,7 +1,13 @@
 import React from 'react';
 import { useTranslate, useTolgee } from '@tolgee/react';
 import { esLang, quLang, ayLang } from '../config/tolgee';
+import { trackEvent } from '../utils/analytics';
 import './LanguageSwitcher.css';
+
+function changeLanguage(tolgee, code) {
+  trackEvent('language_changed', { language: code });
+  tolgee.changeLanguage(code);
+}
 
 export default function LanguageSwitcher() {
   const { t } = useTranslate();
@@ -22,7 +28,7 @@ export default function LanguageSwitcher() {
           type="button"
           className={`language-switcher__btn ${current === code ? 'is-active' : ''}`}
           aria-pressed={current === code}
-          onClick={() => tolgee.changeLanguage(code)}
+          onClick={() => changeLanguage(tolgee, code)}
         >
           {label}
         </button>
@@ -54,7 +60,7 @@ export function LanguagePill() {
           type="button"
           className={`language-pill__btn ${current === code ? 'is-active' : ''}`}
           aria-pressed={current === code}
-          onClick={() => tolgee.changeLanguage(code)}
+          onClick={() => changeLanguage(tolgee, code)}
         >
           {label}
         </button>

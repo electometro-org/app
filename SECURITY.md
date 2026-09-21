@@ -82,8 +82,9 @@ The following controls exist today and are areas where security reports are espe
   public API (`security_invoker` + `REVOKE` from `anon`/`authenticated`, as in
   [`db/regional_views.sql`](db/regional_views.sql)). Verify the older `quiz_answers_duplicates` and
   `suspicious_ips` views in your project — Supabase grants new `public` objects to API roles by default.
-- **Consent-gated analytics:** analytics events are only sent when the user consents
-  (`src/utils/analytics.js`).
+- **Consent-gated analytics:** the self-hosted Rybbit script is only loaded and events are only sent when
+  the user has not opted out (`src/utils/analytics.js`). Answers, demographics and saved-result phrases
+  (`?r=`) are never sent; the phrase is masked out of page paths.
 - **Content Security Policy:** configured in the deployed `index.html` (template:
   `index.html.example`).
 

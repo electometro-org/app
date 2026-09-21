@@ -87,6 +87,10 @@ Consulta la discusion *Conventions* en [GitHub Discussions → Docs](https://git
 Las variables principales viven en `.env.example`: analytics, Turnstile, hCaptcha,
 `VITE_I18N_URL`, `VITE_ELECTIONS_DATA_URL`, `VITE_ELECTION_ID` y flags de branding/intro.
 
+**Analytics (Rybbit, autoalojado):** `VITE_RYBBIT_ENABLED`, `VITE_RYBBIT_HOST` y `VITE_RYBBIT_SITE_ID`. Solo se
+carga con consentimiento; no se envian las respuestas ni las frases mnemonicas (`?r=`). La CSP debe permitir
+el host de Rybbit en `script-src` y `connect-src`. Lista de eventos en el [README](../../README.md#analytics-rybbit).
+
 Orden de carga de Vite (los ultimos sobrescriben a los primeros): `.env` → `.env.local` →
 `.env.[modo]` (p. ej. `.env.development`) → `.env.[modo].local`. Las variables reales del shell
 tienen prioridad sobre todos los archivos. Wrangler tambien lee `.env.local` en desarrollo local y sus

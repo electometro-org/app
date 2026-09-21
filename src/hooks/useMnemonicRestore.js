@@ -2,6 +2,7 @@ import { useState } from "react";
 import { decodeFromMnemonic, isValidMnemonic } from "../utils/mnemonicCodec";
 import { loadRegionalData, getRegion, buildRegionalQuestions } from "../services/regionalService";
 import { isVersionGreaterThan, compareVersions } from "../utils/versionUtils";
+import { trackEvent } from "../utils/analytics";
 
 /**
  * useMnemonicRestore
@@ -135,6 +136,8 @@ export function useMnemonicRestore({
     setShowTurnstileOverlay(false);
     setTurnstileVerified(true);
     setRestoredFromMnemonic(true);
+    trackEvent("mnemonic_restored");
+    trackEvent("results_viewed", { source: "mnemonic" });
 
     // Scroll to top
     window.scrollTo(0, 0);

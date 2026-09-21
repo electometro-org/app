@@ -25,6 +25,7 @@ Live deployments: [electometro.org](https://electometro.org) ·
 - [Deployment](#deployment)
 - [Project structure](#project-structure)
 - [Configuration](#configuration)
+- [Analytics (Rybbit)](#analytics-rybbit)
 - [Regional elections](#regional-elections)
 - [FAQ](#faq)
 - [Contributing](#contributing)
@@ -89,8 +90,9 @@ parameter) so a voter can save or share their result without an account.
   fingerprint rate limits count both.
 
 ### 📈 Analytics
-- Consent-gated usage analytics via [Trench.js](https://trench.dev/).
-- Quiz-completion and demographic metrics, only when the user consents.
+- Consent-gated usage analytics via a self-hosted [Rybbit](https://rybbit.com/) instance.
+- Quiz-funnel events (started, region chosen, completed, results viewed, …), only when the user
+  consents. Answers and saved-result phrases are never sent (see [Analytics](#analytics-rybbit)).
 
 ---
 
@@ -123,7 +125,7 @@ parameter) so a voter can save or share their result without an account.
 - 🔐 Cloudflare Turnstile (+ hCaptcha fallback)
 - 🖐️ FingerprintJS / `fpscanner`
 - 🛡️ Supabase Row-Level Security + validation triggers
-- 📊 Trench.js (consent-gated analytics)
+- 📊 Rybbit (self-hosted, consent-gated analytics)
 
 > **Note on dependencies:** Some dependencies are not used by the frontend SPA in this repository; they relate to the
 > standalone Worker/API. See the [Architecture discussion](https://github.com/electometro-org/app/discussions/categories/docs) for dependency boundaries.
@@ -299,8 +301,8 @@ Environment variables are read by Vite (`import.meta.env`). Copy from `.env.exam
 
 | Variable | Purpose |
 | --- | --- |
-| `VITE_TRENCH_ENABLED` | Enable/disable Trench analytics. |
-| `VITE_TRENCH_SERVER_URL` / `VITE_TRENCH_PUBLIC_API_KEY` | Trench analytics endpoint + key. |
+| `VITE_RYBBIT_ENABLED` | Enable/disable Rybbit analytics. |
+| `VITE_RYBBIT_HOST` / `VITE_RYBBIT_SITE_ID` | Origin of the Rybbit instance (or your proxy, no trailing slash) and the site id. |
 | `VITE_TURNSTILE_FORM_KEY` | Cloudflare Turnstile site key. |
 | `VITE_HCAPTCHA_SITE_KEY` | hCaptcha site key (fallback for old browsers). |
 | `VITE_HCAPTCHA_FALLBACK_API` | Fallback API base URL for hCaptcha submissions. |
@@ -335,6 +337,50 @@ Application flow flags are resolved in [`src/config/appConfig.js`](src/config/ap
 in [`src/config/branding.js`](src/config/branding.js). Adding a new election is a matter of dropping a
 config file into [`src/elections/`](src/elections/) and registering it in
 [`src/elections/index.js`](src/elections/index.js) — see the [Architecture discussion](https://github.com/electometro-org/app/discussions/categories/docs).
+
+---
+
+## Analytics (Rybbit)
+
+[`src/utils/analytics.js`](src/utils/analytics.js) loads the Rybbit script
+(`<VITE_RYBBIT_HOST>/api/script.js?siteId=<VITE_RYBBIT_SITE_ID>`) only when `VITE_RYBBIT_ENABLED=true` and
+the user has not opted out. Rybbit tracks navigation itself (including the hash routes), so there is no
+manual page-view call; custom events go through `trackEvent(name, props)`. `props` may only hold strings
+and numbers (other values are dropped), and `election` / `region_id` are added to every event.
+
+| Event | When | Props |
+| --- | --- | --- |
+| `election_selected` | Election chosen in a multi-election build | `election` |
+| `quiz_started` | "Comenzar" pressed on the election intro | |
+| `region_selected` | Region chosen (regional elections) | `region`, `region_name` |
+| `answer_selected` / `answer_cleared` | Answer given / deselected | `question_id`, `question_index` |
+| `quiz_finish_blocked_min_answers` | Finish blocked by the minimum-answers rule | counts |
+| `quiz_completed` | Quiz finished | `total_questions`, `answered_count` |
+| `topic_importance_completed` | Topic importance confirmed | `important_topics` |
+| `demographics_submitted` | Demographics form sent (values are **not** sent) | |
+| `results_viewed` | Results shown | `source`: `quiz` or `mnemonic` |
+| `mnemonic_saved` / `mnemonic_restored` | Results link saved / restored | |
+| `language_changed` | Language switched | `language` |
+| `quiz_restarted` | Restart pressed | |
+
+Funnels and goals are built from these in the Rybbit dashboard. Errors, Web Vitals and outbound-link
+tracking are switches in the Rybbit **site settings** (no code). Session replay is not used.
+
+Privacy and consent:
+
+- Consent defaults to allowed and can be withdrawn in the privacy settings (which reload the page). Rybbit
+  reads its opt-out key (`disable-rybbit`) only when it loads, so withdrawing takes full effect on the
+  reload; opting out at load time means the script is never injected.
+- **Answers are not sent**, and saved-result links (`?r=<phrase>`, which encode the answers) are masked
+  (`data-mask-patterns`) because Rybbit records the hash route as the page path.
+- Rybbit does not expose its visitor id, so the app creates its own random id (`statsId`), passes it to
+  `identify`, and stores it as `stats_id` with a submission. It exists only with consent and is deleted on
+  withdrawal. Ids from the previous analytics tool do not match.
+- Every event carries the build's election id as Rybbit's `data-tag` (`VITE_ELECTION_ID`); use a
+  separate Rybbit site per environment (QA / production).
+- **CSP:** the deployed `Content-Security-Policy` must allow the Rybbit origin in `script-src` and
+  `connect-src` (the `_headers` file lives in the assets repo), or the script is blocked silently.
+  Proxying the script through your own domain also avoids ad blockers.
 
 ---
 

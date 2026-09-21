@@ -71,5 +71,3 @@ Tradeoffs / open items:
 - Translate the new interface keys (`regions.*`, `welcome.peru_regional_2026.*`, short election names)
   in Quechua and Aymara, and promote them QA → prod.
 - Normalize party names in the regional data file (spelling variants each need their own logo file).
-- Replace the Trench integration with the self-hosted Rybbit instance (see the migration notes in the
-  maintainers' tracker).

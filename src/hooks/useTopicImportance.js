@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { trackEvent } from "../utils/analytics";
 
 /**
  * useTopicImportance
@@ -70,6 +71,9 @@ export function useTopicImportance({ state, dispatch, computeAndDispatchResults 
   // Handle continuing from Topic Importance view to Demographics
   // Applies boosted weights and fetches results
   const handleTopicImportanceContinue = () => {
+    trackEvent("topic_importance_completed", {
+      important_topics: Object.values(state.topicImportance).filter(Boolean).length,
+    });
     applyTopicImportanceToWeights();
     setShowTopicImportance(false);
 

@@ -45,6 +45,7 @@
      --q-option-width    width of the answer buttons (1 = the old, widest size)
      --q-top-offset      space above the quiz-flow screens (quiz, topics, demographics, results)
      --q-logo-size       logo size on the quiz screen (100px = same as the welcome and region screens)
+     --q-logo-display    none = logo hidden (default), block = logo shown
      --q-topic-word-spacing  100vw = long topics stack one word per line (default); 0px = normal wrapping
    Try them live: document.documentElement.style.setProperty('--q-text-scale', 0.92) */
 [data-election="peru_2026"] {
@@ -53,8 +54,10 @@
   --q-header-scale: 1;
   --q-option-scale: 1;
   --q-option-width: 0.6;
-  --q-top-offset: 20px;
+  --q-top-offset: 40px;
   --q-logo-size: 100px;
+  /* The logo is hidden for now (takes no space). Set to block to show it again. */
+  --q-logo-display: none;
 }
 
 /* One element (not .quiz-widget, which exists twice) and only the quiz-flow screens */
@@ -165,9 +168,11 @@
 }
 
 [data-election="peru_2026"] .quiz-brand img {
+  display: var(--q-logo-display, none);
   flex: none;
   width: var(--q-logo-size, 100px);
   height: var(--q-logo-size, 100px);
+  margin-right: clamp(10px, 1.4vw, 18px);
 }
 
 [data-election="peru_2026"] .quiz-brand__text {
@@ -176,7 +181,6 @@
   flex-direction: column;
   align-items: center;
   min-width: 0;
-  margin-left: clamp(10px, 1.4vw, 18px);
   text-align: center;
 }
 

@@ -162,7 +162,7 @@ export default function QuizView({
     .replace("[new]", pendingChangedOption ? t(pendingChangedOption) : "");
   const questionText = question.question_key ? t(question.question_key) : question.question;
 
-  // Question header: "Tema: topic" on the left, "[k/n]" (position among topics) on the right
+  // Question header: topic on the left, "[k/n]" (position among topics) on the right
   const topicIndex = topics.findIndex(topic => topic.topic_key === question.topic_key);
   const topicLabel = question.inlineText ? question.tema : t(question.topic_key, question.tema);
   const topicCount = topicIndex >= 0 ? `${topicIndex + 1}/${topics.length}` : null;
@@ -222,7 +222,6 @@ export default function QuizView({
         {showTopicHeader && (
           <div className={`question-topic-header ${topicStacked ? "is-topic-stacked" : ""}`}>
             <span ref={topicRef} className="question-topic-header__topic">
-              <span className="question-topic-header__label">{t("quiz.topicLabel", "Tema:")}</span>
               <span className="question-topic-header__name">{topicLabel}</span>
             </span>
             {topicCount && <span className="question-topic-header__count">[{topicCount}]</span>}

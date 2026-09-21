@@ -124,16 +124,9 @@
   text-align: left;
 }
 
-/* Topic on the left: "Tema: <topic>" on one line when it fits */
+/* Topic on the left, on one line when it fits */
 [data-election="peru_2026"] .question-topic-header__topic {
   min-width: 0;
-}
-
-[data-election="peru_2026"] .question-topic-header__label {
-  margin-right: 0.4em;
-  font-size: 0.85em;
-  font-weight: 600;
-  opacity: 0.9;
 }
 
 /* Never hyphenate; words only break as a last resort if a single word is wider than the column */
@@ -149,17 +142,11 @@
   white-space: nowrap;
 }
 
-/* QuizView adds .is-topic-stacked when "Tema: topic" does not fit on one line: the label goes on its
-   own line and the topic follows one word per line. Set --q-topic-word-spacing to 0px to wrap normally. */
+/* QuizView adds .is-topic-stacked when the topic does not fit on one line: one word per line.
+   Set --q-topic-word-spacing to 0px to wrap normally instead. */
 [data-election="peru_2026"] .question-topic-header.is-topic-stacked {
   padding-top: 6px;
   padding-bottom: 6px;
-}
-
-[data-election="peru_2026"] .question-topic-header.is-topic-stacked .question-topic-header__label,
-[data-election="peru_2026"] .question-topic-header.is-topic-stacked .question-topic-header__name {
-  display: block;
-  margin-right: 0;
 }
 
 [data-election="peru_2026"] .question-topic-header.is-topic-stacked .question-topic-header__name {

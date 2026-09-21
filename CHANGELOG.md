@@ -38,6 +38,8 @@ uses Conventional Commit-style change descriptions.
 
 - Results showed "null%" (or a bare "%") for candidates with nothing to compare, such as the two regional
   candidates that have no recorded positions; they now show an em dash.
+- Topic labels on the topic-importance screen were cut off with an ellipsis in narrow boxes (many in Piura); they
+  now wrap to two lines and shrink to a minimum size before any truncation.
 - Regional intro/region-picker texts showed raw Tolgee keys: defaults are now passed as Tolgee's second
   argument (`t(key, "Default", params)`).
 - Widgets limited to the `quiz` phase (progress indicator) no longer appear on the region picker after

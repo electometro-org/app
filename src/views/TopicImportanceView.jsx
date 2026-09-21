@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import { useTranslate } from "@tolgee/react";
 import { BrandLogo } from "../components/BrandImage";
@@ -39,6 +39,28 @@ export default function TopicImportanceView({
   const [isMobile, setIsMobile] = useState(false);
   const [showScrollDownFab, setShowScrollDownFab] = useState(false);
   const topicGridRef = useRef(null);
+
+  // Topic labels wrap to two lines; when a label still does not fit (long words / narrow boxes) shrink its
+  // font in small steps down to a minimum instead of cutting it off
+  useLayoutEffect(() => {
+    const grid = topicGridRef.current;
+    if (!grid) return undefined;
+    const MIN_FONT_PX = 11;
+    const fit = () => {
+      grid.querySelectorAll(".topic-label").forEach((label) => {
+        label.style.fontSize = "";
+        let size = parseFloat(window.getComputedStyle(label).fontSize);
+        while (size > MIN_FONT_PX && (label.scrollHeight > label.clientHeight + 1 || label.scrollWidth > label.clientWidth + 1)) {
+          size -= 0.5;
+          label.style.fontSize = `${size}px`;
+        }
+      });
+    };
+    fit();
+    window.addEventListener("resize", fit);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    return () => window.removeEventListener("resize", fit);
+  }, [topics, t]);
   const lastTopicRef = useRef(null);
   const showContinueRef = useRef(showContinue);
   const scrollParentRef = useRef(null);

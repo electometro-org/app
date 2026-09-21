@@ -3588,11 +3588,20 @@ button,
 /* Topic label in center */
 .topic-label {
   flex: 1;
+  min-width: 0;
   text-align: left;
   font-weight: 500;
-  white-space: nowrap;
+  line-height: 1.25;
+  /* Wrap to at most two lines (whole words); TopicImportanceView shrinks the font when that is not
+     enough, and the ellipsis only appears as a last resort at the minimum size */
+  white-space: normal;
   overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: break-word;
+  -webkit-hyphens: none;
+  hyphens: none;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .topic-state-indicator--normal {

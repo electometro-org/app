@@ -94,8 +94,11 @@ export default function QuizView({
       const container = el?.parentElement;
       if (!el || !container) return;
 
-      // Keep desktop typography unchanged; fluid layouts size their text with CSS.
-      if (window.innerWidth >= 768 || container.dataset.fluid) {
+      // Fluid layouts size their text with CSS (and the long-question fit effect below): leave it alone
+      if (container.dataset.fluid) return;
+
+      // Keep desktop typography unchanged
+      if (window.innerWidth >= 768) {
         el.style.fontSize = "";
         el.style.lineHeight = "";
         return;
@@ -167,26 +170,67 @@ export default function QuizView({
   const topicLabel = question.inlineText ? question.tema : t(question.topic_key, question.tema);
   const topicCount = topicIndex >= 0 ? `${topicIndex + 1}/${topics.length}` : null;
 
-  // Topic name: keep it on one line when it fits, otherwise stack it one word per line
+  // Topic name: shrink the font (down to a minimum) so it fits on one line; only if it still does not
+  // fit, stack it one word per line
   useLayoutEffect(() => {
     const el = topicRef.current;
     if (!el) return undefined;
+    const MIN_FONT_PX = 11;
     const measure = () => {
       const header = el.closest(".question-topic-header");
-      const wasStacked = header ? header.classList.contains("is-topic-stacked") : false;
-      if (wasStacked) header.classList.remove("is-topic-stacked");
+      const nameEl = el.querySelector(".question-topic-header__name");
+      if (header) header.classList.remove("is-topic-stacked");
+      if (nameEl) nameEl.style.fontSize = "";
+
       const previous = el.style.whiteSpace;
       el.style.whiteSpace = "nowrap";
-      const overflows = el.scrollWidth > el.clientWidth + 1;
+      const fits = () => el.scrollWidth <= el.clientWidth + 1;
+      let size = nameEl ? parseFloat(window.getComputedStyle(nameEl).fontSize) : 0;
+      while (nameEl && !fits() && size > MIN_FONT_PX) {
+        size -= 0.5;
+        nameEl.style.fontSize = `${size}px`;
+      }
+      const stillOverflows = !fits();
       el.style.whiteSpace = previous;
-      if (wasStacked) header.classList.add("is-topic-stacked");
-      setTopicStacked(overflows);
+
+      if (stillOverflows && nameEl) nameEl.style.fontSize = ""; // stacked mode sets its own size
+      if (stillOverflows && header) header.classList.add("is-topic-stacked");
+      setTopicStacked(stillOverflows);
     };
     measure();
     window.addEventListener("resize", measure);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
     return () => window.removeEventListener("resize", measure);
   }, [topicLabel, showTopicHeader]);
+
+  // Long questions: shrink the question text (never below a minimum) just enough for the quiz to fit the
+  // screen height. Also re-checked after the next frame (layout may settle late) and when the header stacks.
+  useLayoutEffect(() => {
+    const h2 = questionTitleRef.current;
+    if (!h2 || !showTopicHeader) return undefined;
+    const MIN_FONT_PX = 12;
+    const bottom = () => {
+      const anchor = document.querySelector(".quiz-progress") || h2.closest(".question-card") || h2;
+      const scrolled = window.pageYOffset || document.body.scrollTop || 0;
+      return anchor.getBoundingClientRect().bottom + scrolled;
+    };
+    const fit = () => {
+      h2.style.fontSize = "";
+      let size = parseFloat(window.getComputedStyle(h2).fontSize);
+      while (size > MIN_FONT_PX && bottom() > window.innerHeight - 8) {
+        size -= 0.5;
+        h2.style.fontSize = `${size}px`;
+      }
+    };
+    fit();
+    const frame = window.requestAnimationFrame(fit);
+    window.addEventListener("resize", fit);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", fit);
+    };
+  }, [questionText, showTopicHeader, topicStacked]);
 
   // One card encloses header, question, answers and Skip/Back/Next (topic-header layout only)
   const Card = showTopicHeader ? "div" : Fragment;

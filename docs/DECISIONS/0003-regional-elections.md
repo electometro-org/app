@@ -57,10 +57,16 @@ Tradeoffs / open items:
 - Saved results are positional: **any quiz change in the data file must bump `version`**.
 - Region numbers are limited to 255 by the one-word encoding.
 - `db/regional.sql` is not re-runnable and must run before a Worker that sends `region_id`.
-- The compact layout still scrolls on the longest questions on some small screens. Measured on
-  2026-09-21 (longest question, extra scroll): 360×640 ≈ 110–120px, 393×851 ≈ 17px, 768×1024 up to
-  ≈ 110px (Lima), 1024×768 ≈ 17px; none at 1440×900 and 1920×1080. Levers: `--q-question-scale`,
-  `--q-option-scale`, `--q-top-offset`, the logo (hidden by default) and the card padding.
+- Long questions and topics adapt instead of being cut off: the question box grows with its text, the
+  card header shrinks the topic to one line (down to 11px, then stacks words), and the question text
+  shrinks (down to 12px) only as far as needed to fit the screen height. Even so, the longest questions
+  (Piura has the longest, 295 characters) still scroll on small screens. Measured on the longest question of
+  each region (extra scroll): 320×568 ≈ 130–160px, 360×640 ≈ 55–90px, 393×851 ≈ 1px, 768×1024 and
+  1024×768 ≈ 8px; none at 1366×768, 1440×900 and 1920×1080, and no question is clipped at any size. An
+  earlier version of this ADR listed smaller phone numbers because a fixed-height phone rule was clipping
+  long questions and hiding the height; size sweeps must check clipping and include the region with the
+  longest text. Levers: `--q-question-scale`, `--q-option-scale`, `--q-top-offset`, the logo (hidden by
+  default) and the card padding.
 - The privacy notice can cover the intro's Start button on ≈360×640 screens.
 - Only Spanish and the regional election were verified end to end.
 

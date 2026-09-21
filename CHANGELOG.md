@@ -38,6 +38,10 @@ uses Conventional Commit-style change descriptions.
 
 - Results showed "null%" (or a bare "%") for candidates with nothing to compare, such as the two regional
   candidates that have no recorded positions; they now show an em dash.
+- Long questions were clipped inside the question box on phones (a fixed-height rule came back when the box
+  moved into the card; visible on Piura's 295-character question). The box now grows with its text, the
+  card header topic shrinks to fit on one line before stacking, and the question text shrinks (down to
+  12px) only as far as needed to fit the screen height.
 - Topic labels on the topic-importance screen were cut off with an ellipsis in narrow boxes (many in Piura); they
   now wrap to two lines and shrink to a minimum size before any truncation.
 - Regional intro/region-picker texts showed raw Tolgee keys: defaults are now passed as Tolgee's second

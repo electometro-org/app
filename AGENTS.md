@@ -89,7 +89,9 @@ Put **pure logic in `services/`/`utils/`** (testable); keep UI in `components/`/
   `regionalService`, `mnemonicCodec`, `versionUtils`, `answerMappings`).
 - Layout changes on the quiz screen: check that the page does not gain scroll on short phones
   (e.g. 360×640) and that nothing overflows horizontally. Measure `max(documentElement.scrollHeight,
-  body.scrollHeight)` — the scrolling element can be `body`.
+  body.scrollHeight)` — the scrolling element can be `body` — and also check that no question text is
+  clipped inside its box (text taller than its container). Test every region: Piura has the longest question
+  (295 characters), Lima the longest topic.
 
 ## Analytics
 

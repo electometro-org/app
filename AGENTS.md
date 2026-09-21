@@ -91,6 +91,13 @@ Put **pure logic in `services/`/`utils/`** (testable); keep UI in `components/`/
   (e.g. 360×640) and that nothing overflows horizontally. Measure `max(documentElement.scrollHeight,
   body.scrollHeight)` — the scrolling element can be `body`.
 
+## Analytics
+
+- Use only `trackEvent(name, props)` from `src/utils/analytics.js` (props: strings/numbers only; the helper
+  drops anything else and merges `election` / `region_id`). Never put answers, demographics, free text
+  or saved-result phrases in an event. The event catalogue is in README → *Analytics (Rybbit)* — keep it in
+  sync when you add one.
+
 ## Regional elections & quiz screen — things to know
 
 - **Election flags** (`regional`, `styleId`, `inlineProgress`, `topicHeader`, `quizTopLine`, …) are opt-in

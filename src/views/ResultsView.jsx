@@ -4,6 +4,7 @@ import { BrandLogo } from "../components/BrandImage";
 import { voteToNumeric } from "../utils/voteUtils";
 import { createPortal } from "react-dom";
 import { encodeToMnemonic } from "../utils/mnemonicCodec";
+import { trackEvent } from "../utils/analytics";
 import { collectFingerprintPayload } from "../hooks/useFingerprint";
 import FightModeModal from "../components/FightModeModal";
 import BattleModeCTA from "../components/BattleModeCTA";
@@ -270,6 +271,8 @@ export default function ResultsView({
       config?.regional ? { regionId } : {}
     );
     if (!mnemonic) return;
+
+    trackEvent("mnemonic_saved");
 
     // Update URL hash with mnemonic
     const currentHash = window.location.hash;

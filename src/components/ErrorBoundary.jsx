@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslate } from "@tolgee/react";
 import debug from "../utils/debug";
+import { reportError } from "../utils/analytics";
 import "./ErrorBoundary.css";
 
 function DefaultFallback({ onRetry }) {
@@ -36,6 +37,7 @@ export default class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, info) {
     debug.error("Uncaught render error:", error, info?.componentStack);
+    reportError(error);
   }
 
   handleRetry() {

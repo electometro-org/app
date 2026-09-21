@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { setAnalyticsContext, trackEvent } from "../utils/analytics";
 import {
   preSelectedElectionId,
   showGenericIntro as showGenericIntroConfig,
@@ -45,6 +46,11 @@ export function useElectionFlow() {
     }
   }, [election, electionIntroInitialized]);
 
+  // Every analytics event carries the election and (regional) region
+  useEffect(() => {
+    setAnalyticsContext({ election, region_id: regionId });
+  }, [election, regionId]);
+
   const handleGenericIntroContinue = useCallback(() => {
     setShowGenericIntro(false);
     window.scrollTo(0, 0);
@@ -61,6 +67,7 @@ export function useElectionFlow() {
   }, []);
 
   const handleStartQuiz = useCallback(() => {
+    trackEvent("quiz_started");
     setShowElectionIntro(false);
     window.scrollTo(0, 0);
   }, []);

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { collectFingerprintPayload, useFingerprint } from "./useFingerprint";
-import { setAnalyticsConsent } from "../utils/analytics";
+import { setAnalyticsConsent, trackEvent } from "../utils/analytics";
 import {
   buildSubmissionPayload as _buildSubmissionPayload,
   submitQuizAnswers as _submitQuizAnswers,
@@ -70,6 +70,7 @@ export function useDemographicsAndSubmission({
       setAnalyticsConsent(demo.analyticsConsent);
     }
 
+    trackEvent("demographics_submitted");
     setShowTurnstileOverlay(true);
   };
 
@@ -92,6 +93,7 @@ export function useDemographicsAndSubmission({
     setTurnstileVerified(true);
     setShowTurnstileOverlay(false);
     setShowDemographics(false);
+    trackEvent("results_viewed", { source: "quiz" });
 
     // Scroll to top when showing results
     window.scrollTo(0, 0);

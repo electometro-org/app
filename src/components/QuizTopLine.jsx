@@ -9,7 +9,7 @@ export default function QuizTopLine({ regionName = null }) {
       {regionName && (
         <span className="region-badge" title={regionName}>
           <span className="region-badge__dot" aria-hidden="true" />
-          {regionName}
+          <span className="region-badge__name">{regionName}</span>
         </span>
       )}
     </div>

@@ -36,6 +36,8 @@ uses Conventional Commit-style change descriptions.
 
 ### Fixed
 
+- Results showed "null%" (or a bare "%") for candidates with nothing to compare, such as the two regional
+  candidates that have no recorded positions; they now show an em dash.
 - Regional intro/region-picker texts showed raw Tolgee keys: defaults are now passed as Tolgee's second
   argument (`t(key, "Default", params)`).
 - Widgets limited to the `quiz` phase (progress indicator) no longer appear on the region picker after

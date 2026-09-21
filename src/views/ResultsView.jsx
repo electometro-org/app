@@ -5,6 +5,7 @@ import { voteToNumeric } from "../utils/voteUtils";
 import { createPortal } from "react-dom";
 import { encodeToMnemonic } from "../utils/mnemonicCodec";
 import { trackEvent } from "../utils/analytics";
+import { formatScore } from "../utils/scoreFormat";
 import { collectFingerprintPayload } from "../hooks/useFingerprint";
 import FightModeModal from "../components/FightModeModal";
 import BattleModeCTA from "../components/BattleModeCTA";
@@ -1120,7 +1121,7 @@ export default function ResultsView({
                     {row.type === "presidential" && row.payload?.party && (
                       <div className="results-slot-item__party">{row.payload.party}</div>
                     )}
-                    <div className="results-slot-item__score">{row.score}%</div>
+                    <div className="results-slot-item__score">{formatScore(row.score)}</div>
                   </div>
                 ))}
               </div>
@@ -1209,7 +1210,7 @@ export default function ResultsView({
                         </span>
                       </span>
                       <span className="results-row__score">
-                        <RowFillAwareText text={`${row.score}%`} fillPercent={fillPercent} />
+                        <RowFillAwareText text={formatScore(row.score)} fillPercent={fillPercent} />
                       </span>
                     </button>
                   </li>
@@ -1240,7 +1241,7 @@ export default function ResultsView({
                         </span>
                       </span>
                       <span className="results-row__score">
-                        <RowFillAwareText text={`${row.score}%`} fillPercent={fillPercent} />
+                        <RowFillAwareText text={formatScore(row.score)} fillPercent={fillPercent} />
                       </span>
                     </button>
                   </li>
@@ -1278,7 +1279,7 @@ export default function ResultsView({
                   <span className="results-analysis-active-card__score-label">
                     {activeSelectionSimilarityPercentageLabel}
                   </span>
-                  {activeRow.score}%
+                  {formatScore(activeRow.score)}
                 </div>
               </section>
             )}

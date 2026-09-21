@@ -9,6 +9,21 @@ uses Conventional Commit-style change descriptions.
 
 ### Added
 
+- **Regional elections** (`peru_regional_2026`, opt-in via `VITE_ELECTION_ID`): region picker, per-region
+  questions and candidates from a single regions JSON, candidate ranking, region encoded in the mnemonic
+  phrase, and an optional `region_id` on submissions. New `regionalService`, `useRegionalData`,
+  `RegionSelectorView`; tests for the service, the pipeline and the region-aware mnemonic codec.
+- Database: `db/regional.sql` (separate regional answers table with RLS, validation triggers and a
+  rate-limit function that counts both tables) and `db/regional_views.sql` (duplicates view, not exposed
+  through the API). Backend (private repos): `region_id` validation and routing, and CI deploy inputs
+  for the election and the app/cf-workers branches.
+- Peru quiz screen redesign (behind `quizTopLine` / `topicHeader` / `inlineProgress`): one card with a
+  red topic header and `[k/n]`, Restart top-left, Menu opening the section list, language pill and
+  region chip above the card, single-row progress bar, fluid `clamp()` sizing and `--q-*` CSS knobs.
+- Answers can be deselected by clicking the selected answer again.
+- Election-config support for `styleId`, `shortLabel`/`defaultShortLabel`, `intro` and `defaultLabel`
+  fallbacks; `branding.title`; `ProgressSegments`, `LanguagePill` and `QuizTopLine` components.
+- ADR 0003 (regional elections) and an accessibility addendum for the new controls.
 - Open-source governance documentation: contributing guide, security policy, architecture notes,
   roadmap, conventions, code of conduct, and ADRs.
 - Subsystem deep-dive docs ported from the legacy docs branch and re-verified against this
@@ -16,8 +31,24 @@ uses Conventional Commit-style change descriptions.
   (grid/docking/persistence), Backgrounds, and a Development guide (build pipeline internals,
   dev-only env vars). Stale README claims fixed along the way (tests FAQ, contexts description).
 
+### Fixed
+
+- Regional intro/region-picker texts showed raw Tolgee keys: defaults are now passed as Tolgee's second
+  argument (`t(key, "Default", params)`).
+- Widgets limited to the `quiz` phase (progress indicator) no longer appear on the region picker after
+  a restart.
+- Worker (private repo): the `cf_clearance` KV binding is keyed by its SHA-256, fixing
+  "UTF-8 encoded length … exceeds key length limit of 512" errors on long cookies.
+
 ### Changed
 
+- Top-right "Menú" is now a hamburger button. Elections without `quizTopLine` get a small dropdown
+  ("Conocer más" for the section list, plus Restart, which replaces the old top-left Restart button);
+  with `quizTopLine` it opens the section list directly and Restart returns to the top-left corner.
+- Language switcher is pinned to the top-left of the viewport (outside the widget layout, whose transform
+  broke `position: fixed`); during the quiz it becomes a pill above the card when `quizTopLine` is on.
+- `peru_2026`: the floating progress-indicator widget was replaced by the inline `ProgressSegments` bar,
+  and the quiz widget's grid slot heights were reduced so the compact quiz does not force page height.
 - Reference documentation moved from tracked markdown to
   [GitHub Discussions → Docs](https://github.com/electometro-org/app/discussions/categories/docs):
   Architecture, Conventions, Submodules, Elections System, Widget System, Background System, and

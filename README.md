@@ -25,6 +25,7 @@ Live deployments: [electometro.org](https://electometro.org) ·
 - [Deployment](#deployment)
 - [Project structure](#project-structure)
 - [Configuration](#configuration)
+- [Regional elections](#regional-elections)
 - [FAQ](#faq)
 - [Contributing](#contributing)
 - [License](#license)
@@ -40,6 +41,10 @@ Live deployments: [electometro.org](https://electometro.org) ·
    ideological closeness to each party and presidential candidate (a weighted similarity score).
 4. Detailed per-question breakdowns show how each entity voted on every thesis.
 
+**Regional elections** work per region: the voter first picks a region, and both the questionnaire and
+the candidates (governor candidates, no parties) are specific to it. See
+[Regional elections](#regional-elections).
+
 Results can be encoded into a shareable **mnemonic phrase** (a sequence of words in the URL `?r=`
 parameter) so a voter can save or share their result without an account.
 
@@ -52,6 +57,10 @@ parameter) so a voter can save or share their result without an account.
 - Smooth navigation across unique questions.
 - Topic-importance weighting for questions the voter cares about.
 - Optional demographic form (gender, age, education, region).
+- Answers can be deselected by clicking the selected answer again.
+- Region picker for regional elections (searchable, remembers the last choice).
+- Compact, fluid quiz screen: sizes scale with the viewport so the quiz fits small phones and uses the
+  space on large screens (see [Tuning the quiz screen](#tuning-the-quiz-screen)).
 - Expanded candidate/party detail views with per-question comparison.
 - Legacy-browser support (Chrome 70+, Safari 12+, iOS 12+) via `@vitejs/plugin-legacy`.
 
@@ -66,6 +75,9 @@ parameter) so a voter can save or share their result without an account.
 - Multi-language support via [Tolgee](https://tolgee.io/).
 - Dynamic language switching without page reload.
 - Languages currently wired: Spanish (`es`), Quechua (`qu`), Aymara (`ay`).
+- Language switcher pinned top-left; once the quiz starts it becomes a pill above the question.
+- Interface texts are Tolgee keys; regional question/topic texts come straight from the data file and
+  are not translated (see [Regional elections](#regional-elections)).
 
 ### 🔒 Security & anti-fraud
 - CAPTCHA verification before submission (Cloudflare Turnstile, with an hCaptcha fallback for older
@@ -73,6 +85,8 @@ parameter) so a voter can save or share their result without an account.
 - Device fingerprinting via `fpscanner` / FingerprintJS.
 - Hidden honeypot field to trap bots.
 - Database-side validation and Row-Level Security (see [`db/`](db/)).
+- Regional submissions carry a `region_id`, are validated like national ones and stored separately;
+  fingerprint rate limits count both.
 
 ### 📈 Analytics
 - Consent-gated usage analytics via [Trench.js](https://trench.dev/).
@@ -178,6 +192,11 @@ parameter) so a voter can save or share their result without an account.
 6. **Run the database migrations** in the Supabase SQL editor, in order:
    1. [`db/migration.sql`](db/migration.sql) — creates `quiz_answers`, indexes, RLS.
    2. [`db/security.sql`](db/security.sql) — check constraints + validation triggers.
+   3. [`db/regional.sql`](db/regional.sql) — *regional elections only:* separate answers table, RLS,
+      the same validation triggers, and a rate-limit function that counts both tables. Run it once
+      (it is not re-runnable) and **before** deploying a Worker that sends `region_id`.
+   4. [`db/regional_views.sql`](db/regional_views.sql) — optional duplicates analysis view for regional
+      submissions (safe to re-run; not readable through the public API).
 
 7. **Start the dev server:**
    ```bash
@@ -214,6 +233,12 @@ A per-election build also injects HTML `<title>`, description, canonical URL, fa
 ## Deployment
 
 ### Cloudflare Workers
+
+> CI deploys live in the assets repo (`external/peru-assets/.github/workflows/`). `deploy-app.yml`
+> asks for the **environment** (qa/prod), the **election** (`VITE_ELECTION_ID`, a dropdown), and
+> optionally the **app** and **cf-workers branches** to deploy; `release-qa.yml` and
+> `release-prod.yml` take the same election/branch inputs and forward them.
+
 1. Set secrets:
    ```bash
    wrangler secret put TURNSTILE_SECRET_KEY
@@ -238,7 +263,7 @@ in this checkout, so Cloudflare is the documented deployment path here.
 
 ```
 electometro/
-├── db/                         # Supabase SQL: schema (migration.sql) + hardening (security.sql)
+├── db/                         # Supabase SQL: schema, hardening and the regional-elections tables/views
 ├── docs/                       # Versioned project documentation
 │   ├── DECISIONS/              # Architecture Decision Records (ADRs)
 │   ├── es/                     # Spanish translations of community-facing docs
@@ -252,9 +277,9 @@ electometro/
 │   ├── config/                 # appConfig, branding, env, background defaults
 │   ├── constants/              # answerMappings, capibarismoMapping
 │   ├── contexts/               # Split state providers (Election/QuizFlow/Results/UI + QuizContext)
-│   ├── elections/              # Per-election config registry (peru_2026, chile_2025) + widgets
+│   ├── elections/              # Per-election config registry (peru_2026, peru_regional_2026, chile_2025) + widgets
 │   ├── hooks/                  # useQuiz reducer + focused quiz hooks (flow, results, submission, …)
-│   ├── services/               # quizService, resultsService, submissionService (logic layer)
+│   ├── services/               # quizService, resultsService, submissionService, regionalService (logic layer)
 │   ├── utils/                  # mnemonicCodec, versionUtils
 │   ├── views/                  # Top-level screens (intro, selector, quiz, results, etc.)
 │   └── widgets/                # Widget system (registry + docking + types)
@@ -313,6 +338,91 @@ config file into [`src/elections/`](src/elections/) and registering it in
 
 ---
 
+## Regional elections
+
+`peru_regional_2026` reuses the national election's look, assets and widgets but works per region.
+Enable it with `VITE_ELECTION_ID=peru_regional_2026` (its config sets `enabled: false`, so it never
+appears in a multi-election build by accident).
+
+**Data.** A single compact JSON file (`VITE_ELECTIONS_DATA_URL` +
+`/peru_2026/combined_votes_peru_regions_2026_compact.json`):
+
+```jsonc
+{
+  "version": "1.0.0",
+  "regions": {
+    "r1": {
+      "id": "r1", "name": "Lima Metropolitana",
+      "quiz": { "PE1": { "id": "PE1", "topic": "Salud pública", "question": "…" } },
+      "candidates": {
+        "c1": { "id": "c1", "name": "…", "party": { "name": "…" },
+                "votes": { "PE1": { "vote": 1, "comment": "…", "source": "https://…" } } }
+      }
+    }
+  }
+}
+```
+
+- Question and topic texts are **inline** (not Tolgee keys), so they display as written whichever
+  interface language is selected. Interface strings are translated as usual.
+- Quiz ids can differ per region (shared ids like `PE1` plus region-specific ones).
+- **Bump `version` whenever a region's quiz changes.** Saved results store answers by position, so a
+  changed quiz would otherwise restore shifted (the version-mismatch notice depends on it).
+- Party logos are resolved by slug of the *exact* party name in the file
+  (`party_logos/<slug>.{png,jpg,jpeg,svg}` in the assets bucket), so spelling variants of the same
+  party each need their own file.
+
+**Flow.** intro → region picker → quiz → topic importance → demographics → results. Candidates use the
+existing candidate ranking (`presidentialCandidates` result type); there are no party results.
+
+**Mnemonic.** The phrase starts with one word that encodes the region (`r<N>` → word *N* of the word
+list, so region numbers go up to 255), followed by the answers and the version suffix as usual. National
+and regional phrases are not interchangeable.
+
+**Submissions.** The payload adds `region_id` (e.g. `"r1"`) for regional elections only. The Worker
+validates it (`^r\d{1,3}$`) and stores regional answers in their own table (`db/regional.sql`).
+
+**Election config flags** (see `src/elections/peru_regional_2026.js`, which spreads `peru_2026`):
+
+| Flag | Effect |
+| --- | --- |
+| `regional`, `regionalVotesUrl` | Enable the region picker and load quiz/candidates from the regions file. |
+| `styleId` | Reuse another election's stylesheet and `data-election` scope (regional uses `peru_2026`). |
+| `intro`, `defaultLabel`, `shortLabel` / `defaultShortLabel` | Fallback texts used until Tolgee has the keys; the short label is the subtitle on the quiz screen. |
+| `inlineProgress` | Single-row progress bar under the quiz card (instead of the floating progress widget). |
+| `topicHeader` | Red `topic … [k/n]` header on the question card. |
+| `quizTopLine` | Restart top-left, Menu opening the section list, and the language pill + region chip above the card. |
+| `branding.title` | Title shown next to the (optional) logo on the quiz screen. |
+
+The last three flags are off by default, so other elections keep the classic quiz layout.
+
+### Tuning the quiz screen
+
+The Peru quiz screen (`src/elections/peru_2026.css`, shared by the regional election) sizes its text,
+spacing and buttons with `clamp()` on the viewport, so it is compact on short phones and larger on tall
+or wide screens. The defaults can be adjusted with CSS variables, which is also the fastest way to try a
+value in the browser:
+
+```js
+document.documentElement.style.setProperty('--q-question-scale', 0.8)
+```
+
+| Variable | Default | Controls |
+| --- | --- | --- |
+| `--q-text-scale` | `1` | All quiz text (multiplies the three below). |
+| `--q-question-scale` | `0.8` | The question text. |
+| `--q-header-scale` | `1` | The red header and the title/subtitle. |
+| `--q-option-scale` | `1` | Answer buttons and Skip/Back/Next text. |
+| `--q-option-width` | `0.6` | Answer button width (never narrower than the longest label needs). |
+| `--q-top-offset` | `40px` | Space above the quiz-flow screens. |
+| `--q-logo-display` / `--q-logo-size` | `none` / `100px` | Logo on the quiz screen (hidden by default). |
+| `--q-topic-word-spacing` | `100vw` | `100vw` stacks long topics one word per line; `0px` wraps normally. |
+
+Tall content still scrolls on the smallest screens (see
+[ADR 0003](docs/DECISIONS/0003-regional-elections.md) for measured numbers).
+
+---
+
 ## FAQ
 
 **Why HashRouter instead of BrowserRouter?**
@@ -325,8 +435,12 @@ answers requires the Worker/API + Supabase; without them, submissions simply fai
 quiz still works.
 
 **Where does the vote data come from?**
-From external compact-format JSON files (keys like `t1`, `c1`, `p1`) served from
-`VITE_ELECTIONS_DATA_URL`. The frontend does not generate this data.
+From external compact-format JSON files (keys like `t1`, `c1`, `p1`; regional elections use one file
+with a `regions` map) served from `VITE_ELECTIONS_DATA_URL`. The frontend does not generate this data.
+
+**Why is the regional question text in Spanish when I switch to Quechua or Aymara?**
+Regional question and topic texts come inline from the data file, not from Tolgee. Only interface
+strings (buttons, labels, notices) are translated.
 
 **Can I add a new election or country?**
 Yes — that's a core design goal. Add an election config and assets; see

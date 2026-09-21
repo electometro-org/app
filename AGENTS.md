@@ -37,8 +37,11 @@ npm run deploy   # build + wrangler deploy
 - `src/hooks/` — `useQuiz` (reducer = canonical quiz state) + `useElectionFlow`, `useQuizNavigation`,
   `useMinAnswersGate`, `useTopicImportance`, `useResultsComputation`, `useDemographicsAndSubmission`,
   `useMnemonicRestore`, `useThemeAndAssets`.
-- `src/services/` — pure logic: `resultsService` (scoring), `quizService`, `submissionService`.
-- `src/utils/`, `src/config/`, `src/constants/`, `src/views/`, `src/components/`.
+- `src/services/` — pure logic: `resultsService` (scoring), `quizService`, `submissionService`,
+  `regionalService` (regional data loading/shaping; see below).
+- `src/utils/`, `src/config/`, `src/constants/`, `src/views/`, `src/components/`. Quiz-screen pieces:
+  `components/QuizTopLine` (language pill + region chip), `LanguageSwitcher` (buttons and `LanguagePill`),
+  `ProgressSegments`, `HamburgerMenu`; `hooks/useRegionalData` feeds the region picker.
 - `src/elections/` — per-election config registry. `src/widgets/registry.js`,
   `src/backgrounds/registry.js` — extension registries.
 
@@ -62,23 +65,49 @@ Put **pure logic in `services/`/`utils/`** (testable); keep UI in `components/`/
 ## Data & backend boundaries
 
 - Vote data is **external compact JSON** from `VITE_ELECTIONS_DATA_URL` (keys like `t1`/`c1`/`p1`;
-  `version` field drives mnemonic compatibility). The frontend never generates it.
+  `version` field drives mnemonic compatibility). The frontend never generates it. Regional elections use
+  one file with a `regions` map (`{ version, regions: { r1: { id, name, quiz, candidates } } }`) whose
+  question/topic texts are inline; bump `version` whenever a region's quiz changes.
 - Frontend talks to the backend only over HTTP: `POST /electometro/api/form` and `/api/feedback`
   (with `credentials: 'include'`). The request/response interface is in the [Submodules discussion](https://github.com/electometro-org/app/discussions/categories/docs).
-- **Do not edit `external/*` from this repo's tasks** — they are independent (private) submodules. Do not
+  Regional submissions add an optional `region_id` (`r<N>`); the Worker stores them separately.
+- **Do not edit `external/*` from this repo's tasks** — they are independent (private) submodules. (If a
+  task explicitly includes them, commit inside the submodule separately and bump the pointer.) Do not
   copy backend internals (anti-fraud logic, infra identifiers, secret values, schema internals) into this
   public repo. Backend internals are documented inside the private `cf-workers` repo.
 
 ## Testing & quality gates
 
-- There is **no automated test suite yet**. Verify changes manually through the flow: intro → quiz →
-  topic importance → demographics → results, plus mnemonic restore via the `?r=` URL param.
+- A Vitest suite lives under `tests/` (pure modules: services, utils, constants); run `npm test`. UI is
+  not covered, so also verify changes manually through the flow: intro → quiz → topic importance →
+  demographics → results, plus mnemonic restore via the `?r=` URL param (regional: also the region picker).
 - Run `npm run lint` before finishing. **Known pre-existing failures:** `vite.config.js` and
   `vite-plugin-election-html.js` report `no-undef` for Node globals (`__dirname`, `process`), and a few
   `src/widgets/*` files have unused-var warnings. Don't introduce **new** lint errors; fixing the
   pre-existing config-globals issue (a Node `languageOptions.globals` override) is welcome but optional.
-- If you add tests, start with the pure modules: `resultsService`, `quizService`, `submissionService`,
-  `mnemonicCodec`, `versionUtils`, `answerMappings`.
+- New pure logic ships with tests (`resultsService`, `quizService`, `submissionService`,
+  `regionalService`, `mnemonicCodec`, `versionUtils`, `answerMappings`).
+- Layout changes on the quiz screen: check that the page does not gain scroll on short phones
+  (e.g. 360×640) and that nothing overflows horizontally. Measure `max(documentElement.scrollHeight,
+  body.scrollHeight)` — the scrolling element can be `body`.
+
+## Regional elections & quiz screen — things to know
+
+- **Election flags** (`regional`, `styleId`, `inlineProgress`, `topicHeader`, `quizTopLine`, …) are opt-in
+  per election config; without them an election keeps the classic layout. Reference: README →
+  [Regional elections](README.md#regional-elections).
+- **Tolgee defaults:** the default text is the *second positional argument*: `t(key, "Default", params)`.
+  `t(key, { defaultValue })` does not work, and comparing `t(key) === key` to detect a missing key is
+  unreliable. New keys go into `es-qa.json` (QA → prod promotion); the prod pull bot can overwrite
+  `es.json`.
+- **Election CSS** is scoped by `[data-election="<styleId>"]`; the regional election reuses
+  `peru_2026.css` through `styleId`. Text/spacing on the Peru quiz screen is fluid (`clamp()` on
+  viewport height/width) with `--q-*` knobs documented at the top of that file.
+- **Widget grid:** rows are 8px and docked widgets stay at fixed grid coordinates (docking zones only
+  reserve space), so anything that must sit *below the content* (like the progress bar) is rendered
+  in-flow instead of docked. `.quiz-widget` is used on two nested elements — don't target it bare.
+- **Database:** `db/regional.sql` is not re-runnable and must run before a Worker that sends
+  `region_id` is deployed. Analysis views must not be readable through the API (see SECURITY.md).
 
 ## Security
 

@@ -75,6 +75,13 @@ The following controls exist today and are areas where security reports are espe
 - **Database hardening:** Supabase Row-Level Security, a restrictive insert policy, check constraints,
   and validation triggers (vote ∈ [0,1], weight ∈ [1,3], ≤ 100 questions, payload-size limits) — see
   [`db/migration.sql`](db/migration.sql) and [`db/security.sql`](db/security.sql).
+- **Regional answers:** regional submissions carry a validated `region_id` and are stored in their own
+  table with the same RLS, constraints and triggers; the fingerprint rate limit counts both tables so
+  alternating elections does not double a device's allowance ([`db/regional.sql`](db/regional.sql)).
+- **API exposure of analysis views:** views that expose fingerprints must not be readable through the
+  public API (`security_invoker` + `REVOKE` from `anon`/`authenticated`, as in
+  [`db/regional_views.sql`](db/regional_views.sql)). Verify the older `quiz_answers_duplicates` and
+  `suspicious_ips` views in your project — Supabase grants new `public` objects to API roles by default.
 - **Consent-gated analytics:** analytics events are only sent when the user consents
   (`src/utils/analytics.js`).
 - **Content Security Policy:** configured in the deployed `index.html` (template:

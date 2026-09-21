@@ -78,3 +78,25 @@ are in `ResultsView.jsx`, this overlaps with the planned ResultsView decompositi
    `aria-live="polite"` announcement).
 5. When the warning count hits zero, flip the jsx-a11y rules from `warn` to `error` in
    `eslint.config.js`.
+
+## Addendum — regional elections UI (2026-09)
+
+The quiz-screen redesign added new controls. Manual status (no screen-reader pass yet):
+
+- **Language pill** (`LanguagePill`): a `role="group"` of buttons with `aria-pressed` for the active
+  language; the active state is colour-filled *and* bold, not colour alone.
+- **Progress bar** (`ProgressSegments`): `role="progressbar"` with `aria-valuenow/min/max` and a
+  language-neutral `aria-valuetext` (`k / n`).
+- **Region picker:** cards are real `<button>`s in a list, with a search field labelled for assistive tech.
+- **Hamburger menu** opens the section list directly; the previous dropdown (which used a backdrop `div`)
+  is no longer used for Peru elections.
+- **Still open / new risks:**
+  - Question text is scaled down on phones by design (`--q-question-scale`, ≈13–14px on a 360px
+    screen); re-check readability and let users zoom (no `user-scalable=no`).
+  - Contrast of the header band (light text on the election accent) and of the gray/opacity text has
+    not been measured against WCAG AA.
+  - On very short phones (≈360×640) the privacy notice can cover the Start button on the intro screen.
+  - Language changes do not translate regional question/topic texts (inline data), so screen readers
+    keep reading Spanish for those.
+  - `npm run lint` now reports 96 `jsx-a11y` and other warnings (86 at the time of this audit); the new
+    components add none.

@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { Fragment, useState, useEffect, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTranslate } from "@tolgee/react";
 import { BrandLogo, BrandLogoAlt } from "../components/BrandImage";
@@ -188,6 +188,10 @@ export default function QuizView({
     return () => window.removeEventListener("resize", measure);
   }, [topicLabel, showTopicHeader]);
 
+  // One card encloses header, question, answers and Skip/Back/Next (topic-header layout only)
+  const Card = showTopicHeader ? "div" : Fragment;
+  const cardProps = showTopicHeader ? { className: "question-card" } : {};
+
   return (
     <>
       {!showTopicHeader && !showTopLine && (
@@ -214,19 +218,21 @@ export default function QuizView({
         </>
       )}
 
+      <Card {...cardProps}>
+        {showTopicHeader && (
+          <div className={`question-topic-header ${topicStacked ? "is-topic-stacked" : ""}`}>
+            <span ref={topicRef} className="question-topic-header__topic">
+              <span className="question-topic-header__label">{t("quiz.topicLabel", "Tema:")}</span>
+              <span className="question-topic-header__name">{topicLabel}</span>
+            </span>
+            {topicCount && <span className="question-topic-header__count">[{topicCount}]</span>}
+          </div>
+        )}
+
       <DockingZone id="above-question" />
 
       <div className="question-content" key={question.id || displayIndex}>
         <div className="question-text-container" data-fluid={showTopicHeader ? "true" : undefined}>
-          {showTopicHeader && (
-            <div className={`question-topic-header ${topicStacked ? "is-topic-stacked" : ""}`}>
-              <span ref={topicRef} className="question-topic-header__topic">
-                <span className="question-topic-header__label">{t("quiz.topicLabel", "Tema:")}</span>
-                <span className="question-topic-header__name">{topicLabel}</span>
-              </span>
-              {topicCount && <span className="question-topic-header__count">[{topicCount}]</span>}
-            </div>
-          )}
           <h2 ref={questionTitleRef}>{questionText}</h2>
         </div>
       </div>
@@ -310,6 +316,7 @@ export default function QuizView({
           </button>
         )}
       </div>
+      </Card>
 
       {showChangeAnswerModal && createPortal(
         <div className="quiz-min-answers-overlay" onClick={closeChangeAnswerModal}>

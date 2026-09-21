@@ -62,20 +62,19 @@
   margin-top: var(--q-top-offset);
 }
 
-/* Question box. Sizes are fluid (clamp on viewport height/width): compact on short screens so the
-   quiz never needs scrolling, and growing to use the space on taller/wider ones.
+/* Question card: encloses the header band, the question, the answer buttons and Skip/Back/Next.
+   Sizes are fluid (clamp on viewport height/width): compact on short screens so the quiz never needs
+   scrolling, and growing to use the space on taller/wider ones.
    The base values suit phones; the steeper scale is applied from 768px up (see the media query below). */
-[data-election="peru_2026"] .question-text-container {
+[data-election="peru_2026"] .question-card {
   --qbox-pad-x: clamp(18px, 2.4vw, 34px);
   --qbox-pad-y: clamp(14px, 1.9vh, 26px);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
+  align-items: center;
   width: 100%;
   max-width: clamp(560px, 62vw, 1000px);
-  min-height: clamp(96px, 15vh, 170px);
   margin: clamp(10px, 1.6vh, 22px) 0 clamp(6px, 1vh, 14px);
   padding: var(--qbox-pad-y) var(--qbox-pad-x);
   background: var(--buttonColor);
@@ -84,8 +83,32 @@
   box-shadow: 2px 4px 4px var(--buttonShadow);
 }
 
+[data-election="peru_2026"] .question-card .question-content {
+  width: 100%;
+}
+
+/* The answer buttons sit on the (white) card, so they need an outline to stay visible */
+[data-election="peru_2026"] .question-card .option-button {
+  border: 1px solid var(--buttonShadow) !important;
+}
+
+[data-election="peru_2026"] .question-card .option-button.selected-answer {
+  border-color: var(--accentLight) !important;
+}
+
+/* The question text keeps a stable height between questions (centered inside it) */
+[data-election="peru_2026"] .question-text-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: clamp(60px, 10vh, 130px);
+  margin-bottom: clamp(6px, 1vh, 14px);
+}
+
 /* Header band: election accent background, light text, bleeding to the box edges */
 [data-election="peru_2026"] .question-topic-header {
+  align-self: stretch;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
@@ -234,11 +257,14 @@
    Every ramp below equals the phone-friendly base value at 768px viewport height and grows
    from there, so short landscape screens (e.g. 1024x768) are not squeezed. */
 @media (min-width: 768px) {
-  [data-election="peru_2026"] .question-text-container {
+  [data-election="peru_2026"] .question-card {
     --qbox-pad-x: clamp(18px, 2.6vw, 44px);
     --qbox-pad-y: clamp(14px, 5.3vh - 26px, 30px);
-    min-height: clamp(96px, 15vh, 190px);
     margin: clamp(6px, 5.7vh - 31.5px, 18px) 0 clamp(6px, 2.7vh - 13.2px, 16px);
+  }
+
+  [data-election="peru_2026"] .question-text-container {
+    min-height: clamp(60px, 10vh, 150px);
   }
 
   [data-election="peru_2026"] .question-topic-header {
@@ -617,7 +643,7 @@
     padding: 0;
   }
 
-  [data-election="peru_2026"] .question-text-container {
+  [data-election="peru_2026"] .question-card {
     --qbox-pad-x: clamp(14px, 4vw, 22px);
     width: calc(100% - 24px);
     max-width: none;
@@ -636,7 +662,7 @@
   }
 
   [data-election="peru_2026"] .question-options {
-    width: calc((100% - 24px) * var(--q-option-width, 1));
+    width: calc(100% * var(--q-option-width, 1));
     max-width: none;
     padding-left: 0;
     padding-right: 0;

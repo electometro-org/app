@@ -13,6 +13,7 @@ import PrivacyNotice from "./components/PrivacyNotice";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import CookieSettings from "./components/CookieSettings";
 import LanguageSwitcher from "./components/LanguageSwitcher.jsx";
+import QuizTopLine from "./components/QuizTopLine";
 import GenericIntroView from "./views/GenericIntroView";
 import ElectionSelector from "./views/ElectionSelector";
 import ElectionIntroView from "./views/ElectionIntroView";
@@ -140,6 +141,11 @@ function AppContent() {
     });
   }, [searchParams, setSearchParams, state.questions.length, restoreFromMnemonic, config?.mnemonicWordList, config?.regional]);
 
+  // "Top line" chrome (Restart top-left, language pill + region chip above the question):
+  // only once the quiz flow is running, i.e. after the intro and, for regional elections, the region picker
+  const topLine = !!config?.quizTopLine;
+  const inQuizFlow = !!election && !showGenericIntro && !showElectionIntro && !(config?.regional && !regionId);
+
   // Determine which view to show
   const renderMainContent = () => {
     // Step 1: Generic intro (neutral branding, before election selection)
@@ -195,7 +201,10 @@ function AppContent() {
     // Step 4+: Quiz flow (questions, demographics, results)
     return (
       <div className="election-content-area">
-        {config?.regional && regionName && (
+        {topLine && !(questionsReady && state.currentQuestionIndex < state.questions.length) && (
+          <QuizTopLine regionName={config?.regional ? regionName : null} />
+        )}
+        {!topLine && config?.regional && regionName && (
           <div className="region-badge" title={regionName}>
             <span className="region-badge__dot" aria-hidden="true" />
             {regionName}
@@ -227,6 +236,9 @@ function AppContent() {
             inlineProgress={!!config?.inlineProgress}
             topics={uniqueTopics}
             showTopicHeader={!!config?.topicHeader}
+            showTopLine={topLine}
+            regionName={config?.regional ? regionName : null}
+            brandSubtitle={config?.shortLabel ? t(config.shortLabel, config.defaultShortLabel) : null}
           />
         ) : showTopicImportance ? (
           <TopicImportanceView
@@ -331,8 +343,11 @@ function AppContent() {
           autoComplete="off"
           aria-hidden="true"
         />
+        {topLine && inQuizFlow && (
+          <button type="button" onClick={handleReset} className="reset-button">{t('common.restart')}</button>
+        )}
         <HamburgerMenu
-          showRestart={!!election && !showGenericIntro && !showElectionIntro}
+          showRestart={!topLine && !!election && !showGenericIntro && !showElectionIntro}
           onRestart={handleReset}
           onOpenMenu={() => setShowMenu(!showMenu)}
           menuOpen={showMenu}
@@ -345,7 +360,7 @@ function AppContent() {
             element={
               <>
                 {/* Outside WidgetLayout: its transform would break position: fixed */}
-                <LanguageSwitcher />
+                {!(topLine && inQuizFlow) && <LanguageSwitcher />}
                 <WidgetLayout>
                   {renderMainContent()}
                 </WidgetLayout>

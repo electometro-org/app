@@ -44,6 +44,8 @@
      --q-option-scale    answer buttons and Back/Skip
      --q-option-width    width of the answer buttons (1 = the old, widest size)
      --q-top-offset      space above the quiz-flow screens (quiz, topics, demographics, results)
+     --q-logo-size       logo size on the quiz screen (100px = same as the welcome and region screens)
+     --q-topic-word-spacing  100vw = long topics stack one word per line (default); 0px = normal wrapping
    Try them live: document.documentElement.style.setProperty('--q-text-scale', 0.92) */
 [data-election="peru_2026"] {
   --q-text-scale: 1;
@@ -51,15 +53,8 @@
   --q-header-scale: 1;
   --q-option-scale: 1;
   --q-option-width: 0.6;
-  /* 100px from ~900px viewport height up, shrinking on shorter screens so long questions still fit without scrolling */
-  --q-top-offset: clamp(0px, 20vh - 80px, 100px);
-}
-
-/* Portrait tablets are tall but narrow (long questions wrap to more lines), so cap the offset lower */
-@media (min-width: 768px) and (max-width: 1023px) {
-  [data-election="peru_2026"] {
-    --q-top-offset: clamp(0px, 20vh - 80px, 60px);
-  }
+  --q-top-offset: 40px;
+  --q-logo-size: 100px;
 }
 
 /* One element (not .quiz-widget, which exists twice) and only the quiz-flow screens */
@@ -92,7 +87,7 @@
 /* Header band: election accent background, light text, bleeding to the box edges */
 [data-election="peru_2026"] .question-topic-header {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   column-gap: 10px;
   margin: calc(var(--qbox-pad-y) * -1) calc(var(--qbox-pad-x) * -1) clamp(10px, 1.6vh, 20px);
@@ -106,53 +101,94 @@
   text-align: left;
 }
 
-/* Topic on the left */
+/* Topic on the left: "Tema: <topic>" on one line when it fits */
 [data-election="peru_2026"] .question-topic-header__topic {
   min-width: 0;
+}
+
+[data-election="peru_2026"] .question-topic-header__label {
+  margin-right: 0.4em;
+  font-size: 0.85em;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+/* Never hyphenate; words only break as a last resort if a single word is wider than the column */
+[data-election="peru_2026"] .question-topic-header__name {
+  -webkit-hyphens: none;
+  hyphens: none;
   overflow-wrap: break-word;
-  -webkit-hyphens: auto;
-  hyphens: auto;
 }
 
-/* Narrow phones: the topic only gets the space beside the centered logo */
-@media (max-width: 400px) {
-  [data-election="peru_2026"] .question-topic-header {
-    column-gap: 6px;
-  }
-
-  [data-election="peru_2026"] .question-topic-header__topic {
-    font-size: 0.88em;
-    line-height: 1.2;
-  }
-}
-
-/* Logo in the middle with decide.pe right below it */
-[data-election="peru_2026"] .question-topic-header__brand {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-[data-election="peru_2026"] .question-topic-header__title {
-  margin-top: 2px;
-  font-size: 0.75em;
-  line-height: 1.1;
-}
-
-/* k/n on the right */
+/* [k/n] on the right */
 [data-election="peru_2026"] .question-topic-header__count {
-  text-align: right;
+  margin-left: 10px;
   white-space: nowrap;
 }
 
-[data-election="peru_2026"] .question-topic-header__logo {
-  width: clamp(30px, 3.9vh, 40px);
-  height: clamp(30px, 3.9vh, 40px);
-  object-fit: contain;
-  /* The logo is red: turn it into a light silhouette so it reads on the accent band */
-  -webkit-filter: brightness(0) invert(1);
-  filter: brightness(0) invert(1);
+/* QuizView adds .is-topic-stacked when "Tema: topic" does not fit on one line: the label goes on its
+   own line and the topic follows one word per line. Set --q-topic-word-spacing to 0px to wrap normally. */
+[data-election="peru_2026"] .question-topic-header.is-topic-stacked {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+[data-election="peru_2026"] .question-topic-header.is-topic-stacked .question-topic-header__label,
+[data-election="peru_2026"] .question-topic-header.is-topic-stacked .question-topic-header__name {
+  display: block;
+  margin-right: 0;
+}
+
+[data-election="peru_2026"] .question-topic-header.is-topic-stacked .question-topic-header__name {
+  word-spacing: var(--q-topic-word-spacing, 100vw);
+  font-size: 0.85em;
+  line-height: 1.1;
+}
+
+/* Logo (same size as on the welcome / region screens) with the title and the election name next to it, both centered */
+[data-election="peru_2026"] .quiz-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  margin: 0 0 40px;
+}
+
+[data-election="peru_2026"] .quiz-brand img {
+  flex: none;
+  width: var(--q-logo-size, 100px);
+  height: var(--q-logo-size, 100px);
+}
+
+[data-election="peru_2026"] .quiz-brand__text {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  margin-left: clamp(10px, 1.4vw, 18px);
+  text-align: center;
+}
+
+[data-election="peru_2026"] .quiz-brand__title {
+  font-size: calc(clamp(1.3rem, 0.6rem + 2.2vh, 2rem) * var(--q-text-scale, 1) * var(--q-header-scale, 1));
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+[data-election="peru_2026"] .quiz-brand__subtitle {
+  margin-top: 4px;
+  font-size: calc(clamp(0.8rem, 0.3rem + 1.1vh, 1.05rem) * var(--q-text-scale, 1) * var(--q-header-scale, 1));
+  font-weight: 600;
+  line-height: 1.2;
+  opacity: 0.8;
+}
+
+/* Language pill on the left, region chip on the right; as wide as the question box */
+[data-election="peru_2026"] .quiz-top-line {
+  max-width: clamp(560px, 62vw, 1000px);
+  margin: 0 0 clamp(6px, 1.2vh, 16px);
 }
 
 [data-election="peru_2026"] .question-text-container h2 {
@@ -202,7 +238,7 @@
     --qbox-pad-x: clamp(18px, 2.6vw, 44px);
     --qbox-pad-y: clamp(14px, 5.3vh - 26px, 30px);
     min-height: clamp(96px, 15vh, 190px);
-    margin: clamp(10px, 5.7vh - 31.5px, 26px) 0 clamp(6px, 2.7vh - 13.2px, 16px);
+    margin: clamp(6px, 5.7vh - 31.5px, 18px) 0 clamp(6px, 2.7vh - 13.2px, 16px);
   }
 
   [data-election="peru_2026"] .question-topic-header {
@@ -210,11 +246,6 @@
     padding-top: clamp(8px, 2.05vh - 7.4px, 18px);
     padding-bottom: clamp(8px, 2.05vh - 7.4px, 18px);
     font-size: calc(clamp(0.95rem, min(3.4vh - 10px, 2.3vw + 2px), 1.5rem) * var(--q-text-scale, 1) * var(--q-header-scale, 1));
-  }
-
-  [data-election="peru_2026"] .question-topic-header__logo {
-    width: clamp(30px, min(10vh - 46px, 5.2vw), 52px);
-    height: clamp(30px, min(10vh - 46px, 5.2vw), 52px);
   }
 
   /* Second term keeps the line length sensible for the box width at each screen width */
@@ -228,8 +259,8 @@
   }
 
   [data-election="peru_2026"] .option-button {
-    margin: clamp(6px, 2.35vh - 10.3px, 16px) 0;
-    padding: clamp(10px, 4.2vh - 21px, 20px) 24px;
+    margin: clamp(6px, 2.35vh - 10.3px, 14px) 0;
+    padding: clamp(10px, 4.2vh - 21px, 18px) 24px;
   }
 
   [data-election="peru_2026"] .back-and-skip-buttons {
@@ -596,6 +627,7 @@
     max-height: none;
   }
 
+  [data-election="peru_2026"] .quiz-top-line,
   [data-election="peru_2026"] .quiz-progress {
     width: calc(100% - 24px);
     max-width: none;

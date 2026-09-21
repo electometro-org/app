@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTranslate } from "@tolgee/react";
-import { BrandLogo } from "../components/BrandImage";
+import { BrandLogo, BrandLogoAlt } from "../components/BrandImage";
+import QuizTopLine from "../components/QuizTopLine";
 import { DockingZone } from "../widgets";
 import ProgressSegments from "../components/ProgressSegments";
 
@@ -27,6 +28,9 @@ export default function QuizView({
   inlineProgress = false,
   topics = [],
   showTopicHeader = false,
+  showTopLine = false,
+  regionName = null,
+  brandSubtitle = null,
 }) {
   const { t } = useTranslate();
   const [buttonsBlocked, setButtonsBlocked] = useState(!hasSeenQuestion);
@@ -36,6 +40,8 @@ export default function QuizView({
   const [navPulseAfterChange, setNavPulseAfterChange] = useState(false);
   const questionTitleRef = useRef(null);
   const justClearedRef = useRef(false);
+  const topicRef = useRef(null);
+  const [topicStacked, setTopicStacked] = useState(false);
   const minAnswersTitle = t("quiz.minAnswersRequiredTitle");
   const minAnswersActionClose = t("quiz.minAnswersRequiredClose");
   const minAnswersActionNextUnanswered = t("quiz.minAnswersRequiredNextUnanswered");
@@ -156,14 +162,35 @@ export default function QuizView({
     .replace("[new]", pendingChangedOption ? t(pendingChangedOption) : "");
   const questionText = question.question_key ? t(question.question_key) : question.question;
 
-  // Header band: topic on the left, logo + title in the middle, "k/n" (position among topics) on the right
+  // Question header: "Tema: topic" on the left, "[k/n]" (position among topics) on the right
   const topicIndex = topics.findIndex(topic => topic.topic_key === question.topic_key);
   const topicLabel = question.inlineText ? question.tema : t(question.topic_key, question.tema);
   const topicCount = topicIndex >= 0 ? `${topicIndex + 1}/${topics.length}` : null;
 
+  // Topic name: keep it on one line when it fits, otherwise stack it one word per line
+  useLayoutEffect(() => {
+    const el = topicRef.current;
+    if (!el) return undefined;
+    const measure = () => {
+      const header = el.closest(".question-topic-header");
+      const wasStacked = header ? header.classList.contains("is-topic-stacked") : false;
+      if (wasStacked) header.classList.remove("is-topic-stacked");
+      const previous = el.style.whiteSpace;
+      el.style.whiteSpace = "nowrap";
+      const overflows = el.scrollWidth > el.clientWidth + 1;
+      el.style.whiteSpace = previous;
+      if (wasStacked) header.classList.add("is-topic-stacked");
+      setTopicStacked(overflows);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [topicLabel, showTopicHeader]);
+
   return (
     <>
-      {!showTopicHeader && (
+      {!showTopicHeader && !showTopLine && (
         <div className={`quiz-header ${branding?.title ? 'quiz-header--branded' : ''}`}>
           {branding?.title && <span className="quiz-header__title">{branding.title}</span>}
           <h3 id={"questions-progress-counter"}>{displayIndex} / {totalQuestions}</h3>
@@ -174,18 +201,30 @@ export default function QuizView({
         </div>
       )}
 
+      {showTopLine && (
+        <>
+          <div className="quiz-brand">
+            <BrandLogoAlt branding={branding} />
+            <span className="quiz-brand__text">
+              {branding?.title && <span className="quiz-brand__title">{branding.title}</span>}
+              {brandSubtitle && <span className="quiz-brand__subtitle">{brandSubtitle}</span>}
+            </span>
+          </div>
+          <QuizTopLine regionName={regionName} />
+        </>
+      )}
+
       <DockingZone id="above-question" />
 
       <div className="question-content" key={question.id || displayIndex}>
         <div className="question-text-container" data-fluid={showTopicHeader ? "true" : undefined}>
           {showTopicHeader && (
-            <div className="question-topic-header">
-              <span className="question-topic-header__topic">{topicLabel}</span>
-              <span className="question-topic-header__brand">
-                <BrandLogo branding={branding} width={26} height={26} className="question-topic-header__logo" />
-                {branding?.title && <span className="question-topic-header__title">{branding.title}</span>}
+            <div className={`question-topic-header ${topicStacked ? "is-topic-stacked" : ""}`}>
+              <span ref={topicRef} className="question-topic-header__topic">
+                <span className="question-topic-header__label">{t("quiz.topicLabel", "Tema:")}</span>
+                <span className="question-topic-header__name">{topicLabel}</span>
               </span>
-              <span className="question-topic-header__count">{topicCount}</span>
+              {topicCount && <span className="question-topic-header__count">[{topicCount}]</span>}
             </div>
           )}
           <h2 ref={questionTitleRef}>{questionText}</h2>

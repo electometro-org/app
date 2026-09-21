@@ -9,6 +9,8 @@ export default {
   id: "peru_regional_2026",
   label: "elections.peruRegional2026",
   defaultLabel: "Perú 2026 - Elecciones Regionales",
+  shortLabel: "elections.peruRegional2026Short",
+  defaultShortLabel: "Elecciones Regionales 2026",
   // Opt-in via VITE_ELECTION_ID so it never appears in multi-election builds by accident
   enabled: false,
   // Reuse the national stylesheet (its rules are scoped by [data-election="peru_2026"])

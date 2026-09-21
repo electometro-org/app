@@ -30,3 +30,35 @@ export default function LanguageSwitcher() {
     </div>
   );
 }
+
+/**
+ * Segmented "pill" version of the language switcher: | Español | Quechua | Aymara |
+ * The active language is filled with the election's accent color.
+ */
+export function LanguagePill() {
+  const { t } = useTranslate();
+  const tolgee = useTolgee(['language']);
+  const current = tolgee.getLanguage();
+
+  const languages = [
+    { code: esLang, label: t('languages.spanish') },
+    { code: quLang, label: t('languages.quechua') },
+    { code: ayLang, label: t('languages.aymara') },
+  ];
+
+  return (
+    <div className="language-pill" role="group">
+      {languages.map(({ code, label }) => (
+        <button
+          key={code}
+          type="button"
+          className={`language-pill__btn ${current === code ? 'is-active' : ''}`}
+          aria-pressed={current === code}
+          onClick={() => tolgee.changeLanguage(code)}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}

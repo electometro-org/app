@@ -7,6 +7,8 @@ const qaPrefix = import.meta.env.VITE_TOLGEE_QA_TRANSLATIONS === 'true' ? '/qa' 
 export default {
   id: "peru_2026",
   label: "elections.peru2026",  // Translation key
+  shortLabel: "elections.peru2026Short",  // Subtitle under the title on the quiz screen
+  defaultShortLabel: "Elecciones Generales 2026",
   enabled: true,
 
   // HTML metadata (used at build time)
@@ -56,7 +58,7 @@ export default {
 
   // Election-specific branding (logos used in components)
   branding: {
-    title: "decide.pe",
+    title: "Electómetro",
     logo: "peru_2026/simple_logo.png",
     logoAlt: "peru_2026/reverse_logo.svg",
     favicon: "peru_2026/favicon.svg",
@@ -136,6 +138,8 @@ export default {
   inlineProgress: true,
   // "[k/n] Topic" header at the top of the question box
   topicHeader: true,
+  // Quiz chrome: Restart top-left, centered logo + title, language pill and region chip above the question
+  quizTopLine: true,
   questionTypes:   ["presidential"],
   resultTypes:     ["party",
                     // "parliamentaryCandidates",

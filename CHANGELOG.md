@@ -36,6 +36,15 @@ uses Conventional Commit-style change descriptions.
 
 ### Fixed
 
+- Results and topic-importance screens: dropped the logo/title header (team feedback: the ranking, the
+  last step of the flow, should show immediately) and widened/enlarged the language pill and region
+  chip above the content.
+- Results screen: the "Volver a la encuesta" and "Guardar resultados" buttons are now one row, equal
+  size, back on the left and save on the right (previously stacked, different sizes).
+- Feedback/suggestion modal: the name field required 5 letters minimum; lowered to 3 (frontend and
+  backend validation, plus the shown hint).
+- Welcome screen: the second sentence appeared after a 1.5s delay, which read as the page being broken
+  to some users; both sentences now reveal together.
 - Results showed "null%" (or a bare "%") for candidates with nothing to compare, such as the two regional
   candidates that have no recorded positions; they now show an em dash.
 - Long questions were clipped inside the question box on phones (a fixed-height rule came back when the box

@@ -4233,6 +4233,16 @@ button,
   margin-top: 0;
 }
 
+/* Back (left) and Save (right): equal size, bigger, same row */
+.results-action-buttons .back-to-survey-button,
+.results-action-buttons .results-save-btn {
+  flex: 1 1 180px;
+  max-width: 260px;
+  margin-top: 0;
+  padding: 14px 20px;
+  font-size: 17px;
+}
+
 /* Fight Mode Button */
 .results-fight-mode-btn {
   display: inline-flex;

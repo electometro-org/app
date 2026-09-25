@@ -1403,7 +1403,18 @@ export default function ResultsView({
         resolvedLogoUrls={resolvedLogoUrls}
       />
 
+      {/* Back (left) and Save (right) on one row, same size */}
       <div className="results-action-buttons">
+        <button
+          ref={backToSurveyRef}
+          className="back-to-survey-button"
+          onClick={onBackToSurvey}
+          onMouseEnter={(e) => (e.target.style.backgroundColor = "var(--buttonNextHover)")}
+          onMouseLeave={(e) => (e.target.style.backgroundColor = "var(--buttonNext)")}
+          style={{ backgroundColor: "var(--buttonNext)", transition: "background-color 0.2s ease-in-out" }}
+        >
+          {t("nav.backToSurvey")}
+        </button>
         <button
           className="results-save-btn"
           onClick={handleSaveResults}
@@ -1412,17 +1423,6 @@ export default function ResultsView({
           {saveResultsLabel}
         </button>
       </div>
-
-      <button
-        ref={backToSurveyRef}
-        className="back-to-survey-button"
-        onClick={onBackToSurvey}
-        onMouseEnter={(e) => (e.target.style.backgroundColor = "var(--buttonNextHover)")}
-        onMouseLeave={(e) => (e.target.style.backgroundColor = "var(--buttonNext)")}
-        style={{ backgroundColor: "var(--buttonNext)", transition: "background-color 0.2s ease-in-out" }}
-      >
-        {t("nav.backToSurvey")}
-      </button>
 
       {showSaveModal && createPortal(
         <div className="results-save-modal-overlay" onClick={() => setShowSaveModal(false)}>

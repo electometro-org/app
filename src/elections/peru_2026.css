@@ -210,6 +210,28 @@
   margin: 0 0 clamp(6px, 1.2vh, 16px);
 }
 
+/* Post-quiz screens (topic importance, demographics, results): this is a direct child of
+   .election-content-area (the in-question top line lives inside .quiz-widget instead), so this only
+   targets the post-quiz one. It spans the full content width instead of the question-box measure, and
+   its controls are bigger — these are the last steps, the language/region controls are the priority. */
+[data-election="peru_2026"] .election-content-area > .quiz-top-line {
+  max-width: none;
+  margin-bottom: clamp(14px, 2.2vh, 26px);
+}
+
+[data-election="peru_2026"] .election-content-area > .quiz-top-line .language-pill {
+  font-size: 1rem;
+}
+
+[data-election="peru_2026"] .election-content-area > .quiz-top-line .language-pill__btn {
+  padding: 8px 18px;
+}
+
+[data-election="peru_2026"] .election-content-area > .quiz-top-line .region-badge {
+  font-size: 1rem;
+  padding: 6px 16px;
+}
+
 [data-election="peru_2026"] .question-text-container h2 {
   margin: 0;
   /* Height-driven, capped by width so portrait phones keep a readable line length */

@@ -1039,10 +1039,13 @@ export default function ResultsView({
 
   return (
     <div className="results-view-shell">
-      <div className="results-view-header">
-        <BrandLogo branding={branding} />
-        <h2>{t("results.title")}</h2>
-      </div>
+      {/* Last step of the flow: skip the logo/title block so the ranking is the first thing shown */}
+      {!config?.quizTopLine && (
+        <div className="results-view-header">
+          <BrandLogo branding={branding} />
+          <h2>{t("results.title")}</h2>
+        </div>
+      )}
 
       <div className={`results-toolbar ${resultsViewMode === "comparison" ? "is-detailed" : "is-compact"}`}>
         {resultTypes.length > 1 && (

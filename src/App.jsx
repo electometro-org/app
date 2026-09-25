@@ -248,6 +248,7 @@ function AppContent() {
             branding={branding}
             onToggle={handleToggleTopicImportance}
             onContinue={handleTopicImportanceContinue}
+            showTopLine={topLine}
           />
         ) : (
           <>

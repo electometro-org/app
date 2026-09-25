@@ -24,6 +24,7 @@ function getScrollParent(element) {
 }
 
 export default function TopicImportanceView({
+  showTopLine = false, // when true (quizTopLine elections), the logo is shown once above (App.jsx) and skipped here
   topics,           // [{ label, topic_key, questions: [{ id, question, question_key }] }]
   topicImportance,  // { [topic_key]: boolean }
   questions,        // Full questions array from state
@@ -356,7 +357,7 @@ export default function TopicImportanceView({
   return (
     <div className="topic-importance-container">
       <div className="topic-importance-header">
-        <BrandLogo branding={branding} />
+        {!showTopLine && <BrandLogo branding={branding} />}
         <h2>{t('topicImportance.title')}</h2>
         <p>
           {t('topicImportance.instructions2a')}

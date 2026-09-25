@@ -2144,7 +2144,7 @@ function ResultsAnalysisPanel({
     ? "correo@ejemplo.com"
     : t("results.topicSuggestionEmailPlaceholder");
   const suggestionNameError = t("results.topicSuggestionNameError") === "results.topicSuggestionNameError"
-    ? "El nombre debe tener al menos 5 letras."
+    ? "El nombre debe tener al menos 3 letras."
     : t("results.topicSuggestionNameError");
   const suggestionEmailError = t("results.topicSuggestionEmailError") === "results.topicSuggestionEmailError"
     ? "Ingresa un email valido."
@@ -2181,7 +2181,7 @@ function ResultsAnalysisPanel({
   const cleanName = sanitizeName(suggestionName);
   const cleanEmail = sanitizeEmail(suggestionEmail);
   const cleanSuggestion = sanitizeFreeText(suggestionText);
-  const isValidName = countLetters(cleanName) >= 5;
+  const isValidName = countLetters(cleanName) >= 3;
   const isValidSuggestion = cleanSuggestion.length >= 8;
   const isValidSuggestionEmail = cleanEmail.length === 0 || isValidEmail(cleanEmail);
   const canSubmitSuggestion = isValidName && isValidSuggestionEmail && isValidSuggestion && !suggestionSubmitting;

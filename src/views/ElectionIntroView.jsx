@@ -80,17 +80,15 @@ export default function ElectionIntroView({ branding, electionId, electionLabel,
     setShowFirstDescription(false);
     setShowSecondDescription(false);
 
+    // Both sentences reveal together: a 1.5s gap where the second sentence was invisible read as the
+    // page being broken/incomplete to some users (reported: confusing for older users)
     const rafId = requestAnimationFrame(() => {
       setShowFirstDescription(true);
-    });
-
-    const timeoutId = setTimeout(() => {
       setShowSecondDescription(true);
-    }, 1500);
+    });
 
     return () => {
       cancelAnimationFrame(rafId);
-      clearTimeout(timeoutId);
     };
   }, [electionId]);
 

@@ -22,7 +22,7 @@ function getScrollParent(element) {
   return document.scrollingElement || document.documentElement;
 }
 
-export default function DemographicsForm({ onConfirm, disabled = false, initialValues = null, branding = defaultBranding, regions = [] }) {
+export default function DemographicsForm({ onConfirm, disabled = false, initialValues = null, branding = defaultBranding, regions = [], showTopLine = false }) {
   const { t } = useTranslate();
   const [gender, setGender] = useState(initialValues?.gender || "");
   const [age, setAge] = useState(initialValues?.age || "");
@@ -163,7 +163,7 @@ export default function DemographicsForm({ onConfirm, disabled = false, initialV
 
   return (
     <div className="demographics-panel" style={styles.panel} ref={panelRef}>
-      <BrandLogo branding={branding} />
+      {!showTopLine && <BrandLogo branding={branding} />}
       <h2>{t('demographics.title')}</h2>
       <form onSubmit={onLocalConfirm} ref={formRef}>
         <div style={styles.field}>

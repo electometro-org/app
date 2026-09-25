@@ -13,6 +13,7 @@ import PrivacyPolicy from "./components/PrivacyPolicy";
 import CookieSettings from "./components/CookieSettings";
 import LanguageSwitcher from "./components/LanguageSwitcher.jsx";
 import QuizTopLine from "./components/QuizTopLine";
+import { BrandLogoAlt } from "./components/BrandImage";
 import GenericIntroView from "./views/GenericIntroView";
 import ElectionSelector from "./views/ElectionSelector";
 import ElectionIntroView from "./views/ElectionIntroView";
@@ -144,6 +145,9 @@ function AppContent() {
   // only once the quiz flow is running, i.e. after the intro and, for regional elections, the region picker
   const topLine = !!config?.quizTopLine;
   const inQuizFlow = !!election && !showGenericIntro && !showElectionIntro && !(config?.regional && !regionId);
+  // Same brand block QuizView renders above the question card, so it reads as one consistent header
+  // across the quiz, topic importance, demographics and results screens
+  const brandSubtitle = config?.shortLabel ? t(config.shortLabel, config.defaultShortLabel) : null;
 
   // Determine which view to show
   const renderMainContent = () => {
@@ -201,7 +205,16 @@ function AppContent() {
     return (
       <div className="election-content-area">
         {topLine && !(questionsReady && state.currentQuestionIndex < state.questions.length) && (
-          <QuizTopLine regionName={config?.regional ? regionName : null} />
+          <>
+            <div className="quiz-brand">
+              <BrandLogoAlt branding={branding} />
+              <span className="quiz-brand__text">
+                {branding?.title && <span className="quiz-brand__title">{branding.title}</span>}
+                {brandSubtitle && <span className="quiz-brand__subtitle">{brandSubtitle}</span>}
+              </span>
+            </div>
+            <QuizTopLine regionName={config?.regional ? regionName : null} />
+          </>
         )}
         {!topLine && config?.regional && regionName && (
           <div className="region-badge" title={regionName}>
@@ -237,7 +250,7 @@ function AppContent() {
             showTopicHeader={!!config?.topicHeader}
             showTopLine={topLine}
             regionName={config?.regional ? regionName : null}
-            brandSubtitle={config?.shortLabel ? t(config.shortLabel, config.defaultShortLabel) : null}
+            brandSubtitle={brandSubtitle}
           />
         ) : showTopicImportance ? (
           <TopicImportanceView
@@ -258,6 +271,7 @@ function AppContent() {
                 disabled={showTurnstileOverlay}
                 branding={branding}
                 regions={config?.regions || []}
+                showTopLine={topLine}
                 initialValues={demographics ? {
                   gender: demographics.gender,
                   age: demographics.age?.toString() || "",

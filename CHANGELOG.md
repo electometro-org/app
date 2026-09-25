@@ -36,9 +36,10 @@ uses Conventional Commit-style change descriptions.
 
 ### Fixed
 
-- Results and topic-importance screens: dropped the logo/title header (team feedback: the ranking, the
-  last step of the flow, should show immediately) and widened/enlarged the language pill and region
-  chip above the content.
+- Results, topic-importance and demographics screens: dropped their own separate logo/title headers
+  and now show the same brand block (logo, title, election name) and language/region controls used on
+  the quiz screen, at the same width as the question card — one consistent header across the whole
+  flow, instead of each screen having its own slightly different version.
 - Results screen: the "Volver a la encuesta" and "Guardar resultados" buttons are now one row, equal
   size, back on the left and save on the right (previously stacked, different sizes).
 - Feedback/suggestion modal: the name field required 5 letters minimum; lowered to 3 (frontend and

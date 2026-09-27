@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { HashRouter as Router, Routes, Route, useSearchParams } from "react-router-dom";
 import { useTranslate } from "@tolgee/react";
 import { isValidMnemonic } from "./utils/mnemonicCodec";
@@ -108,6 +109,13 @@ function AppContent() {
   // Regional elections: name of the selected region (for the badge and demographics prefill)
   const { regions: regionList } = useRegionalData(config?.regional ? config.regionalVotesUrl : null);
   const regionName = regionList.find(r => r.id === regionId)?.name ?? null;
+
+  // Restart confirmation (both the top-left button and the hamburger menu item open this)
+  const [showRestartConfirm, setShowRestartConfirm] = useState(false);
+  const confirmRestart = () => {
+    setShowRestartConfirm(false);
+    handleReset();
+  };
 
   // Handle URL mnemonic restore
   const hasAttemptedRestore = useRef(false);
@@ -357,14 +365,40 @@ function AppContent() {
           aria-hidden="true"
         />
         {topLine && inQuizFlow && (
-          <button type="button" onClick={handleReset} className="reset-button">{t('common.restart')}</button>
+          <button type="button" onClick={() => setShowRestartConfirm(true)} className="reset-button">{t('common.restart')}</button>
         )}
         <HamburgerMenu
           showRestart={!topLine && !!election && !showGenericIntro && !showElectionIntro}
-          onRestart={handleReset}
+          onRestart={() => setShowRestartConfirm(true)}
           onOpenMenu={() => setShowMenu(!showMenu)}
           menuOpen={showMenu}
         />
+
+        {showRestartConfirm && createPortal(
+          <div className="quiz-min-answers-overlay" onClick={() => setShowRestartConfirm(false)}>
+            <div className="quiz-min-answers-dialog" onClick={(e) => e.stopPropagation()}>
+              <h3>{t("common.restartConfirmTitle")}</h3>
+              <p>
+                <span className="quiz-min-answers-line">{t("common.restartConfirmBody")}</span>
+              </p>
+              <div className="quiz-min-answers-actions">
+                <button
+                  className="quiz-min-answers-btn quiz-min-answers-btn--primary"
+                  onClick={confirmRestart}
+                >
+                  {t("common.restartConfirmConfirm")}
+                </button>
+                <button
+                  className="quiz-min-answers-btn quiz-min-answers-btn--secondary"
+                  onClick={() => setShowRestartConfirm(false)}
+                >
+                  {t("common.restartConfirmCancel")}
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
         <Menu open={showMenu} onClose={() => setShowMenu(false)} />
 
         <Routes>

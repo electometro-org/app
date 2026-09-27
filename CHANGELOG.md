@@ -9,6 +9,8 @@ uses Conventional Commit-style change descriptions.
 
 ### Added
 
+- Restart now asks for confirmation before resetting (both the top-left button and the hamburger
+  menu's "Reiniciar" item), styled like the existing change-answer/min-answers confirmation dialogs.
 - **Regional elections** (`peru_regional_2026`, opt-in via `VITE_ELECTION_ID`): region picker, per-region
   questions and candidates from a single regions JSON, candidate ranking, region encoded in the mnemonic
   phrase, and an optional `region_id` on submissions. New `regionalService`, `useRegionalData`,

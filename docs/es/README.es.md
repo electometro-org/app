@@ -103,8 +103,12 @@ valores **sobrescriben los `[vars]` de `wrangler.toml`** (p. ej. `ENVIRONMENT=qa
 Se activa con `VITE_ELECTION_ID=peru_regional_2026` (su config tiene `enabled: false`).
 
 - **Datos:** un unico JSON compacto (`combined_votes_peru_regions_2026_compact.json`) con
-  `{ version, regions: { r1: { id, name, quiz, candidates } } }`. Los textos de preguntas y temas van
-  en linea (no son claves de Tolgee), por lo que no se traducen; los textos de la interfaz si.
+  `{ version, regions: { r1: { id, name, quiz, candidates } } }`. Los textos de preguntas, temas y
+  comentarios se traducen via claves de Tolgee **con el id de la region incluido**
+  (`quiz.questions.<regionId>.<id>`, `explanations.candidates.<regionId>.<candidateId>.<topicId>`) —
+  necesario porque los ids de candidato se reutilizan entre regiones para personas distintas. El texto
+  del JSON viaja como valor por defecto de Tolgee, asi que se ve correctamente en espanol aunque la
+  clave aun no se haya sincronizado.
 - **Sube `version` cada vez que cambie el quiz de una region:** las respuestas guardadas se almacenan por
   posicion.
 - **Mnemonico:** la frase empieza con una palabra que codifica la region (`r<N>` → palabra *N*, hasta 255).

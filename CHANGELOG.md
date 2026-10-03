@@ -9,6 +9,16 @@ uses Conventional Commit-style change descriptions.
 
 ### Added
 
+- Regional election question/topic/candidate-explanation text is now translatable: Tolgee keys
+  namespaced by region (`quiz.questions.<regionId>.<id>`, `explanations.candidates.<regionId>.<id>.<qid>`),
+  replacing the previous inline-only text. Candidate ids are reused across regions for different
+  people, so flat (non-namespaced) keys would have collided — confirmed against real data. The JSON
+  text is always the Tolgee default value, so the app and the key-extraction pipeline can deploy in
+  either order without ever showing a raw key. See ADR 0004.
+- `external/peru-assets`: `merge_i18n_keys_from_json_with_qa.py` extracts region-namespaced keys from
+  the regional compact JSON (optional input; the presidential pipeline isn't blocked if it's missing);
+  `tolgee-extractor.js` rewritten as a generic leaf-walker so it recognizes both the national and
+  regional key shapes without duplicated per-shape branches.
 - Restart now asks for confirmation before resetting (both the top-left button and the hamburger
   menu's "Reiniciar" item), styled like the existing change-answer/min-answers confirmation dialogs.
 - **Regional elections** (`peru_regional_2026`, opt-in via `VITE_ELECTION_ID`): region picker, per-region

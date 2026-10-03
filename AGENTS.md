@@ -66,8 +66,12 @@ Put **pure logic in `services/`/`utils/`** (testable); keep UI in `components/`/
 
 - Vote data is **external compact JSON** from `VITE_ELECTIONS_DATA_URL` (keys like `t1`/`c1`/`p1`;
   `version` field drives mnemonic compatibility). The frontend never generates it. Regional elections use
-  one file with a `regions` map (`{ version, regions: { r1: { id, name, quiz, candidates } } }`) whose
-  question/topic texts are inline; bump `version` whenever a region's quiz changes.
+  one file with a `regions` map (`{ version, regions: { r1: { id, name, quiz, candidates } } }`); bump
+  `version` whenever a region's quiz changes. Question/topic/comment text is Tolgee-translated via keys
+  namespaced by region (`quiz.questions.<regionId>.<id>`, `explanations.candidates.<regionId>.<id>.<qid>`)
+  — namespaced because candidate ids are reused across regions for different people. The JSON text is
+  always passed as the Tolgee default value (`t(key, jsonText)`), never `t(key)` alone, so the UI never
+  shows a raw key while a translation is pending.
 - Frontend talks to the backend only over HTTP: `POST /electometro/api/form` and `/api/feedback`
   (with `credentials: 'include'`). The request/response interface is in the [Submodules discussion](https://github.com/electometro-org/app/discussions/categories/docs).
   Regional submissions add an optional `region_id` (`r<N>`); the Worker stores them separately.

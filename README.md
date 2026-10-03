@@ -409,9 +409,18 @@ appears in a multi-election build by accident).
 }
 ```
 
-- Question and topic texts are **inline** (not Tolgee keys), so they display as written whichever
-  interface language is selected. Interface strings are translated as usual.
+- Question/topic text is translated via Tolgee keys **namespaced by region**:
+  `quiz.questions.<regionId>.<id>` and `quiz.topics.<regionId>.<id>` (candidate explanations:
+  `explanations.candidates.<regionId>.<candidateId>.<topicId>`). Namespacing matters even when an id
+  like `PE1` is shared across regions, because candidate ids are *also* reused across regions for
+  **different people** — a flat key would silently overwrite one region's text with another's. The
+  JSON text travels as the Tolgee default value, so the UI reads correctly in Spanish even before a
+  newly added key has synced from Tolgee.
 - Quiz ids can differ per region (shared ids like `PE1` plus region-specific ones).
+- `external/peru-assets/app/scripts/merge_i18n_keys_from_json_with_qa.py` (CI) extracts these keys
+  from `combined_votes_peru_regions_2026_compact.json` the same way it already does for the
+  presidential files, and `tolgee-extractor.js` recognizes both shapes. See that script for exactly
+  where the regional data file needs to land.
 - **Bump `version` whenever a region's quiz changes.** Saved results store answers by position, so a
   changed quiz would otherwise restore shifted (the version-mismatch notice depends on it).
 - Party logos are resolved by slug of the *exact* party name in the file
@@ -485,8 +494,10 @@ From external compact-format JSON files (keys like `t1`, `c1`, `p1`; regional el
 with a `regions` map) served from `VITE_ELECTIONS_DATA_URL`. The frontend does not generate this data.
 
 **Why is the regional question text in Spanish when I switch to Quechua or Aymara?**
-Regional question and topic texts come inline from the data file, not from Tolgee. Only interface
-strings (buttons, labels, notices) are translated.
+Regional text is translatable (region-namespaced Tolgee keys, see
+[Regional elections](#regional-elections)), but a region's keys only show translated text once
+someone has actually translated them in Tolgee. Until then the JSON's Spanish text is shown as the
+fallback, in every language.
 
 **Can I add a new election or country?**
 Yes — that's a core design goal. Add an election config and assets; see

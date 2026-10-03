@@ -80,7 +80,7 @@ export default function RegionSelectorView({ branding, regionalVotesUrl, onSelec
         <>
           {lastRegion && (
             <button type="button" className="region-selector__last" onClick={() => choose(lastRegion)}>
-              {label("regions.continueWith", "Continuar con [region]").replace("[region]", lastRegion.name)}
+              {label("regions.continueWith", "Continuar con {region}", { region: lastRegion.name })}
               <span aria-hidden="true"> →</span>
             </button>
           )}
@@ -104,9 +104,10 @@ export default function RegionSelectorView({ branding, regionalVotesUrl, onSelec
                   <span className="region-card__badge" aria-hidden="true">{initials(region.name)}</span>
                   <span className="region-card__name">{region.name}</span>
                   <span className="region-card__meta">
-                    {label("regions.meta", "[candidates] candidatos · [topics] temas")
-                      .replace("[candidates]", region.candidateCount)
-                      .replace("[topics]", region.questionCount)}
+                    {label("regions.meta", "{candidates} candidatos · {topics} temas", {
+                      candidates: region.candidateCount,
+                      topics: region.questionCount,
+                    })}
                   </span>
                 </button>
               </li>

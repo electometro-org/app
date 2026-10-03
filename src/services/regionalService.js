@@ -1,6 +1,9 @@
 // Pure helpers for regional elections: one compact JSON holds every region
-// ({ version, regions: { r1: { id, name, quiz, candidates } } }). Question and
-// topic texts are inline (no Tolgee keys), and quiz ids may differ per region.
+// ({ version, regions: { r1: { id, name, quiz, candidates } } }). Question and topic texts are
+// translated via Tolgee keys namespaced by region (quiz.questions.<regionId>.<id>, same for topics),
+// with the JSON text as the Tolgee default value so the UI reads correctly even before a key syncs.
+// Quiz ids may differ per region, and ids that happen to be shared (e.g. PE1) can have different
+// wording per region, which is exactly why the keys are namespaced instead of shared.
 
 const dataCache = new Map();
 
@@ -61,13 +64,13 @@ export function listRegions(data) {
 }
 
 export function buildRegionalQuestions(region) {
+  const regionId = region?.id;
   return Object.values(region?.quiz || {}).map(q => ({
     id: q.id,
     question: q.question,
     tema: q.topic,
-    question_key: null,
-    topic_key: `regional.topics.${slugifyTopic(q.topic) || q.id}`,
-    inlineText: true,
+    question_key: `quiz.questions.${regionId}.${q.id}`,
+    topic_key: `quiz.topics.${regionId}.${q.id}`,
     options: [
       "answers.agreeCapitalized",
       "answers.neutralCapitalized",
@@ -78,12 +81,13 @@ export function buildRegionalQuestions(region) {
 }
 
 // Shape a region like the presidential votes file so the scoring pipeline can be reused.
+// regionId travels with it so comment keys (explanations.candidates.<regionId>.<id>.<qid>) can be built.
 export function toVotesData(data, regionId) {
   const region = getRegion(data, regionId);
   if (!region) return null;
   return {
     version: data.version,
-    inlineText: true,
+    regionId,
     quiz: region.quiz,
     candidates: region.candidates,
   };

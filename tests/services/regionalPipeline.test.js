@@ -62,12 +62,34 @@ describe("regional pipeline", () => {
     expect(top.similarity_score).toBe(100);
   });
 
-  it("builds entity details with inline texts and no translation keys", () => {
+  it("builds entity details with the JSON text and region-namespaced translation keys", () => {
     const votes = toVotesData(data, "r1");
     const details = buildEntityDetails(votes.candidates.c1, {}, "presidential", votes);
     expect(details.details.map(d => d.question)).toEqual(["Q1", "Q2", "Q3"]);
-    expect(details.details.every(d => d.question_key === null && d.topic_key === null && d.comment_key === null)).toBe(true);
+    expect(details.details.map(d => d.question_key)).toEqual([
+      "quiz.questions.r1.PE1", "quiz.questions.r1.L1", "quiz.questions.r1.L2",
+    ]);
+    expect(details.details.map(d => d.topic_key)).toEqual([
+      "quiz.topics.r1.PE1", "quiz.topics.r1.L1", "quiz.topics.r1.L2",
+    ]);
+    expect(details.details.map(d => d.comment_key)).toEqual([
+      "explanations.candidates.r1.c1.PE1", "explanations.candidates.r1.c1.L1", "explanations.candidates.r1.c1.L2",
+    ]);
     expect(details.details[0].tema).toBe("Salud pública");
+  });
+
+  it("namespaces comment keys by region so the same candidate id in two regions does not collide", () => {
+    // c1 is "Ana Uno" in r1 and "Carla Tres" in r2 — real data does exactly this (different people
+    // share candidate ids across regions), so the key must disambiguate by region.
+    const r1Votes = toVotesData(data, "r1");
+    const r2Votes = toVotesData(data, "r2");
+    const r1Details = buildEntityDetails(r1Votes.candidates.c1, {}, "presidential", r1Votes);
+    const r2Details = buildEntityDetails(r2Votes.candidates.c1, {}, "presidential", r2Votes);
+    const r1Key = r1Details.details.find(d => d.id === "PE1").comment_key;
+    const r2Key = r2Details.details.find(d => d.id === "PE1").comment_key;
+    expect(r1Key).toBe("explanations.candidates.r1.c1.PE1");
+    expect(r2Key).toBe("explanations.candidates.r2.c1.PE1");
+    expect(r1Key).not.toBe(r2Key);
   });
 });
 

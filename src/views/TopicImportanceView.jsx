@@ -385,7 +385,7 @@ export default function TopicImportanceView({
             </button>
 
             <span className="topic-label">
-              {topic.inlineText ? topic.label : (t(topic.topic_key) || topic.label)}
+              {t(topic.topic_key, topic.label)}
             </span>
 
             <span className={`topic-state-indicator ${topicImportance[topic.topic_key] ? 'topic-state-indicator--high' : 'topic-state-indicator--normal'}`}>
@@ -433,14 +433,14 @@ export default function TopicImportanceView({
       {infoDialog && createPortal(
         <div className={`topic-info-overlay ${isClosing ? 'closing' : ''}`} onClick={closeInfoDialog}>
           <div className={`topic-info-dialog ${isClosing ? 'closing' : ''}`} onClick={(e) => e.stopPropagation()}>
-            <h3>{infoDialog.inlineText ? infoDialog.label : (t(infoDialog.topic_key) || infoDialog.label)}</h3>
+            <h3>{t(infoDialog.topic_key, infoDialog.label)}</h3>
             <div className="topic-questions-list">
               {infoDialog.questions.map((q, idx) => {
                 const userAnswer = getUserAnswer(q.id);
                 return (
                   <div key={q.id || idx} className="topic-question-item">
                     <span className="question-text">
-                      {q.question_key ? t(q.question_key) : q.question}
+                      {q.question_key ? t(q.question_key, q.question) : q.question}
                     </span>
                     {userAnswer && (
                       <div className="user-answer-container">

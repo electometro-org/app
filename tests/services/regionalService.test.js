@@ -48,22 +48,31 @@ describe("regionalService", () => {
     expect(list[0]).toMatchObject({ id: "r1", questionCount: 2, candidateCount: 0 });
   });
 
-  it("builds inline-text questions for a region", () => {
+  it("builds questions with Tolgee keys namespaced by region", () => {
     const qs = buildRegionalQuestions(data.regions.r1);
     expect(qs).toHaveLength(2);
     expect(qs[1]).toMatchObject({
       id: "L1",
       question: "Q2",
       tema: "Transporte",
-      question_key: null,
-      topic_key: "regional.topics.transporte",
-      inlineText: true,
+      question_key: "quiz.questions.r1.L1",
+      topic_key: "quiz.topics.r1.L1",
     });
   });
 
-  it("exposes a region as presidential-style votes data", () => {
+  it("namespaces keys by region so a shared id can differ per region", () => {
+    // PE1 exists in both r1 and r2 with the same text here, but the keys must still differ:
+    // nothing stops a future data update from giving PE1 different wording per region.
+    const r1Qs = buildRegionalQuestions(data.regions.r1);
+    const r2Qs = buildRegionalQuestions(data.regions.r2);
+    expect(r1Qs.find(q => q.id === "PE1").question_key).toBe("quiz.questions.r1.PE1");
+    expect(r2Qs.find(q => q.id === "PE1").question_key).toBe("quiz.questions.r2.PE1");
+  });
+
+  it("exposes a region as presidential-style votes data, carrying its regionId", () => {
     const votes = toVotesData(data, "r2");
     expect(votes.version).toBe("1.0.0");
+    expect(votes.regionId).toBe("r2");
     expect(votes.candidates.c1.name).toBe("A");
     expect(toVotesData(data, "nope")).toBeNull();
   });

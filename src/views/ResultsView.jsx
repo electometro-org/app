@@ -1965,12 +1965,11 @@ function ResultsAnalysisPanel({
       if (diff >= 1) status = "mismatch";
 
       const baseQuestion = questions[qIndex];
-      const text = d.question_key ? t(d.question_key) : (baseQuestion?.question || d.question || "");
+      const textFallback = baseQuestion?.question || d.question || "";
+      const text = d.question_key ? t(d.question_key, textFallback) : textFallback;
       const topicKey = baseQuestion?.topic_key || null;
       const topicFallback = baseQuestion?.tema || d.tema || text;
-      const topicLabel = (topicKey && !baseQuestion?.inlineText)
-        ? (t(topicKey) === topicKey ? topicFallback : t(topicKey))
-        : topicFallback;
+      const topicLabel = topicKey ? t(topicKey, topicFallback) : topicFallback;
       const userVoteKey = numericToVoteKey[String(userVal)] || null;
       const candidateVoteKey = numericToVoteKey[String(candidateVal)] || null;
 
@@ -1982,7 +1981,7 @@ function ResultsAnalysisPanel({
         statement: text,
         userStance: userVoteKey ? t(userVoteKey) : t("entityDetails.noAnswer"),
         candidateStance: candidateVoteKey ? t(candidateVoteKey) : (d.vote || "N/A"),
-        explanation: d.comment_key ? t(d.comment_key) : (d.comment || ""),
+        explanation: d.comment_key ? t(d.comment_key, d.comment || "") : (d.comment || ""),
         source: d.source || "",
       };
     })

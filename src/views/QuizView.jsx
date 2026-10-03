@@ -163,11 +163,13 @@ export default function QuizView({
   const changeAnswerBody = changeAnswerBodyTemplate
     .replace("[previous]", selectedAnswer ? t(selectedAnswer) : "")
     .replace("[new]", pendingChangedOption ? t(pendingChangedOption) : "");
-  const questionText = question.question_key ? t(question.question_key) : question.question;
+  // The JSON text is passed as Tolgee's default value, so the UI still reads correctly (in Spanish)
+  // even before a newly added key has synced from Tolgee.
+  const questionText = question.question_key ? t(question.question_key, question.question) : question.question;
 
   // Question header: topic on the left, "[k/n]" (position among topics) on the right
   const topicIndex = topics.findIndex(topic => topic.topic_key === question.topic_key);
-  const topicLabel = question.inlineText ? question.tema : t(question.topic_key, question.tema);
+  const topicLabel = t(question.topic_key, question.tema);
   const topicCount = topicIndex >= 0 ? `${topicIndex + 1}/${topics.length}` : null;
 
   // Topic name: shrink the font (down to a minimum) so it fits on one line; only if it still does not

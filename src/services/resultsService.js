@@ -192,11 +192,12 @@ export function buildEntityDetails(votesObj, userAnswersMap, type, quizData = nu
 
     let tema;
 
-    if (quizData?.inlineText) {
-      // Regional format: question/topic/comment texts are inline (no translation keys)
-      questionKey = null;
-      topicKey = null;
-      commentKey = null;
+    if (quizData?.regionId) {
+      // Regional format: keys are namespaced by region (ids/wording can differ between regions)
+      const regionId = quizData.regionId;
+      questionKey = `quiz.questions.${regionId}.${qid}`;
+      topicKey = `quiz.topics.${regionId}.${qid}`;
+      commentKey = `explanations.${entityType}.${regionId}.${entityId}.${qid}`;
       question = quizData.quiz?.[qid]?.question ?? null;
       tema = quizData.quiz?.[qid]?.topic;
     } else if (isCompact) {
